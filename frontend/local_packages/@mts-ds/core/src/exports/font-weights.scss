@@ -1,0 +1,21 @@
+@use "sass:map";
+@use "../tokens/tokens" as core;
+@use "../utils";
+@use "mixins";
+
+$grid: map.get(core.$tokens, grid);
+$font: map.get(core.$tokens, font);
+$font-weights: map.get($font, weight);
+
+@each $breakpoint, $breakpoint-data in map.merge(("": (breakpoint: null)), $grid) {
+  $breakpoint-value: map.get($breakpoint-data, breakpoint);
+  $breakpoint-postfix: if($breakpoint == "", "", "-#{$breakpoint}");
+
+  @include mixins.media-query($breakpoint-value) {
+    @each $font-weight-name, $font-weight-value in utils.reverse-map($font-weights) {
+      .mts-font-weight-#{$font-weight-name}#{$breakpoint-postfix} {
+        font-weight: $font-weight-value;
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+@use "@mts-ds/base/build/web/scss-mixins/colors";
+@use "@mts-ds/base/build/web/scss-mixins/fonts";
+@use "@mts-ds/base/build/web/scss-mixins/grid";
+@use "@mts-ds/base/build/web/scss-mixins/shadows";
+@use "@mts-ds/base/build/web/scss-mixins/sizes";
+
+@mixin vars {
+  @include colors.vars;
+  @include fonts.vars;
+  @include grid.vars;
+  @include shadows.vars;
+  @include sizes.vars;
+}

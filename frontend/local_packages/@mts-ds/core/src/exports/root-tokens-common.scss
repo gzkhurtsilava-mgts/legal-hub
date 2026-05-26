@@ -1,0 +1,5 @@
+@use "../tokens/css-custom-props/tokens";
+
+:root {
+  @include tokens.vars;
+}

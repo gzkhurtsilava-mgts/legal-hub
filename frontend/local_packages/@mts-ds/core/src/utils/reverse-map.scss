@@ -1,0 +1,15 @@
+@use "sass:map";
+
+@function reverse-map($map) {
+  @if type-of($map) != 'map' {
+    @error "Invalid value passed: #{$map}. You have to pass a map";
+  }
+
+  $result-map: ();
+
+  @each $key, $value in $map {
+    $result-map: map.merge((#{$key}: $value), $result-map);
+  }
+
+  @return $result-map;
+}

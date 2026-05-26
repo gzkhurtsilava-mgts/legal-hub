@@ -1,0 +1,46 @@
+@use "sass:map";
+@use "./utils";
+
+// TODO пересмотреть работу с размерами иконок
+// Оставлено для обратной совместимости на время миграции
+
+$icon-params: (
+  's': (
+    'margin': utils.remify(0),
+    'size': utils.remify(16),
+  ),
+  'm-cropped': (
+    'margin': utils.remify(-2),
+    'size': utils.remify(24),
+  ),
+  'm': (
+    'margin': utils.remify(0),
+    'size': utils.remify(24),
+  ),
+  'l': (
+    'margin': utils.remify(0),
+    'size': utils.remify(32),
+  ),
+  'xl': (
+    'margin': utils.remify(0),
+    'size': utils.remify(44),
+  ),
+);
+
+$icon-params-size-s: map.get($icon-params, 's');
+$icon-params-size-m-cropped: map.get($icon-params, 'm-cropped');
+$icon-params-size-m: map.get($icon-params, 'm');
+$icon-params-size-l: map.get($icon-params, 'l');
+$icon-params-size-xl: map.get($icon-params, 'xl');
+
+$icon-inline-params: (
+  "p1-bold": $icon-params-size-m,
+  "p1-medium": $icon-params-size-m,
+  "p1-regular": $icon-params-size-m,
+  "p2-bold": $icon-params-size-m-cropped,
+  "p2-medium": $icon-params-size-m-cropped,
+  "p2-regular": $icon-params-size-m-cropped,
+  "p3-bold": $icon-params-size-s,
+  "p3-medium": $icon-params-size-s,
+  "p3-regular": $icon-params-size-s,
+);

@@ -1,0 +1,12 @@
+@use "sass:map";
+@use "../typography";
+
+@each $typing in typography.$typings {
+  %mtsds-font-#{$typing} {
+    @include typography.typing($typing);
+  }
+
+  .mtsds-#{$typing} {
+    @extend %mtsds-font-#{$typing};
+  }
+}

@@ -1,0 +1,504 @@
+{
+  "name": "@mts-ds/granat2-react",
+  "version": "1.0.3",
+  "homepage": "https://gitlab.services.mts.ru/mobile-sdk/web/mtsds",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.services.mts.ru/mobile-sdk/web/mtsds.git"
+  },
+  "bugs": "https://gitlab.services.mts.ru/mobile-sdk/web/mtsds/-/issues",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/index.js",
+        "default": "./dist/esm-node-14/index.js"
+      },
+      "default": "./dist/esm/index.js"
+    },
+    "./package.json": "./package.json",
+    "./badge": {
+      "types": "./dist/types/badge/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/badge/index.js",
+        "default": "./dist/esm-node-14/badge/index.js"
+      },
+      "default": "./dist/esm/badge/index.js"
+    },
+    "./counter": {
+      "types": "./dist/types/counter/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/counter/index.js",
+        "default": "./dist/esm-node-14/counter/index.js"
+      },
+      "default": "./dist/esm/counter/index.js"
+    },
+    "./root": {
+      "types": "./dist/types/root/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/root/index.js",
+        "default": "./dist/esm-node-14/root/index.js"
+      },
+      "default": "./dist/esm/root/index.js"
+    },
+    "./spinner": {
+      "types": "./dist/types/spinner/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/spinner/index.js",
+        "default": "./dist/esm-node-14/spinner/index.js"
+      },
+      "default": "./dist/esm/spinner/index.js"
+    },
+    "./switch": {
+      "types": "./dist/types/switch/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/switch/index.js",
+        "default": "./dist/esm-node-14/switch/index.js"
+      },
+      "default": "./dist/esm/switch/index.js"
+    },
+    "./internal-text": {
+      "types": "./dist/types/internal-text/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/internal-text/index.js",
+        "default": "./dist/esm-node-14/internal-text/index.js"
+      },
+      "default": "./dist/esm/internal-text/index.js"
+    },
+    "./theme": {
+      "types": "./dist/types/theme/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/theme/index.js",
+        "default": "./dist/esm-node-14/theme/index.js"
+      },
+      "default": "./dist/esm/theme/index.js"
+    },
+    "./button": {
+      "types": "./dist/types/button/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/button/index.js",
+        "default": "./dist/esm-node-14/button/index.js"
+      },
+      "default": "./dist/esm/button/index.js"
+    },
+    "./divider": {
+      "types": "./dist/types/divider/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/divider/index.js",
+        "default": "./dist/esm-node-14/divider/index.js"
+      },
+      "default": "./dist/esm/divider/index.js"
+    },
+    "./progress-linear": {
+      "types": "./dist/types/progress-linear/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/progress-linear/index.js",
+        "default": "./dist/esm-node-14/progress-linear/index.js"
+      },
+      "default": "./dist/esm/progress-linear/index.js"
+    },
+    "./spoiler": {
+      "types": "./dist/types/spoiler/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/spoiler/index.js",
+        "default": "./dist/esm-node-14/spoiler/index.js"
+      },
+      "default": "./dist/esm/spoiler/index.js"
+    },
+    "./tooltip": {
+      "types": "./dist/types/tooltip/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/tooltip/index.js",
+        "default": "./dist/esm-node-14/tooltip/index.js"
+      },
+      "default": "./dist/esm/tooltip/index.js"
+    },
+    "./avatar": {
+      "types": "./dist/types/avatar/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/avatar/index.js",
+        "default": "./dist/esm-node-14/avatar/index.js"
+      },
+      "default": "./dist/esm/avatar/index.js"
+    },
+    "./internal-banner-icons": {
+      "types": "./dist/types/internal-banner-icons/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/internal-banner-icons/index.js",
+        "default": "./dist/esm-node-14/internal-banner-icons/index.js"
+      },
+      "default": "./dist/esm/internal-banner-icons/index.js"
+    },
+    "./banner-primary": {
+      "types": "./dist/types/banner-primary/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/banner-primary/index.js",
+        "default": "./dist/esm-node-14/banner-primary/index.js"
+      },
+      "default": "./dist/esm/banner-primary/index.js"
+    },
+    "./banner-secondary": {
+      "types": "./dist/types/banner-secondary/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/banner-secondary/index.js",
+        "default": "./dist/esm-node-14/banner-secondary/index.js"
+      },
+      "default": "./dist/esm/banner-secondary/index.js"
+    },
+    "./banner-tertiary": {
+      "types": "./dist/types/banner-tertiary/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/banner-tertiary/index.js",
+        "default": "./dist/esm-node-14/banner-tertiary/index.js"
+      },
+      "default": "./dist/esm/banner-tertiary/index.js"
+    },
+    "./breadcrumb": {
+      "types": "./dist/types/breadcrumb/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/breadcrumb/index.js",
+        "default": "./dist/esm-node-14/breadcrumb/index.js"
+      },
+      "default": "./dist/esm/breadcrumb/index.js"
+    },
+    "./bulleted-list": {
+      "types": "./dist/types/bulleted-list/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/bulleted-list/index.js",
+        "default": "./dist/esm-node-14/bulleted-list/index.js"
+      },
+      "default": "./dist/esm/bulleted-list/index.js"
+    },
+    "./card": {
+      "types": "./dist/types/card/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/card/index.js",
+        "default": "./dist/esm-node-14/card/index.js"
+      },
+      "default": "./dist/esm/card/index.js"
+    },
+    "./checkbox": {
+      "types": "./dist/types/checkbox/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/checkbox/index.js",
+        "default": "./dist/esm-node-14/checkbox/index.js"
+      },
+      "default": "./dist/esm/checkbox/index.js"
+    },
+    "./control-list": {
+      "types": "./dist/types/control-list/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/control-list/index.js",
+        "default": "./dist/esm-node-14/control-list/index.js"
+      },
+      "default": "./dist/esm/control-list/index.js"
+    },
+    "./droplist": {
+      "types": "./dist/types/droplist/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/droplist/index.js",
+        "default": "./dist/esm-node-14/droplist/index.js"
+      },
+      "default": "./dist/esm/droplist/index.js"
+    },
+    "./link": {
+      "types": "./dist/types/link/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/link/index.js",
+        "default": "./dist/esm-node-14/link/index.js"
+      },
+      "default": "./dist/esm/link/index.js"
+    },
+    "./numbered-list": {
+      "types": "./dist/types/numbered-list/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/numbered-list/index.js",
+        "default": "./dist/esm-node-14/numbered-list/index.js"
+      },
+      "default": "./dist/esm/numbered-list/index.js"
+    },
+    "./pagination-dots": {
+      "types": "./dist/types/pagination-dots/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/pagination-dots/index.js",
+        "default": "./dist/esm-node-14/pagination-dots/index.js"
+      },
+      "default": "./dist/esm/pagination-dots/index.js"
+    },
+    "./progress-circle": {
+      "types": "./dist/types/progress-circle/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/progress-circle/index.js",
+        "default": "./dist/esm-node-14/progress-circle/index.js"
+      },
+      "default": "./dist/esm/progress-circle/index.js"
+    },
+    "./radio": {
+      "types": "./dist/types/radio/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/radio/index.js",
+        "default": "./dist/esm-node-14/radio/index.js"
+      },
+      "default": "./dist/esm/radio/index.js"
+    },
+    "./segmented-control": {
+      "types": "./dist/types/segmented-control/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/segmented-control/index.js",
+        "default": "./dist/esm-node-14/segmented-control/index.js"
+      },
+      "default": "./dist/esm/segmented-control/index.js"
+    },
+    "./snackbar": {
+      "types": "./dist/types/snackbar/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/snackbar/index.js",
+        "default": "./dist/esm-node-14/snackbar/index.js"
+      },
+      "default": "./dist/esm/snackbar/index.js"
+    },
+    "./step-line": {
+      "types": "./dist/types/step-line/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/step-line/index.js",
+        "default": "./dist/esm-node-14/step-line/index.js"
+      },
+      "default": "./dist/esm/step-line/index.js"
+    },
+    "./sticky-banner": {
+      "types": "./dist/types/sticky-banner/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/sticky-banner/index.js",
+        "default": "./dist/esm-node-14/sticky-banner/index.js"
+      },
+      "default": "./dist/esm/sticky-banner/index.js"
+    },
+    "./tabbar": {
+      "types": "./dist/types/tabbar/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/tabbar/index.js",
+        "default": "./dist/esm-node-14/tabbar/index.js"
+      },
+      "default": "./dist/esm/tabbar/index.js"
+    },
+    "./tabs": {
+      "types": "./dist/types/tabs/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/tabs/index.js",
+        "default": "./dist/esm-node-14/tabs/index.js"
+      },
+      "default": "./dist/esm/tabs/index.js"
+    },
+    "./toast": {
+      "types": "./dist/types/toast/index.d.ts",
+      "node": {
+        "import": "./dist/esm-node-14/toast/index.js",
+        "default": "./dist/esm-node-14/toast/index.js"
+      },
+      "default": "./dist/esm/toast/index.js"
+    }
+  },
+  "main": "./dist/esm-node-14/index.js",
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "./build.sh",
+    "tsc": "yarn react-component2:tsc"
+  },
+  "sideEffects": false,
+  "types": "./dist/index.d.ts",
+  "dependencies": {
+    "@mts-ds/granat2-react-avatar": "1.0.1",
+    "@mts-ds/granat2-react-badge": "1.0.1",
+    "@mts-ds/granat2-react-banner-primary": "1.0.2",
+    "@mts-ds/granat2-react-banner-secondary": "1.0.1",
+    "@mts-ds/granat2-react-banner-tertiary": "1.0.1",
+    "@mts-ds/granat2-react-breadcrumb": "1.0.0",
+    "@mts-ds/granat2-react-bulleted-list": "1.0.1",
+    "@mts-ds/granat2-react-button": "1.0.4",
+    "@mts-ds/granat2-react-card": "1.0.1",
+    "@mts-ds/granat2-react-checkbox": "1.0.0",
+    "@mts-ds/granat2-react-control-list": "1.0.0",
+    "@mts-ds/granat2-react-counter": "1.0.2",
+    "@mts-ds/granat2-react-divider": "1.0.2",
+    "@mts-ds/granat2-react-droplist": "1.0.0",
+    "@mts-ds/granat2-react-internal-banner-icons": "1.0.1",
+    "@mts-ds/granat2-react-internal-text": "1.0.1",
+    "@mts-ds/granat2-react-link": "1.0.0",
+    "@mts-ds/granat2-react-numbered-list": "1.0.1",
+    "@mts-ds/granat2-react-pagination-dots": "1.0.0",
+    "@mts-ds/granat2-react-progress-circle": "1.0.0",
+    "@mts-ds/granat2-react-progress-linear": "1.0.1",
+    "@mts-ds/granat2-react-radio": "1.0.0",
+    "@mts-ds/granat2-react-root": "2.0.0",
+    "@mts-ds/granat2-react-segmented-control": "1.0.0",
+    "@mts-ds/granat2-react-snackbar": "1.0.0",
+    "@mts-ds/granat2-react-spinner": "1.0.1",
+    "@mts-ds/granat2-react-spoiler": "1.0.1",
+    "@mts-ds/granat2-react-sticky-banner": "1.0.2",
+    "@mts-ds/granat2-react-switch": "1.0.1",
+    "@mts-ds/granat2-react-tabbar": "1.0.1",
+    "@mts-ds/granat2-react-tabs": "1.0.2",
+    "@mts-ds/granat2-react-theme": "1.0.1",
+    "@mts-ds/granat2-react-toast": "1.0.0",
+    "@mts-ds/granat2-react-tooltip": "1.0.1"
+  },
+  "peerDependencies": {
+    "react": "^16.14.0 || 17.x || 18.x",
+    "react-dom": "^16.14.0 || 17.x || 18.x"
+  },
+  "devDependencies": {
+    "@mts-ds-internal/dev": "^0.0.0",
+    "@mts-ds/granat2-react-avatar": "^1.0.1",
+    "@mts-ds/granat2-react-badge": "^1.0.1",
+    "@mts-ds/granat2-react-banner-primary": "^1.0.2",
+    "@mts-ds/granat2-react-banner-secondary": "^1.0.1",
+    "@mts-ds/granat2-react-banner-tertiary": "^1.0.1",
+    "@mts-ds/granat2-react-breadcrumb": "^1.0.0",
+    "@mts-ds/granat2-react-bulleted-list": "^1.0.1",
+    "@mts-ds/granat2-react-button": "^1.0.4",
+    "@mts-ds/granat2-react-card": "^1.0.1",
+    "@mts-ds/granat2-react-checkbox": "^1.0.0",
+    "@mts-ds/granat2-react-control-list": "^1.0.0",
+    "@mts-ds/granat2-react-counter": "^1.0.2",
+    "@mts-ds/granat2-react-divider": "^1.0.2",
+    "@mts-ds/granat2-react-droplist": "^1.0.0",
+    "@mts-ds/granat2-react-internal-banner-icons": "^1.0.1",
+    "@mts-ds/granat2-react-internal-text": "^1.0.1",
+    "@mts-ds/granat2-react-link": "^1.0.0",
+    "@mts-ds/granat2-react-numbered-list": "^1.0.1",
+    "@mts-ds/granat2-react-pagination-dots": "^1.0.0",
+    "@mts-ds/granat2-react-progress-circle": "^1.0.0",
+    "@mts-ds/granat2-react-progress-linear": "^1.0.1",
+    "@mts-ds/granat2-react-radio": "^1.0.0",
+    "@mts-ds/granat2-react-root": "^2.0.0",
+    "@mts-ds/granat2-react-segmented-control": "^1.0.0",
+    "@mts-ds/granat2-react-snackbar": "^1.0.0",
+    "@mts-ds/granat2-react-spinner": "^1.0.1",
+    "@mts-ds/granat2-react-spoiler": "^1.0.1",
+    "@mts-ds/granat2-react-step-line": "^1.0.1",
+    "@mts-ds/granat2-react-sticky-banner": "^1.0.2",
+    "@mts-ds/granat2-react-switch": "^1.0.1",
+    "@mts-ds/granat2-react-tabbar": "^1.0.1",
+    "@mts-ds/granat2-react-tabs": "^1.0.2",
+    "@mts-ds/granat2-react-theme": "^1.0.1",
+    "@mts-ds/granat2-react-toast": "^1.0.0",
+    "@mts-ds/granat2-react-tooltip": "^1.0.1",
+    "@types/react": "^17.0.39",
+    "@types/react-dom": "^17.0.11",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "typescript": "~4.7.3"
+  },
+  "typesVersions": {
+    "*": {
+      "badge": [
+        "./dist/types/badge/index.d.ts"
+      ],
+      "counter": [
+        "./dist/types/counter/index.d.ts"
+      ],
+      "root": [
+        "./dist/types/root/index.d.ts"
+      ],
+      "spinner": [
+        "./dist/types/spinner/index.d.ts"
+      ],
+      "switch": [
+        "./dist/types/switch/index.d.ts"
+      ],
+      "internal-text": [
+        "./dist/types/internal-text/index.d.ts"
+      ],
+      "theme": [
+        "./dist/types/theme/index.d.ts"
+      ],
+      "button": [
+        "./dist/types/button/index.d.ts"
+      ],
+      "divider": [
+        "./dist/types/divider/index.d.ts"
+      ],
+      "progress-linear": [
+        "./dist/types/progress-linear/index.d.ts"
+      ],
+      "spoiler": [
+        "./dist/types/spoiler/index.d.ts"
+      ],
+      "tooltip": [
+        "./dist/types/tooltip/index.d.ts"
+      ],
+      "avatar": [
+        "./dist/types/avatar/index.d.ts"
+      ],
+      "internal-banner-icons": [
+        "./dist/types/internal-banner-icons/index.d.ts"
+      ],
+      "banner-primary": [
+        "./dist/types/banner-primary/index.d.ts"
+      ],
+      "banner-secondary": [
+        "./dist/types/banner-secondary/index.d.ts"
+      ],
+      "banner-tertiary": [
+        "./dist/types/banner-tertiary/index.d.ts"
+      ],
+      "breadcrumb": [
+        "./dist/types/breadcrumb/index.d.ts"
+      ],
+      "bulleted-list": [
+        "./dist/types/bulleted-list/index.d.ts"
+      ],
+      "card": [
+        "./dist/types/card/index.d.ts"
+      ],
+      "checkbox": [
+        "./dist/types/checkbox/index.d.ts"
+      ],
+      "control-list": [
+        "./dist/types/control-list/index.d.ts"
+      ],
+      "droplist": [
+        "./dist/types/droplist/index.d.ts"
+      ],
+      "link": [
+        "./dist/types/link/index.d.ts"
+      ],
+      "numbered-list": [
+        "./dist/types/numbered-list/index.d.ts"
+      ],
+      "pagination-dots": [
+        "./dist/types/pagination-dots/index.d.ts"
+      ],
+      "progress-circle": [
+        "./dist/types/progress-circle/index.d.ts"
+      ],
+      "radio": [
+        "./dist/types/radio/index.d.ts"
+      ],
+      "segmented-control": [
+        "./dist/types/segmented-control/index.d.ts"
+      ],
+      "snackbar": [
+        "./dist/types/snackbar/index.d.ts"
+      ],
+      "step-line": [
+        "./dist/types/step-line/index.d.ts"
+      ],
+      "sticky-banner": [
+        "./dist/types/sticky-banner/index.d.ts"
+      ],
+      "tabbar": [
+        "./dist/types/tabbar/index.d.ts"
+      ],
+      "tabs": [
+        "./dist/types/tabs/index.d.ts"
+      ],
+      "toast": [
+        "./dist/types/toast/index.d.ts"
+      ]
+    }
+  }
+}

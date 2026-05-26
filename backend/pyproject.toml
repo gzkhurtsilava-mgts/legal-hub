@@ -1,0 +1,53 @@
+[project]
+name = "legal-hub-backend"
+version = "0.1.0"
+description = "Legal Hub — портал БПО, бэкенд"
+requires-python = ">=3.12"
+
+dependencies = [
+    # Web-фреймворк
+    "fastapi==0.115.5",
+    "uvicorn[standard]==0.32.1",
+
+    # БД
+    "sqlalchemy[asyncio]==2.0.36",
+    "asyncpg==0.30.0",
+    "alembic==1.14.0",
+
+    # Валидация
+    "pydantic==2.10.3",
+    "pydantic-settings==2.6.1",
+
+    # Кэш и очереди
+    "redis==5.2.1",
+    "arq==0.26.1",
+
+    # Безопасность
+    "python-jose[cryptography]==3.3.0",
+    "passlib[bcrypt]==1.7.4",
+    "python-multipart==0.0.20",
+
+    # HTTP-клиент (для интеграций)
+    "httpx==0.28.1",
+
+    # Утилиты
+    "python-dotenv==1.0.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.3.4",
+    "pytest-asyncio==0.24.0",
+    "httpx==0.28.1",
+    "ruff==0.8.4",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"

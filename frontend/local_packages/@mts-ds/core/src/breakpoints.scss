@@ -1,0 +1,172 @@
+@use "sass:map";
+
+$m: m;
+$t: t;
+$dxs: dxs;
+$ds: ds;
+$dm: dm;
+$dl: dl;
+$dxl: dxl;
+
+$sizes: (
+  t: 768,
+  dxs: 960,
+  ds: 1280,
+  dm: 1440,
+  dl: 1680,
+  dxl: 1920,
+);
+
+$bps: (
+  m: (
+    max: map.get($sizes, t) - 0.1px,
+  ),
+  t: (
+    min: map.get($sizes, t) + px,
+    max: map.get($sizes, dxs) - 0.1px,
+  ),
+  dxs: (
+    min: map.get($sizes, dxs) + px,
+    max: map.get($sizes, ds) - 0.1px,
+  ),
+  ds: (
+    min: map.get($sizes, ds) + px,
+    max: map.get($sizes, dm) - 0.1px,
+  ),
+  dm: (
+    min: map.get($sizes, dm) + px,
+    max: map.get($sizes, dl) - 0.1px,
+  ),
+  dl: (
+    min: map.get($sizes, dl) + px,
+    max: map.get($sizes, dxl) - 0.1px,
+  ),
+  dxl: (
+    min: map.get($sizes, dxl) + px,
+  ),
+);
+
+@mixin mq($min, $max: null) {
+  $min: map.get($bps, $min, "min");
+  $max: map.get($bps, $max, "max");
+
+  @if $min and $max {
+    @media (min-width: #{$min}) and (max-width: #{$max}) {
+      @content;
+    }
+  } @else if $min {
+    @media (min-width: #{$min}) {
+      @content;
+    }
+  } @else if $max {
+    @media (max-width: #{$max}) {
+      @content;
+    }
+  } @else {
+    @content;
+  }
+}
+
+@mixin from-m {
+  @include mq(m) {
+    @content;
+  }
+}
+
+@mixin from-t {
+  @include mq(t) {
+    @content;
+  }
+}
+
+@mixin from-dxs {
+  @include mq(dxs) {
+    @content;
+  }
+}
+
+@mixin from-ds {
+  @include mq(ds) {
+    @content;
+  }
+}
+
+@mixin from-dm {
+  @include mq(dm) {
+    @content;
+  }
+}
+
+@mixin from-dl {
+  @include mq(dl) {
+    @content;
+  }
+}
+
+@mixin from-dxl {
+  @include mq(dxl) {
+    @content;
+  }
+}
+
+@mixin m-only {
+  @include mq(m, m) {
+    @content;
+  }
+}
+
+@mixin t-only {
+  @include mq(t, t) {
+    @content;
+  }
+}
+
+@mixin dxs-only {
+  @include mq(dxs, dxs) {
+    @content;
+  }
+}
+
+@mixin ds-only {
+  @include mq(ds, ds) {
+    @content;
+  }
+}
+
+@mixin dm-only {
+  @include mq(dm, dm) {
+    @content;
+  }
+}
+
+@mixin dl-only {
+  @include mq(dl, dl) {
+    @content;
+  }
+}
+
+@mixin dxl-only {
+  @include mq(dxl, dxl) {
+    @content;
+  }
+}
+
+@mixin handheld-only {
+  @include mq(null, t) {
+    @content;
+  }
+}
+
+@mixin desktop-only {
+  @include mq(dxs) {
+    @content;
+  }
+}
+
+// @mixin less-ds {
+//   @include mq(null, dxs);
+// }
+//
+// @mixin less-dm {
+//   @include mq(ds);
+// }

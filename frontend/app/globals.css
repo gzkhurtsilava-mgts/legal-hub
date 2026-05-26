@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Шрифты МТС — подключаются из @mts-ds/base */
+/* Здесь можно добавить кастомные CSS-переменные для тем */
+
+:root {
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #f5f5f5;
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #666666;
+}
+
+.dark {
+  --color-background-primary: #1a1a1a;
+  --color-background-secondary: #2a2a2a;
+  --color-text-primary: #f5f5f5;
+  --color-text-secondary: #aaaaaa;
+}

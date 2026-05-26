@@ -1,0 +1,7 @@
+$mts-base-font-path: "@mts-ds/base/assets/fonts" !default;
+
+@use "../fonts/fonts-v3" with (
+  $mts-base-font-path: $mts-base-font-path
+);
+
+@include fonts-v3.fonts;

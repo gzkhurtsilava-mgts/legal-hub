@@ -1,0 +1,5 @@
+@use "../tokens/css-custom-props/typography-v3";
+
+:root {
+  @include typography-v3.vars;
+}

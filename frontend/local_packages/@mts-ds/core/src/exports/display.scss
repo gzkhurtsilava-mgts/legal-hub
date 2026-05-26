@@ -1,0 +1,29 @@
+@use "../tokens/tokens" as core;
+@use "sass:map";
+@use "mixins";
+
+$grid: map.get(core.$tokens, grid);
+$display-variants: (
+  "none": none,
+  "inline": inline,
+  "inline-block": inline-block,
+  "inline-flex": inline-flex,
+  "inline-grid": inline-grid,
+  "block": block,
+  "table": table,
+  "flex": flex,
+  "grid": grid,
+);
+
+@each $breakpoint, $breakpoint-data in map.merge(("": (breakpoint: null)), $grid) {
+  $breakpoint-value: map.get($breakpoint-data, breakpoint);
+  $breakpoint-postfix: if($breakpoint == "", "", "-#{$breakpoint}");
+
+  @include mixins.media-query($breakpoint-value) {
+    @each $display-name, $display-value in $display-variants {
+      .mts-d-#{$display-name}#{$breakpoint-postfix} {
+        display: $display-value;
+      }
+    }
+  }
+}

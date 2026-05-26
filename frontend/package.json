@@ -1,0 +1,49 @@
+{
+  "name": "legal-hub-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "14.2.18",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+
+    "@mts-ds/base":                   "file:./local_packages/@mts-ds/base",
+    "@mts-ds/core":                   "file:./local_packages/@mts-ds/core",
+    "@mts-ds/granat2-react":          "file:./local_packages/@mts-ds/granat2-react",
+    "@mts-ds/granat2-react-root":     "file:./local_packages/@mts-ds/granat2-react-root",
+    "@mts-ds/granat2-react-button":   "file:./local_packages/@mts-ds/granat2-react-button",
+    "@mts-ds/granat2-react-fields":   "file:./local_packages/@mts-ds/granat2-react-fields",
+    "@mts-ds/granat2-react-avatar":   "file:./local_packages/@mts-ds/granat2-react-avatar",
+    "@mts-ds/granat-react-badge":     "file:./local_packages/@mts-ds/granat-react-badge",
+    "@mts-ds/granat2-react-tooltip":  "file:./local_packages/@mts-ds/granat2-react-tooltip",
+    "@mts-ds/granat2-react-spinner":  "file:./local_packages/@mts-ds/granat2-react-spinner",
+    "@mts-ds/react-utils":            "file:./local_packages/@mts-ds/react-utils",
+
+    "@tanstack/react-query": "^5.59.0",
+    "react-hook-form": "^7.54.2",
+    "zod": "^3.24.1",
+    "@hookform/resolvers": "^3.9.1",
+
+    "zustand": "^5.0.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.0.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "@types/node": "^22.10.5",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "14.2.18",
+    "tailwindcss": "^3.4.17",
+    "postcss": "^8.4.49",
+    "autoprefixer": "^10.4.20"
+  }
+}

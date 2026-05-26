@@ -1,0 +1,69 @@
+{
+  "name": "@mts-ds/core",
+  "version": "0.1.2",
+  "description": "MTS Design-System Core",
+  "homepage": "https://gitlab.services.mts.ru/mobile-sdk/web/mtsds",
+  "bugs": "https://gitlab.services.mts.ru/mobile-sdk/web/mtsds/-/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.services.mts.ru/mobile-sdk/web/mtsds.git"
+  },
+  "license": "GPL-3.0",
+  "files": [
+    "build/**/*",
+    "src/**/*"
+  ],
+  "scripts": {
+    "build": "yarn build:css",
+    "build-storybook": "build-storybook",
+    "build:css": "yarn node ./export-css.mjs",
+    "clean": "rimraf ./build",
+    "storybook": "start-storybook -p 6006",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@mts-ds/base": "2.2.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.18.2",
+    "@babel/preset-env": "^7.15.0",
+    "@mdx-js/react": "^1.6.22",
+    "@storybook/addon-actions": "^6.5.7",
+    "@storybook/addon-docs": "^6.5.7",
+    "@storybook/addon-essentials": "^6.5.7",
+    "@storybook/addon-interactions": "^6.5.7",
+    "@storybook/addon-links": "^6.5.7",
+    "@storybook/builder-webpack4": "^6.5.7",
+    "@storybook/html": "^6.5.7",
+    "@storybook/manager-webpack4": "^6.5.7",
+    "@storybook/preset-scss": "^1.0.3",
+    "@storybook/testing-library": "^0.0.11",
+    "@types/expect-puppeteer": "^5.0.1",
+    "@types/jest": "^28.1.2",
+    "@types/jest-environment-puppeteer": "^5.0.2",
+    "@types/jest-image-snapshot": "^4.3.2",
+    "@types/puppeteer": "^5.4.6",
+    "babel-jest": "^28.1.1",
+    "babel-loader": "^8.2.5",
+    "css-loader": "5.2.6",
+    "expect-puppeteer": "^6.1.0",
+    "jest": "^28.1.1",
+    "jest-cli": "^28.1.1",
+    "jest-image-snapshot": "^5.1.0",
+    "jest-puppeteer": "^6.1.0",
+    "postcss": "^8.4.14",
+    "postcss-cli": "^9.1.0",
+    "postcss-discard-comments": "^5.1.2",
+    "postcss-preset-env": "^7.7.0",
+    "prettier": "^2.7.1",
+    "resolve": "^1.22.0",
+    "rimraf": "^3.0.2",
+    "sass": "^1.52.2",
+    "sass-loader": "10.1.1",
+    "style-loader": "2.0.0",
+    "stylelint": "^14.9.1",
+    "stylelint-config-css-modules": "^4.1.0",
+    "stylelint-config-prettier-scss": "^0.0.1",
+    "stylelint-config-standard-scss": "^5.0.0"
+  }
+}
