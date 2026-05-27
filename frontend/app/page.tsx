@@ -1,8 +1,7 @@
 'use client';
 
 import { Button } from '@mts-ds/granat2-react-button';
-import { TextField } from '@mts-ds/granat2-react-fields';
-import { Avatar } from '@mts-ds/granat2-react-avatar';
+import { Tooltip } from '@mts-ds/granat2-react-tooltip';
 
 export default function HomePage() {
   return (
@@ -22,16 +21,15 @@ export default function HomePage() {
         color: 'var(--color-text-secondary)',
         marginBottom: '2rem'
       }}>
-        Портал БПО МГТС
+        Портал БПО МГТС — дизайн-система подключена
       </p>
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'flex', gap: '1rem' }}>
         <Button>Основная кнопка</Button>
         <Button variant="secondary">Вторичная</Button>
+        <Tooltip content="Подсказка">
+          <Button variant="secondary">Наведи на меня</Button>
+        </Tooltip>
       </div>
-      <div style={{ maxWidth: '320px', marginBottom: '1.5rem' }}>
-        <TextField label="Тестовое поле" placeholder="Введите текст" />
-      </div>
-      <Avatar firstName="Георгий" lastName="Хурцилава" size="44" />
     </main>
   );
 }
