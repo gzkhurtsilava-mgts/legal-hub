@@ -1,9 +1,8 @@
 'use client';
 
-import { Button } from '@mts-ds/granat2-react/button';
-import { TextField } from '@mts-ds/granat2-react/field';
-import { Avatar, NoGenderIcon } from '@mts-ds/granat2-react/avatar';
-import { Badge } from '@mts-ds/granat2-react/badge';
+import { Button } from '@mts-ds/granat2-react-button';
+import { TextField } from '@mts-ds/granat2-react-fields';
+import { Avatar } from '@mts-ds/granat2-react-avatar';
 
 export default function HomePage() {
   return (
@@ -23,30 +22,16 @@ export default function HomePage() {
         color: 'var(--color-text-secondary)',
         marginBottom: '2rem'
       }}>
-        Портал БПО МГТС — дизайн-система подключена
+        Портал БПО МГТС
       </p>
-
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
         <Button>Основная кнопка</Button>
         <Button variant="secondary">Вторичная</Button>
-        <Button disabled>Недоступна</Button>
       </div>
-
       <div style={{ maxWidth: '320px', marginBottom: '1.5rem' }}>
-        <TextField
-          label="Тестовое поле"
-          placeholder="Введите текст"
-        />
+        <TextField label="Тестовое поле" placeholder="Введите текст" />
       </div>
-
-      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-        <Avatar
-          firstName="Георгий"
-          lastName="Хурцилава"
-          size="44"
-        />
-        <Badge label="Новое" />
-      </div>
+      <Avatar firstName="Георгий" lastName="Хурцилава" size="44" />
     </main>
   );
 }
