@@ -2,11 +2,6 @@ FROM python:3.12.7-slim
 
 WORKDIR /app
 
-# Системные зависимости
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
 # Устанавливаем uv — быстрый менеджер пакетов Python
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 

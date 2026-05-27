@@ -2,12 +2,79 @@
 @tailwind components;
 @tailwind utilities;
 
-/* МГТС: переопределяем МТС-красный на МГТС-синий */
+/* ===== ШРИФТЫ МТС (из public/fonts/) ===== */
+/* Имена семейств точно совпадают с тем, что использует @mts-ds внутри: "MTS Compact", "MTS Wide" */
+@font-face {
+  font-family: 'MTS Compact';
+  src: url('/fonts/MTSCompact-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'MTS Compact';
+  src: url('/fonts/MTSCompact-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'MTS Compact';
+  src: url('/fonts/MTSCompact-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'MTS Wide';
+  src: url('/fonts/MTSWide-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'MTS Wide';
+  src: url('/fonts/MTSWide-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'MTS Sans';
+  src: url('/fonts/MTSSans-Regular__W.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'MTS Sans';
+  src: url('/fonts/MTSSans-Medium__W.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'MTS Text';
+  src: url('/fonts/MTSText-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'MTS Text';
+  src: url('/fonts/MTSText-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ===== МГТС: переопределяем МТС-красный на МГТС-синий ===== */
 :root {
   --brand-blue: #008ae0;
   --color-brand-mts-red: var(--brand-blue);
 }
 
+/* ===== Granat semantic tokens — светлая тема ===== */
 .mtsds-vars {
   --color-control-primary-active: var(--brand-blue);
   --color-control-active-tabbar: var(--brand-blue);
@@ -15,18 +82,32 @@
   --color-brand-mts-red: var(--brand-blue);
 }
 
-/* Радиусы МГТС (mgts-corai-vars) */
+/* ===== Radius и z-index МГТС ===== */
 .mgts-corai-vars {
   --radius-s: 8px;
   --radius-m: 12px;
   --radius-l: 32px;
   --radius-xl: 80px;
+
+  --z-index-dropdown: 1000;
+  --z-index-modal: 2000;
+  --z-index-tooltip: 3000;
 }
 
-/* Тёмная тема */
-.dark {
-  --color-background-primary: var(--color-background-inverted);
-  --color-background-secondary: #2a2d31;
-  --color-text-primary: var(--color-text-inverted);
-  --color-text-secondary: var(--color-text-tertiary);
+/* ===== Тёмная тема — переопределяем Granat-токены внутри .mtsds-vars ===== */
+/* .dark вешается на <html>, .mtsds-vars — на <body>                        */
+/* Без ".dark .mtsds-vars" Granat-компоненты не увидят тёмные значения       */
+.dark .mtsds-vars {
+  --color-background-primary: #1d2023;
+  --color-background-secondary: #2c3135;
+  --color-background-lower: #191c1f;
+  --color-background-inverted: #f2f3f7;
+
+  --color-text-primary: #f5f5f5;
+  --color-text-secondary: #969fa8;
+  --color-text-tertiary: #626c77;
+  --color-text-inverted: #1d2023;
+
+  --color-icons-primary: #f5f5f5;
+  --color-icons-secondary: #8d969f;
 }

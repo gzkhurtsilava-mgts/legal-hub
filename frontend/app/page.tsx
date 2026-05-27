@@ -11,7 +11,8 @@ export default function HomePage() {
       minHeight: '100vh'
     }}>
       <h1 style={{
-        fontFamily: 'MTSWide-Medium',
+        fontFamily: 'MTS Wide',
+        fontWeight: 700,
         color: 'var(--color-text-primary)',
         marginBottom: '0.5rem'
       }}>

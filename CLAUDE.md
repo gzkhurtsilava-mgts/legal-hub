@@ -32,12 +32,13 @@ Stack is FIXED — do not suggest alternatives without being asked.
 - Package manager: uv (NOT pip/poetry)
 
 ### Frontend
-- Next.js 14.2.18 (App Router) / React 19.2.1 / TypeScript 5.7.2
+- Next.js 14.2.35 (App Router) / React 19.2.1 / TypeScript 5.7.2
 - Tailwind CSS 3.4.17
-- @mts-ds/granat2-react 1.0.3 + @mts-ds/base 3.3.0 (MTS Granat design system)
+- @mts-ds design system (see DESIGN SYSTEM section for full list)
 - @tanstack/react-query 5.59.0 / react-hook-form 7.54.2 / zod 3.24.1
 - zustand 5.0.1 / lucide-react 1.0.1 / clsx 2.1.1
-- Package manager: pnpm (NOT npm/yarn)
+- @floating-ui/react (required by granat2-react-tooltip)
+- Package manager: npm with --legacy-peer-deps (NOT pnpm on personal laptop)
 
 ### Infrastructure
 - PostgreSQL 16.4 / Redis 7.4-alpine
@@ -48,10 +49,63 @@ Stack is FIXED — do not suggest alternatives without being asked.
 
 ## CORPORATE INFRASTRUCTURE (critical)
 
-### npm Registry — CRITICAL
-All npm installs go through corporate Nexus, NOT public npmjs.
-`.npmrc` is already set: `registry=https://nexus.mgts.ru/repository/npm-all/`
-Never suggest `npm install` without this registry. Always use pnpm.
+### Two environments — DIFFERENT npm setup
+
+**Personal laptop (development with Claude Code):**
+- `.npmrc`: `registry=https://registry.npmjs.org/` (public npm)
+- `@mts-ds` packages come from `node_modules/` (copied from corp)
+- Always use: `npm install --legacy-peer-deps --prefer-offline`
+- `--prefer-offline` is MANDATORY — prevents npm from deleting @mts-ds packages
+- NEVER run plain `npm install` without `--prefer-offline` — it will delete @mts-ds
+
+**Corp machine (Nexus access):**
+- `.npmrc`: `registry=https://nexus.mgts.ru/repository/npm-all/`
+- `strict-ssl=false` required (corp MITM proxy)
+- Install: `npm install --legacy-peer-deps`
+
+### @mts-ds packages — CRITICAL
+All @mts-ds packages are installed in `node_modules/@mts-ds/` — real directories (NOT symlinks).
+They are NOT available on public npm. Source: corporate Nexus only.
+On personal laptop they were manually copied from corp machine.
+All 39 packages are present — do NOT try to install them from registry.
+
+**ALL installed @mts-ds packages (39 total):**
+```
+@mts-ds/base @mts-ds/core @mts-ds/granat-react-badge
+@mts-ds/granat2-react @mts-ds/granat2-react-avatar @mts-ds/granat2-react-badge
+@mts-ds/granat2-react-banner-primary @mts-ds/granat2-react-banner-secondary
+@mts-ds/granat2-react-banner-tertiary @mts-ds/granat2-react-breadcrumb
+@mts-ds/granat2-react-bulleted-list @mts-ds/granat2-react-button
+@mts-ds/granat2-react-card @mts-ds/granat2-react-checkbox
+@mts-ds/granat2-react-control-list @mts-ds/granat2-react-counter
+@mts-ds/granat2-react-divider @mts-ds/granat2-react-droplist
+@mts-ds/granat2-react-fields @mts-ds/granat2-react-internal-banner-icons
+@mts-ds/granat2-react-internal-text @mts-ds/granat2-react-link
+@mts-ds/granat2-react-numbered-list @mts-ds/granat2-react-pagination-dots
+@mts-ds/granat2-react-progress-circle @mts-ds/granat2-react-progress-linear
+@mts-ds/granat2-react-radio @mts-ds/granat2-react-root
+@mts-ds/granat2-react-segmented-control @mts-ds/granat2-react-snackbar
+@mts-ds/granat2-react-spinner @mts-ds/granat2-react-spoiler
+@mts-ds/granat2-react-sticky-banner @mts-ds/granat2-react-switch
+@mts-ds/granat2-react-tabbar @mts-ds/granat2-react-tabs
+@mts-ds/granat2-react-theme @mts-ds/granat2-react-toast
+@mts-ds/granat2-react-tooltip @mts-ds/react-utils
+```
+
+### npm install rules
+```bash
+# ✅ CORRECT — install new public package
+npm install PACKAGE --legacy-peer-deps --prefer-offline
+
+# ✅ CORRECT — install specific version
+npm install next@14.2.35 react@19.2.1 --legacy-peer-deps --prefer-offline
+
+# ❌ WRONG — will delete @mts-ds packages
+npm install
+
+# ❌ WRONG — will try to reach Nexus
+npm install @mts-ds/anything
+```
 
 ### Docker Images
 - Local dev: public Docker Hub images are OK
@@ -79,6 +133,11 @@ Local dev does NOT need this.
 ### GitLab CI
 - Corp instance, runner tag: `[prod]`
 - Deploy triggered by tag: `release-X.X.X` (pattern: `^release-\d+\.\d+\.\d+$`)
+
+### GitHub
+- Repo: `https://github.com/gzkhurtsilava-mgts/legal-hub`
+- Two accounts: personal (CaravelloGK) and corp (gzkhurtsilava-mgts)
+- Always push from corp account: `git remote set-url origin https://gzkhurtsilava-mgts@github.com/gzkhurtsilava-mgts/legal-hub.git`
 
 ---
 
@@ -114,232 +173,156 @@ Scalability to 2000 users is secondary (max 20–50 concurrent users).
 Tailwind only for layout and spacing that `@mts-ds` doesn't cover.
 Do not apply Tailwind utility classes directly on `@mts-ds` component roots — wrap them.
 
----
+### layout.tsx setup (CURRENT WORKING STATE)
+```tsx
+import '@mts-ds/granat2-react-root/theme.css';  // ✅ works (exports map → dist/theme.css)
+// fonts.css is NOT imported here — fonts loaded via @font-face in globals.css
+import "./globals.css";
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="ru">
+      <body className="mtsds-vars mgts-corai-vars">
+        {children}
+      </body>
+    </html>
+  );
+}
+```
+
+**IMPORTANT:** Do NOT import `@mts-ds/granat2-react-root/fonts.css` — it uses relative paths
+that break in Next.js. Fonts are loaded via `@font-face` in `globals.css` instead.
+
+### Fonts — loaded via @font-face in globals.css
+Файлы шрифтов лежат в `frontend/public/fonts/` (скопированы из `@mts-ds/base`).
+Пути в globals.css используют абсолютный URL `/fonts/...` — работает и в dev, и в production.
+```css
+@font-face { font-family: 'MTSCompact'; font-weight: 400;
+  src: url('/fonts/MTSCompact-Regular.woff2') format('woff2'); }
+@font-face { font-family: 'MTSCompact'; font-weight: 500;
+  src: url('/fonts/MTSCompact-Medium.woff2') format('woff2'); }
+@font-face { font-family: 'MTSCompact'; font-weight: 700;
+  src: url('/fonts/MTSCompact-Bold.woff2') format('woff2'); }
+@font-face { font-family: 'MTSWide'; font-weight: 500;
+  src: url('/fonts/MTSWide-Medium.woff2') format('woff2'); }
+@font-face { font-family: 'MTSWide'; font-weight: 700;
+  src: url('/fonts/MTSWide-Bold.woff2') format('woff2'); }
+@font-face { font-family: 'MTSSans'; font-weight: 400;
+  src: url('/fonts/MTSSans-Regular__W.woff2') format('woff2'); }
+@font-face { font-family: 'MTSSans'; font-weight: 500;
+  src: url('/fonts/MTSSans-Medium__W.woff2') format('woff2'); }
+@font-face { font-family: 'MTSText'; font-weight: 400;
+  src: url('/fonts/MTSText-Regular.woff2') format('woff2'); }
+@font-face { font-family: 'MTSText'; font-weight: 500;
+  src: url('/fonts/MTSText-Medium.woff2') format('woff2'); }
+```
+
+Use fonts in components:
+```tsx
+<h1 style={{ fontFamily: 'MTS Wide', fontWeight: 700 }}>Заголовок</h1>
+<p style={{ fontFamily: 'MTS Compact', fontWeight: 400 }}>Текст</p>
+```
+// ВАЖНО: имена с пробелом — 'MTS Compact', 'MTS Wide', 'MTS Text', 'MTS Sans'
+// Именно так их задаёт @mts-ds внутри компонентов. MTSCompact (без пробела) = не работает.
 
 ### МГТС Color Branding (critical)
+MTS Granat uses `--color-brand-mts-red`. МГТС overrides with blue `#008ae0`.
 
-MTS Granat uses `--color-brand-mts-red` as its primary brand token.
-МГТС overrides this with МГТС blue (`#008ae0`) via CSS custom properties.
-
-**`globals.css` must contain:**
+**globals.css must contain:**
 ```css
 :root {
   --brand-blue: #008ae0;
   --color-brand-mts-red: var(--brand-blue);
 }
-
 .mtsds-vars {
   --color-control-primary-active: var(--brand-blue);
   --color-control-active-tabbar: var(--brand-blue);
   --color-accent-notification: var(--brand-blue);
   --color-brand-mts-red: var(--brand-blue);
 }
+.mgts-corai-vars {
+  --radius-s: 8px;
+  --radius-m: 12px;
+  --radius-l: 32px;
+  --radius-xl: 80px;
+}
 ```
-
-**The root layout wrapper must carry both classes:**
-```tsx
-// app/layout.tsx
-<body className="mtsds-vars mgts-corai-vars">
-  {children}
-</body>
-```
-
-This makes all Granat components render in МГТС blue automatically — no per-component overrides needed.
-
----
 
 ### Available CSS Tokens — use these, never hardcode hex
-
-**Colors:**
 ```
---brand-blue                          #008ae0 (МГТС primary)
---color-background-primary            white
---color-background-secondary          #f2f3f7
---color-background-lower              page bg #e9ecf0
---color-background-inverted           #1d2023
---color-text-primary                  #1d2023
---color-text-secondary                #626c77
---color-text-tertiary                 #969fa8
---color-text-inverted                 #fafafa
---color-icons-primary                 #1d2023
---color-icons-secondary               #8d969f
---color-accent-positive               #26cd58
---color-accent-warning                #fac031
---color-accent-negative               #f95721
-```
-
-**Shadows:**
-```
---shadow-low      subtle card shadow
---shadow-middle   elevated / modal shadow
---shadow-high     popover / tooltip shadow
+--brand-blue                    #008ae0 (МГТС primary)
+--color-background-primary      white
+--color-background-secondary    #f2f3f7
+--color-background-lower        #e9ecf0 (page background)
+--color-background-inverted     #1d2023
+--color-text-primary            #1d2023
+--color-text-secondary          #626c77
+--color-text-tertiary           #969fa8
+--color-text-inverted           #fafafa
+--color-icons-primary           #1d2023
+--color-icons-secondary         #8d969f
+--color-accent-positive         #26cd58
+--color-accent-warning          #fac031
+--color-accent-negative         #f95721
+--shadow-low / --shadow-middle / --shadow-high
+--radius-s / --radius-m / --radius-l / --radius-xl
 ```
 
-**Border radius (from `.mgts-corai-vars`):**
-```
---radius-s    8px
---radius-m    12px
---radius-l    32px
---radius-xl   80px
-```
-
-**When writing custom CSS/Tailwind `style` props — use tokens, not hex:**
+### Component imports — use individual packages
 ```tsx
-// ✅ Correct
-<div style={{ background: 'var(--color-background-primary)', borderRadius: 'var(--radius-m)' }}>
-
-// ❌ Wrong
-<div style={{ background: '#ffffff', borderRadius: '12px' }}>
+import { Button, ButtonIcon } from '@mts-ds/granat2-react-button';
+import { Avatar, NoGenderIcon } from '@mts-ds/granat2-react-avatar';
+import { Badge } from '@mts-ds/granat-react-badge';          // NOTE: granat-react-badge (no "2")
+import { TextField, Select } from '@mts-ds/granat2-react-fields';
+import { Tooltip } from '@mts-ds/granat2-react-tooltip';
+import { Spinner } from '@mts-ds/granat2-react-spinner';
 ```
 
----
-
-### Granat Component Usage
-
-**Setup — required imports in `app/layout.tsx`:**
+### SVG icons — must be imported as React components
 ```tsx
-import '@mts-ds/granat2-react-root/theme.css';
-import '@mts-ds/granat2-react-root/fonts.css';
+import { ReactComponent as ArrowRight } from '../images/ArrowRight.svg';
+<Icon icon={<ArrowRight />} />
 ```
 
----
-
-#### Button / ButtonIcon
+### Button
 ```tsx
-import { Button } from '@mts-ds/granat2-react-button';
-import { ButtonIcon } from '@mts-ds/granat2-react-button';
-
-// Primary (МГТС blue automatically via CSS vars)
 <Button onClick={handleClick}>Сохранить</Button>
-
-// Secondary
-<Button variant="secondary" onClick={handleClick}>Отмена</Button>
-
-// Disabled
+<Button variant="secondary">Отмена</Button>
 <Button disabled>Недоступно</Button>
-
-// Loading state — hide text, show spinner separately
-<Button disabled={isLoading}>
-  {isLoading ? <Spinner size="S" /> : 'Отправить'}
-</Button>
-
-// Icon button
-<ButtonIcon
-  size={44}
-  variant="ghost"
-  contextBackgroundColor="primary"   // adapts icon color to background
-  aria-label="Открыть меню"
-  type="button"
->
+<ButtonIcon size={44} variant="ghost" contextBackgroundColor="primary" aria-label="Меню">
   <MenuIcon />
 </ButtonIcon>
-
-// ButtonIcon variants: "primary" | "secondary" | "ghost"
-// contextBackgroundColor: "primary" | "dark" — use "primary" on white bg, "dark" on dark bg
 ```
 
----
-
-#### Avatar
+### TextField
 ```tsx
-import { Avatar, NoGenderIcon } from '@mts-ds/granat2-react-avatar';
-
-// With name (shows initials)
-<Avatar
-  firstName="Иван"
-  lastName="Иванов"
-  size="44"
-  onClick={() => router.push('/profile')}
-/>
-
-// Without name (anonymous / placeholder)
-<Avatar
-  firstName=""
-  lastName=""
-  icon={NoGenderIcon}
-  svg="noGender"
-  size="44"
-  onClick={() => router.push('/profile')}
-/>
-
-// size: "24" | "32" | "44" | "56" | "72" | "88"
-```
-
----
-
-#### Badge
-```tsx
-import { Badge } from '@mts-ds/granat-react-badge';
-
-<Badge label="Новое" />
-<Badge label="3" />
-<Badge label="Срочно" color="negative" />
-
-// color: "positive" | "warning" | "negative" | default (blue)
-```
-
----
-
-#### TextField / Select (Fields)
-```tsx
-import { TextField } from '@mts-ds/granat2-react-fields';
-import { Select } from '@mts-ds/granat2-react-fields';
-
 <TextField
-  label="Название статьи"
+  label="Название"
   placeholder="Введите текст"
   value={value}
   onChange={(e) => setValue(e.target.value)}
   isError={!!errors.title}
   description={errors.title?.message}
 />
-
 // With react-hook-form:
-<TextField
-  label="Email"
-  {...register('email')}
-  isError={!!errors.email}
-  description={errors.email?.message}
-/>
+<TextField label="Email" {...register('email')} isError={!!errors.email} description={errors.email?.message} />
 ```
 
----
-
-#### Tooltip
+### Tooltip (requires @floating-ui/react in node_modules)
 ```tsx
-import { Tooltip } from '@mts-ds/granat2-react-tooltip';
-
-<Tooltip content="Подробнее об этом поле">
-  <ButtonIcon variant="ghost" size={32} aria-label="Справка">
-    <HelpCircleIcon />
-  </ButtonIcon>
+<Tooltip content="Подсказка">
+  <ButtonIcon variant="ghost" size={32} aria-label="Справка"><HelpCircleIcon /></ButtonIcon>
 </Tooltip>
 ```
 
----
-
-### Fonts (MTS_GRANAT_PUBLIC archive)
-
-Loaded globally via `@mts-ds/granat2-react-root/fonts.css`.
-Available font families:
-- `MTSCompact-Regular` / `MTSCompact-Medium` / `MTSCompact-Bold` — body, captions
-- `MTSWide-Medium` / `MTSWide-Bold` — headings, wide style
-- `MTSSans-Regular` / `MTSSans-Medium` — UI labels
-- `MTSText-Regular` / `MTSText-Medium` — long-read content
-
-Use via Tailwind custom font classes (configured in `tailwind.config.js`) or inline style:
-```tsx
-<h1 style={{ fontFamily: 'MTSWide-Medium' }}>Заголовок</h1>
-```
-
----
-
 ### Theme: Dark + Light
-
-Dark mode via `.dark` CSS class on `<html>`.
-CSS variables already set in `globals.css`.
+Dark mode via `.dark` class on `<html>`.
 Toggle: `document.documentElement.classList.toggle('dark')`.
-All Granat components respect this automatically.
+
+### Design System Storybook (accessible from corp network)
+```
+http://components.dev.design.mts-corp.ru/g2-react/
+```
 
 ---
 
@@ -400,36 +383,47 @@ DELETE /api/{module}/{id}
 
 ---
 
-## CURRENT STATE (skeleton complete)
+## CURRENT STATE
 
-Already built:
-- Full folder structure (backend + frontend)
-- docker-compose.yml (postgres 16.4 + redis 7.4 + backend + frontend)
-- backend/pyproject.toml, Dockerfile, main.py, core/config.py, core/database.py
-- GET /api/health → {"status":"ok"}
-- frontend: package.json (@mts-ds), .npmrc, next.config.js, tailwind.config.js, tsconfig.json, layout.tsx, page.tsx, globals.css
-- .env.example, .gitignore, README.md
+### What's working
+- Frontend: Next.js 14.2.35 running on localhost:3000
+- Design system: @mts-ds components render with МГТС blue (#008ae0)
+- Fonts: MTSCompact, MTSWide, MTSSans loaded via @font-face
+- Backend: FastAPI skeleton with GET /api/health
+- Both personal laptop and corp machine are in sync via GitHub
 
-**Next steps:**
-1. `docker compose up --build` → verify localhost:3000, localhost:8000/docs
-2. Alembic setup (async SQLAlchemy)
-3. Module `core`: User model, JWT auth, get_current_user dependency, login form
-4. Module `knowledge`: Category + Article models, CRUD, CMS UI, PostgreSQL FTS
+### Project structure
+```
+legal-hub/
+├── backend/
+│   ├── app/
+│   │   ├── main.py          ← FastAPI entry point
+│   │   ├── api/health.py    ← GET /api/health
+│   │   └── core/
+│   │       ├── config.py    ← pydantic-settings
+│   │       └── database.py  ← async SQLAlchemy
+│   ├── pyproject.toml
+│   └── Dockerfile
+├── frontend/
+│   ├── app/
+│   │   ├── layout.tsx       ← theme.css + globals.css, body has mtsds-vars mgts-corai-vars
+│   │   ├── page.tsx         ← test page with Button + Tooltip
+│   │   └── globals.css      ← @font-face + МГТС color overrides
+│   ├── node_modules/        ← NOT in git, includes @mts-ds (39 packages)
+│   ├── .npmrc               ← registry=https://registry.npmjs.org/ (personal laptop)
+│   ├── package.json
+│   ├── next.config.js
+│   ├── tailwind.config.js
+│   └── tsconfig.json
+├── docker-compose.yml
+├── .env.example
+└── CLAUDE.md
+```
 
----
-
-## WHAT NOT TO DO
-- Do NOT suggest microservices
-- Do NOT suggest Kubernetes (Docker Compose now, maybe docker swarm later)
-- Do NOT suggest external clouds (AWS, Azure, GCP) — blocked by corp policy
-- Do NOT suggest foreign LLM APIs directly (requires security audit)
-- Do NOT use `latest` Docker tags — always pin versions
-- Do NOT store secrets in code or docker-compose
-- Do NOT over-engineer for MVP — working first, beautiful later
-- Do NOT suggest WCAG compliance
-- Do NOT suggest mobile apps (web with responsive only)
-- Do NOT change the fixed stack without explicit request
-- Do NOT apply Tailwind classes directly on @mts-ds component roots
+### Next steps
+1. Set up Alembic (async SQLAlchemy migrations)
+2. Module `core`: User model, JWT auth, get_current_user dependency, login page
+3. Module `knowledge`: Category + Article models, CRUD, CMS UI, PostgreSQL FTS
 
 ---
 
@@ -446,7 +440,27 @@ pgvector extension planned for future RAG (do not implement now, just keep in mi
 ---
 
 ## GIT STRATEGY
-- Dev on personal laptop
-- Repo: personal GitHub
+- Dev on personal laptop (Windows 11)
+- Repo: `https://github.com/gzkhurtsilava-mgts/legal-hub` (corp GitHub account)
 - Deploy: GitLab CI in corp environment
 - Branches: `main` (prod), `dev` (development), `feature/*` (features)
+- node_modules is in .gitignore — never commit it
+
+---
+
+## WHAT NOT TO DO
+- Do NOT suggest microservices
+- Do NOT suggest Kubernetes (Docker Compose now, maybe docker swarm later)
+- Do NOT suggest external clouds (AWS, Azure, GCP) — blocked by corp policy
+- Do NOT suggest foreign LLM APIs directly (requires security audit)
+- Do NOT use `latest` Docker tags — always pin versions
+- Do NOT store secrets in code or docker-compose
+- Do NOT over-engineer for MVP — working first, beautiful later
+- Do NOT suggest WCAG compliance
+- Do NOT suggest mobile apps (web with responsive only)
+- Do NOT change the fixed stack without explicit request
+- Do NOT apply Tailwind classes directly on @mts-ds component roots
+- Do NOT run `npm install` without `--prefer-offline` on personal laptop
+- Do NOT try to install @mts-ds packages from registry — they are already in node_modules
+- Do NOT import `@mts-ds/granat2-react-root/fonts.css` — use @font-face in globals.css instead
+- Do NOT use pnpm on personal laptop — use npm
