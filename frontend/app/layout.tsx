@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import '@mts-ds/granat2-react-root/theme.css';
-import '@mts-ds/granat2-react-root/fonts.css';
 import "./globals.css";
 
 export const metadata: Metadata = {
