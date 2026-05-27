@@ -30,3 +30,4 @@ Thumbs.db
 .vscode/
 *.swp
 frontend/next-env.d.ts
+frontend/.npmrc
