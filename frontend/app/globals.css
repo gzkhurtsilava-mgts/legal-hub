@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* МГТС: переопределяем МТС-красный на МГТС-синий */
+:root {
+  --brand-blue: #008ae0;
+  --color-brand-mts-red: var(--brand-blue);
+}
+
+.mtsds-vars {
+  --color-control-primary-active: var(--brand-blue);
+  --color-control-active-tabbar: var(--brand-blue);
+  --color-accent-notification: var(--brand-blue);
+  --color-brand-mts-red: var(--brand-blue);
+}
+
+/* Радиусы МГТС (mgts-corai-vars) */
+.mgts-corai-vars {
+  --radius-s: 8px;
+  --radius-m: 12px;
+  --radius-l: 32px;
+  --radius-xl: 80px;
+}
+
+/* Тёмная тема */
+.dark {
+  --color-background-primary: var(--color-background-inverted);
+  --color-background-secondary: #2a2d31;
+  --color-text-primary: var(--color-text-inverted);
+  --color-text-secondary: var(--color-text-tertiary);
+}
