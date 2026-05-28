@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 // eslint-disable-next-line import/order
 import '@mts-ds/granat2-react-root/theme.css';
 import "./globals.css";
-
+import { SessionProvider } from "@/components/providers/SessionProvider";
 
 export const metadata: Metadata = {
   title: "Legal Hub — Портал БПО",
@@ -18,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body className="mtsds-vars mgts-corai-vars">
-        {children}
+        <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
   );

@@ -1,0 +1,48 @@
+@use "sass:map";
+@use "../tokens/tokens";
+@use "../icons";
+@use "../typography";
+
+:root {
+  // --mts-icon-inline-margin: #{map.get(icons.$icon-params-size-m, margin)};
+  // --mts-icon-inline-size: #{map.get(icons.$icon-params-size-m, size)};
+}
+
+body {
+  margin: 0;
+
+  // font-family: tokens.$font-family-base, sans-serif;
+  // font-size: var(--typography-p1-regular-font-size);
+  // line-height: var(--typography-p1-regular-line-height);
+  // font-weight: var(--typography-p1-regular-font-weight);
+
+  &.mts-backdrop-no-scroll {
+    overflow: hidden;
+  }
+}
+
+// $aliases: (
+//   "p": "p1-regular",
+//   "h1": "h1-black",
+//   "h2": "h2-medium",
+//   "h3": "h3-medium",
+// );
+
+// @each $el, $typing in $aliases {
+//   #{$el} {
+//     @include typography.typing($typing);
+//   }
+// }
+
+a {
+  color: var(--color-text-primary-link);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline solid var(--color-text-primary-link);
+  }
+
+  &:focus {
+    outline: var(--color-text-primary-link) auto;
+  }
+}

@@ -1,0 +1,6 @@
+@use "../tokens/css-custom-props/typography-v3";
+
+.mts-theme,
+[data-mts-theme] {
+  @include typography-v3.vars;
+}

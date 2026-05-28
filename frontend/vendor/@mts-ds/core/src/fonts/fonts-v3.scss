@@ -1,0 +1,54 @@
+$mts-base-font-path: "@mts-ds/base/assets/fonts" !default;
+
+@use "sass:list";
+@use "sass:map";
+@use "../tokens/tokens";
+@use "./fonts-v2" with (
+  $mts-base-font-path: $mts-base-font-path
+);
+@use "./lib";
+
+/** */
+$extended-fonts: [
+    (
+      family: "#{tokens.$font-family-text}",
+      file-basename: "MTSText-Medium",
+      weight: tokens.$font-weight-medium,
+    ),
+  (
+      family: "#{tokens.$font-family-wide}",
+      file-basename: "MTSWide-Bold",
+      weight: tokens.$font-weight-bold,
+    )
+    ];
+
+/** */
+$fonts: fonts-v2.$fonts;
+
+@each $font in $extended-fonts {
+  $fonts: list.append($fonts, $font);
+}
+
+@mixin fonts {
+  @each $font in $fonts {
+    $fonts-src: ();
+
+    @each $format-name, $format in lib.$formats {
+      $fonts-src: map.set(
+        $fonts-src,
+        $format-name,
+        lib.make-font-url(
+          map.get($font, "file-basename"),
+          map.get($format, "extension")
+        )
+      );
+    }
+
+    @include lib.font-face(
+      map.get($font, "family"),
+      map.get($font, "weight"),
+      normal,
+      $fonts-src
+    );
+  }
+}

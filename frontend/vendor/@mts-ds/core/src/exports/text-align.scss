@@ -1,0 +1,24 @@
+@use "sass:map";
+@use "../tokens/tokens" as core;
+@use "mixins";
+
+$grid: map.get(core.$tokens, grid);
+$text-align-variants: (
+  "left": left,
+  "center": center,
+  "right": right,
+  "justify": justify,
+);
+
+@each $breakpoint, $breakpoint-data in map.merge(("": (breakpoint: null)), $grid) {
+  $breakpoint-value: map.get($breakpoint-data, breakpoint);
+  $breakpoint-postfix: if($breakpoint == "", "", "-#{$breakpoint}");
+
+  @include mixins.media-query($breakpoint-value) {
+    @each $text-align-name, $text-align-value in $text-align-variants {
+      .mts-text-#{$text-align-name}#{$breakpoint-postfix} {
+        text-align: $text-align-value;
+      }
+    }
+  }
+}

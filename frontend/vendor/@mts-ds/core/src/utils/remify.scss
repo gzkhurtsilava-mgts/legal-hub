@@ -1,0 +1,11 @@
+@use "sass:math";
+
+$default-font-size: 16;
+
+@function _strip-unit($value) {
+  @return math.div($value, $value * 0 + 1);
+}
+
+@function remify($size) {
+  @return math.div(_strip-unit($size), $default-font-size) * 1rem;
+}

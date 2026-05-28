@@ -1,0 +1,9 @@
+@mixin media-query($size) {
+  @if $size == 0px or $size == 0rem or not $size {
+    @content;
+  } @else {
+    @media (min-width: $size) {
+      @content;
+    }
+  }
+}

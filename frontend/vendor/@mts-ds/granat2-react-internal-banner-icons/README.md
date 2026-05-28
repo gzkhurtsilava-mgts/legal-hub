@@ -1,0 +1,1 @@
+Компоненты-иконки для использования в @mts-ds/granat2-react-secondary-banner, @mts-ds/granat2-react-tertiary-banner

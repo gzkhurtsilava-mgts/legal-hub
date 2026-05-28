@@ -1,0 +1,69 @@
+@use "sass:map";
+@use "../tokens/tokens" as core;
+@use "mixins";
+
+$grid: map.get(core.$tokens, grid);
+$size: map.get(core.$tokens, size);
+$spacings: map.get($size, spacing);
+$directions: (
+  "l": "left",
+  "r": "right",
+  "t": "top",
+  "b": "bottom",
+);
+$css-properties: (
+  "m": "margin",
+  "p": "padding",
+);
+
+@each $breakpoint,
+  $breakpoint-data
+    in map.merge(
+      (
+        "": (
+          breakpoint: null,
+        ),
+      ),
+      $grid
+    )
+{
+  $breakpoint-value: map.get($breakpoint-data, breakpoint);
+  $breakpoint-postfix: if($breakpoint == "", "", "-#{$breakpoint}");
+
+  @include mixins.media-query($breakpoint-value) {
+    @each $spacing,
+      $spacing-value
+        in map.merge(
+          (
+            "auto": auto,
+            "0": 0,
+          ),
+          $spacings
+        )
+    {
+      @each $css-property-name, $css-property in $css-properties {
+        @if $spacing != "auto" or $css-property-name != "p" {
+          .mts-#{$css-property-name}-#{$spacing}#{$breakpoint-postfix} {
+            #{$css-property}: $spacing-value;
+          }
+
+          .mts-#{$css-property-name}x-#{$spacing}#{$breakpoint-postfix} {
+            #{$css-property}-left: $spacing-value;
+            #{$css-property}-right: $spacing-value;
+          }
+
+          .mts-#{$css-property-name}y-#{$spacing}#{$breakpoint-postfix} {
+            #{$css-property}-top: $spacing-value;
+            #{$css-property}-bottom: $spacing-value;
+          }
+
+          @each $direction-name, $direction in $directions {
+            .mts-#{$css-property-name}#{$direction-name}-#{$spacing}#{$breakpoint-postfix} {
+              #{$css-property}-#{$direction}: $spacing-value;
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+    "name":  "@mts-ds/granat2-react-root",
+    "version":  "2.0.0",
+    "homepage":  "https://gitlab.services.mts.ru/mobile-sdk/web/mtsds",
+    "bugs":  "https://gitlab.services.mts.ru/mobile-sdk/web/mtsds/-/issues",
+    "repository":  {
+                       "type":  "git",
+                       "url":  "https://gitlab.services.mts.ru/mobile-sdk/web/mtsds.git"
+                   },
+    "type":  "module",
+    "main":  "./dist/esm-node-14/index.js",
+    "types":  "./dist/index.d.ts",
+    "exports":  {
+                    ".":  {
+                              "types":  "./dist/index.d.ts",
+                              "node":  {
+                                           "import":  "./dist/esm-node-14/index.js",
+                                           "default":  "./dist/esm-node-14/index.js"
+                                       },
+                              "default":  "./dist/esm/index.js"
+                          },
+                    "./theme.css":  "./dist/theme.css",
+                    "./fonts.css":  "./dist/fonts.css",
+                    "./fonts-alt.css":  "./dist/fonts-alt.css",
+                    "./package.json":  "./package.json"
+                },
+    "files":  [
+                  "dist/",
+                  "*.md"
+              ],
+    "sideEffects":  [
+                        "*.css",
+                        "*.scss"
+                    ],
+    "scripts":  {
+                    "build":  "yarn react-component2:build-utils \u0026\u0026 yarn build-styles",
+                    "build-styles":  "yarn build2:sass ./src/theme.scss dist/theme.css; yarn build2:sass ./src/fonts.scss dist/fonts.css; yarn build2:sass ./src/fonts-alt.scss dist/fonts-alt.css",
+                    "watch":  "yarn react-component2:watch",
+                    "tsc":  "yarn react-component2:tsc"
+                },
+    "dependencies":  {
+
+                     },
+    "devDependencies":  {
+                            "@types/react":  "^17.0.39",
+                            "@types/react-dom":  "^17.0.11",
+                            "react":  "^17.0.2",
+                            "react-dom":  "^17.0.2",
+                            "typescript":  "~4.7.3"
+                        },
+    "peerDependencies":  {
+                             "react":  "^16.14.0 || 17.x || 18.x",
+                             "react-dom":  "^16.14.0 || 17.x || 18.x"
+                         }
+}

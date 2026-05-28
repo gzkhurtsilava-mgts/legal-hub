@@ -8,6 +8,28 @@ For architectural decisions: explain the tradeoff. For operational tasks: just d
 
 ---
 
+## AFTER EACH MAJOR TASK (MANDATORY)
+
+After completing and verifying any significant feature/task, always do two things:
+
+1. **Suggest committing** the verified working state with a clear commit message.
+
+2. **Write a corp deployment guide** — step-by-step instructions for what needs to be done
+   on the corporate machine (Nexus access, GitLab CI, corp environment) to bring it in sync.
+   Format: numbered list, each step is a concrete command or action.
+   Include:
+   - New npm packages to install (with Nexus version if different from public npm)
+   - New Python dependencies to install
+   - Alembic migrations to run
+   - Environment variables to add
+   - Any config changes
+
+**Before installing new npm packages:** always ask which version is available in Nexus
+(corp registry: https://nexus.mgts.ru/repository/npm-all/). Version on personal laptop
+(public npm) may differ from Nexus by a patch version — that is acceptable, but must be noted.
+
+---
+
 ## PROJECT CONTEXT
 Corporate portal for the Legal Operations team (БПО) at МГТС.
 Single developer: full-stack + product owner + product manager.
@@ -68,6 +90,26 @@ All @mts-ds packages are installed in `node_modules/@mts-ds/` — real directori
 They are NOT available on public npm. Source: corporate Nexus only.
 On personal laptop they were manually copied from corp machine.
 All 39 packages are present — do NOT try to install them from registry.
+
+**Why npm deletes @mts-ds (root cause):**
+`package-lock.json` was generated on corp machine without @mts-ds entries in the root section.
+When npm runs, it tries to resolve @mts-ds from public registry.npmjs.org, fails — and either
+removes packages or aborts entirely. `--prefer-offline` alone is NOT enough because packages
+are not in npm's local cache (~/.npm) — they were manually copied, not installed via npm.
+
+**Permanent fix: vendor/ directory with file: references.**
+All 40 @mts-ds packages are stored in `frontend/vendor/@mts-ds/` and referenced in package.json
+as `"@mts-ds/base": "file:./vendor/@mts-ds/base"`. npm treats them as local dependencies —
+never touches the registry. This is the correct solution for corporate packages unavailable on
+public npm.
+
+**vendor/ is committed to git** (it is NOT in .gitignore). When updating @mts-ds packages from
+corp machine: copy the new package to `vendor/@mts-ds/`, the `file:` reference stays unchanged.
+
+**preinstall/postinstall backup scripts** remain as a secondary safety net for edge cases.
+
+**If vendor/@mts-ds is missing:**
+Copy @mts-ds packages from corp machine to `frontend/vendor/@mts-ds/`.
 
 **ALL installed @mts-ds packages (39 total):**
 ```

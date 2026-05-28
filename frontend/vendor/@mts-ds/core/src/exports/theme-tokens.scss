@@ -1,0 +1,12 @@
+@use "../tokens/css-custom-props/theme-light";
+@use "../tokens/css-custom-props/theme-dark";
+
+.mts-theme-light,
+[data-mts-theme="light"] {
+  @include theme-light.vars;
+}
+
+.mts-theme-dark,
+[data-mts-theme="dark"] {
+  @include theme-dark.vars;
+}

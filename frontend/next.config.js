@@ -4,7 +4,8 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: "/api/:path*",
+        // /api/auth/* — обрабатывает NextAuth, не трогаем
+        source: "/api/((?!auth/).*)",
         destination: `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/:path*`,
       },
     ];

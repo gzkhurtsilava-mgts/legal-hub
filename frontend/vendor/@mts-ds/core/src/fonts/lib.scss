@@ -1,0 +1,55 @@
+$mts-base-font-path: "@mts-ds/base/assets/fonts" !default;
+
+@use "sass:list";
+@use "sass:map";
+@use "sass:string";
+
+$formats: (
+  eot: (
+    extension: "eot",
+    format: "eot",
+  ),
+  eot-fallback: (
+    extension: "eot?#iefix",
+    format: "embedded-opentype",
+  ),
+  woff2: (
+    extension: "woff2",
+    format: "woff2",
+  ),
+  woff: (
+    extension: "woff",
+    format: "woff",
+  ),
+);
+
+@mixin font-face($family, $weight, $style: normal, $fonts) {
+  $src: null;
+
+  @each $format-name in eot-fallback, woff2, woff {
+    @if map.has-key($fonts, $format-name) {
+      $src: list.append(
+        $src,
+        url("#{map.get($fonts, $format-name)}")
+          format(string.quote(map.get($formats, $format-name, "format"))),
+        comma
+      );
+    }
+  }
+
+  @font-face {
+    font-family: string.quote($family);
+    font-weight: $weight;
+    font-style: $style;
+
+    @if map.has-key($fonts, "eot") {
+      src: url("#{map.get($fonts, 'eot')}");
+    }
+
+    src: #{$src};
+  }
+}
+
+@function make-font-url($basename, $extension) {
+  @return "#{$mts-base-font-path}/#{$basename}.#{$extension}";
+}

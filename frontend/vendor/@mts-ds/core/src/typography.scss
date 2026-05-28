@@ -1,0 +1,33 @@
+@use "sass:map";
+@use "./tokens/tokens";
+@use "./tokens/typography";
+
+// @use "./icons";
+
+@mixin typing($typing) {
+  $cfg: map.get(typography.$tokens, "typography", "v3", $typing);
+
+  @if not $cfg {
+    @debug "Typography #{$typing} is not found";
+  }
+
+  $font-weight: map.get($cfg, "font-weight");
+  $font-size: map.get($cfg, "font-size");
+  $line-height: map.get($cfg, "line-height");
+  $font-family: map.get($cfg, "font-family");
+
+  font: #{$font-weight} #{$font-size} / #{$line-height} #{$font-family},
+    sans-serif;
+  letter-spacing: #{map.get($cfg, "letter-spacing")};
+  text-transform: #{map.get($cfg, "text-transform")};
+
+  // TODO Пересмотреть работу с размерами иконок в типографике
+  // Оставлено для обратной совместимости на время миграции
+  // $icon-inline-params: map.get(icons.$icon-inline-params, $typing);
+  // @if $icon-inline-params {
+  //  --mts-icon-inline-margin: #{map.get($icon-inline-params, "margin")};
+  //  --mts-icon-inline-size: #{map.get($icon-inline-params, "size")};
+  // }
+}
+
+$typings: map.keys(map.get(typography.$tokens, "typography", "v3"));

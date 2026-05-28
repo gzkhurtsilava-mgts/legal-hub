@@ -1,0 +1,6 @@
+@use "../tokens/css-custom-props/tokens";
+
+.mts-theme,
+[data-mts-theme] {
+  @include tokens.vars;
+}

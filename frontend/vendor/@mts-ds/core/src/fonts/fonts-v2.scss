@@ -1,0 +1,61 @@
+$mts-base-font-path: "@mts-ds/base/assets/fonts" !default;
+
+@use "sass:list";
+@use "sass:map";
+@use "../tokens/tokens";
+@use "./lib" with (
+  $mts-base-font-path: $mts-base-font-path
+);
+
+/** */
+$fonts: [
+    (
+      family: "#{tokens.$font-family-compact}",
+      file-basename: "MTSCompact-Bold",
+      weight: tokens.$font-weight-bold,
+    ),
+  (
+    family: "#{tokens.$font-family-compact}",
+    file-basename: "MTSCompact-Medium",
+    weight: tokens.$font-weight-medium,
+  ),
+  (
+    family: "#{tokens.$font-family-compact}",
+    file-basename: "MTSCompact-Regular",
+    weight: tokens.$font-weight-regular,
+  ),
+  (
+    family: "#{tokens.$font-family-text}",
+    file-basename: "MTSText-Regular",
+    weight: tokens.$font-weight-regular,
+  ),
+  (
+    family: "#{tokens.$font-family-wide}",
+    file-basename: "MTSWide-Medium",
+    weight: tokens.$font-weight-medium,
+  ),
+  ];
+
+@mixin fonts {
+  @each $font in $fonts {
+    $fonts-src: ();
+
+    @each $format-name, $format in lib.$formats {
+      $fonts-src: map.set(
+        $fonts-src,
+        $format-name,
+        lib.make-font-url(
+          map.get($font, "file-basename"),
+          map.get($format, "extension")
+        )
+      );
+    }
+
+    @include lib.font-face(
+      map.get($font, "family"),
+      map.get($font, "weight"),
+      normal,
+      $fonts-src
+    );
+  }
+}

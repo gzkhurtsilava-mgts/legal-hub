@@ -17,6 +17,7 @@ node_modules/
 .next/
 out/
 build/
+frontend/.mts-ds-backup/
 
 # Docker
 .docker/
