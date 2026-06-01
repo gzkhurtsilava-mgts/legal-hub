@@ -1,0 +1,22 @@
+# Оверрайд для корп. машины (VDI) — заменяет публичные образы на Harbor.
+# Запуск: docker compose -f docker-compose.yml -f docker-compose.corp.yml up -d --build
+#
+# Предварительно:
+#   cd frontend && cp .npmrc.corp .npmrc
+
+services:
+  postgres:
+    image: harbor.mgts.ru/dockerhub/postgres:16.4
+
+  redis:
+    image: harbor.mgts.ru/dockerhub/redis:7.4-alpine
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.corp
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: frontend.corp.Dockerfile

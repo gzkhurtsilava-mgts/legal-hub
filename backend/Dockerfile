@@ -2,8 +2,8 @@ FROM python:3.12.7-slim
 
 WORKDIR /app
 
-# Устанавливаем uv — быстрый менеджер пакетов Python
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+# uv через pip — не зависит от ghcr.io (заблокирован в корп сети)
+RUN pip install --no-cache-dir uv==0.5.29
 
 # Копируем зависимости и устанавливаем
 COPY pyproject.toml .

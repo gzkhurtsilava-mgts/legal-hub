@@ -1,0 +1,2 @@
+registry=https://nexus.mgts.ru/repository/npm-all/
+strict-ssl=false
