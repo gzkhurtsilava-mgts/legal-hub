@@ -111,3 +111,15 @@
   --color-icons-primary: #f5f5f5;
   --color-icons-secondary: #8d969f;
 }
+
+/* ===== Утилиты ===== */
+.footer-link {
+  font-family: 'MTS Compact', sans-serif;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: color 150ms;
+}
+.footer-link:hover {
+  color: var(--color-text-primary);
+}
