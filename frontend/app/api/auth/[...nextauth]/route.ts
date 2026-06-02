@@ -1,7 +1,9 @@
 import NextAuth, { type NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+// BACKEND_INTERNAL_URL — для server-side запросов внутри Docker (http://backend:8000)
+// NEXT_PUBLIC_API_URL — для client-side запросов из браузера (http://localhost:8000)
+const API_URL = process.env.BACKEND_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
