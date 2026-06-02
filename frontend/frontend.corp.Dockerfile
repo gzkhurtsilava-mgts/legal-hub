@@ -11,7 +11,7 @@ COPY package.json package-lock.json .npmrc ./
 COPY vendor/ ./vendor/
 COPY scripts/ ./scripts/
 
-RUN npm ci --legacy-peer-deps
+RUN npm ci --legacy-peer-deps --install-links
 
 COPY . .
 
