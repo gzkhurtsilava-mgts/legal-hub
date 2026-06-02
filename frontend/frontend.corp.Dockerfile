@@ -2,18 +2,16 @@ FROM harbor.mgts.ru/dockerhub/node:20.18.0-alpine
 
 WORKDIR /app
 
-# .npmrc.corp должен быть скопирован в frontend/ перед сборкой:
-#   cp .npmrc.corp .npmrc
-# Он указывает на Nexus: registry=https://nexus.mgts.ru/repository/npm-all/
-# @mts-ds берётся из vendor/ (file: refs) — Nexus для них не нужен
-
+# vendor/ нужен до npm install — file: refs разрешаются из него
 COPY package.json package-lock.json .npmrc ./
 COPY vendor/ ./vendor/
 COPY scripts/ ./scripts/
 
-RUN npm install --legacy-peer-deps --install-links --ignore-scripts
-
-COPY . .
+# --ignore-scripts: пропускаем backup/restore скрипты (они для Windows-ноута, не для Docker)
+# Без --install-links: npm создаёт симлинки на /app/vendor/ — корректные Linux-пути
+# COPY . . убран: source files приходят через bind-mount ./frontend:/app в docker-compose.
+# node_modules сохраняется в anonymous volume и не перетирается bind-mount-ом.
+RUN npm install --legacy-peer-deps --ignore-scripts
 
 EXPOSE 3000
 
