@@ -1,0 +1,3 @@
+var styles = {"mtsds-svg":"mtsds--xBUNuSWD","mtsds-icon":"mtsds--8DaaO9kM","mtsds-icon--fluid":"mtsds--zePMfF24","mtsds-tabbar":"mtsds--76OVYPKW","mtsds-tabbar--transparent":"mtsds--szf0QYQt","mtsds-tabbar--separator":"mtsds--VJ-npk6m","mtsds-tabbar__tab":"mtsds--wfSCxf5-","mtsds-tabbar__tab--active":"mtsds--fr2nx5Qz","mtsds-tabbar__tab-link":"mtsds--fLWo9pS0","mtsds-tabbar__tab-icon":"mtsds--bGdcW8a0","mtsds-tabbar__tab-avatar":"mtsds--21LIigAi","mtsds-tabbar__tab-counter":"mtsds--nQ7wyEtz","mtsds-tabbar__tab--has-counter":"mtsds--ZWTuF0bX","mtsds-tabbar__tab--has-notification":"mtsds--GP-dQ7bZ"};
+
+export { styles as default };

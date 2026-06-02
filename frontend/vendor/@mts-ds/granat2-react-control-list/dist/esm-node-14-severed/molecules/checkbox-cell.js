@@ -1,0 +1,53 @@
+'use client';
+import * as React from 'react';
+import { forwardRef, useContext } from 'react';
+import cn from 'clsx';
+import { Checkbox } from '@mts-ds/granat2-react-checkbox';
+import { ControlCell } from './control-cell.js';
+import { ControlListSizeContext } from '../context/size-context.js';
+import styles from '../control-list.module.scss.js';
+
+const checkboxSize = {
+  s: 16,
+  m: 24,
+  l: 32
+};
+const CheckboxCell = /*#__PURE__*/forwardRef((props, ref) => {
+  const {
+    label,
+    description,
+    disabled,
+    invalid,
+    components,
+    className,
+    children,
+    ...rest
+  } = props;
+  const {
+    size
+  } = useContext(ControlListSizeContext);
+  return (
+    /*#__PURE__*/
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    React.createElement("li", {
+      ...rest,
+      className: cn(className, styles['mtsds-control-list__item']),
+      ref: ref
+    }, /*#__PURE__*/React.createElement(ControlCell
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    , {
+      ...components?.controlCell,
+      disabled: disabled,
+      invalid: invalid,
+      label: label,
+      description: description
+    }, /*#__PURE__*/React.createElement(Checkbox, {
+      ...components?.checkbox,
+      disabled: disabled,
+      invalid: invalid,
+      size: checkboxSize[size]
+    })), children)
+  );
+});
+
+export { CheckboxCell };

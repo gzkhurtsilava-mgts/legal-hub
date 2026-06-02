@@ -1,0 +1,3 @@
+var styles = {"mtsds-svg":"mtsds--qO-2truu","mtsds-icon":"mtsds--hLzRGWN0","mtsds-icon--fluid":"mtsds--j9etlhaH","mtsds-spoiler":"mtsds--TbXmHvTQ","mtsds-spoiler--primary":"mtsds--sgseFxD1","mtsds-spoiler--secondary":"mtsds--8CL-vXhS","mtsds-spoiler--black":"mtsds--3mTS0WCP","mtsds-spoiler--white":"mtsds--D-H5g2OH","mtsds-spoiler--active":"mtsds--e-vR2IA3","mtsds-spoiler--disabled":"mtsds--GGHkPIJx","mtsds-spoiler__button":"mtsds--5crWLnts","mtsds-spoiler__text":"mtsds--IyZWiVku","mtsds-spoiler__icon":"mtsds--J2aKmW7d","mtsds-spoiler__content":"mtsds--4HjWksl2","mtsds-spoiler__content-inner":"mtsds--T-KdWSWE"};
+
+export { styles as default };

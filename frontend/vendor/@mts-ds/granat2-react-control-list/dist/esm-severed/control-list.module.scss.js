@@ -1,0 +1,3 @@
+var styles = {"mtsds-control-list":"mtsds--YILUSy1B","mtsds-control-list--size-s":"mtsds--2Dieo-W2","mtsds-control-list--size-m":"mtsds--fNa8FfKU","mtsds-control-list--size-l":"mtsds--m5ULPROr","mtsds-control-list--middle":"mtsds--q0-ze4Wh","mtsds-control-list--separator":"mtsds--FMJYOEgi","mtsds-control-list__item":"mtsds--RYBXCJTO","mtsds-control-list__label":"mtsds--m6tDF-sy","mtsds-control-list__label--disabled":"mtsds--jmhVusGA","mtsds-control-list__label--invalid":"mtsds--VkqIker-","mtsds-control-list__label-input":"mtsds--zv0QT-eh","mtsds-control-list__label-name":"mtsds---5KTO8fQ","mtsds-control-list__label-description":"mtsds--GNRSCOKq"};
+
+export { styles as default };

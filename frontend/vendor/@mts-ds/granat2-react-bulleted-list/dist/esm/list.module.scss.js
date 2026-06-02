@@ -1,0 +1,7 @@
+import styleInject from './ext/style-inject/dist/style-inject.es.js';
+
+var css_248z = ".mtsds--SXbGQyf5{all:unset;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased;display:grid;flex:none;gap:var(--mtsds-bulleted-list---gap,1rem)}.mtsds--SXbGQyf5,.mtsds--rlDVnU2U{--mtsds-bulleted-list__item-text--font:400 1.25rem/1.75rem MTS Compact,sans-serif;--mtsds-bulleted-list__item-text--line-height:1.5rem;--mtsds-bulleted-list__item-title--font:500 1.25rem/1.5rem MTS Compact,sans-serif;--mtsds-bulleted-list__item-subtitle--font:400 1.0625rem/1.5rem MTS Compact,sans-serif;--mtsds-bulleted-list__sublist-item--font:400 1.0625rem/1.5rem MTS Compact,sans-serif;--mtsds-bulleted-list__sublist-item_before--top:0.625rem;--mtsds-bulleted-list__item_before--top:0.5rem}.mtsds--5PiLZzTp{--mtsds-bulleted-list__item-text--font:400 1.0625rem/1.5rem MTS Compact,sans-serif;--mtsds-bulleted-list__item-text--line-height:1.25rem;--mtsds-bulleted-list__item-title--font:500 1.0625rem/1.5rem MTS Compact,sans-serif;--mtsds-bulleted-list__item-subtitle--font:400 0.875rem/1.25rem MTS Compact,sans-serif;--mtsds-bulleted-list__sublist-item--font:400 0.875rem/1.25rem MTS Compact,sans-serif;--mtsds-bulleted-list__sublist-item_before--top:0.5rem;--mtsds-bulleted-list__item_before--top:0.375rem}";
+var styles = {"mtsds-bulleted-list":"mtsds--SXbGQyf5","mtsds-bulleted-list--device--desktop":"mtsds--rlDVnU2U","mtsds-bulleted-list--device--mobile":"mtsds--5PiLZzTp"};
+styleInject(css_248z);
+
+export { styles as default };

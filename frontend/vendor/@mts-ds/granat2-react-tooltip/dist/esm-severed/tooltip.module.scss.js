@@ -1,0 +1,3 @@
+var styles = {"mtsds-tooltip":"mtsds--X21OG81s","mtsds-tooltip--placement--top":"mtsds--dOrwtlzS","mtsds-tooltip--placement--right":"mtsds--1GEPaOgz","mtsds-tooltip--placement--bottom":"mtsds---k2NFoTV","mtsds-tooltip--placement--left":"mtsds--ZNcg-W6W","mtsds-tooltip--alignment--left":"mtsds--hXkYHWil","mtsds-tooltip--alignment--right":"mtsds--86dIpsMU","mtsds-tooltip--alignment--top":"mtsds--0gwesxBt","mtsds-tooltip--alignment--bottom":"mtsds--2Omd7nYq","mts-theme-light":"mtsds--OSznlI66","mts-theme-dark":"mtsds--YTKfouLW","mtsds-tooltip__text":"mtsds--vdhyvfj7"};
+
+export { styles as default };

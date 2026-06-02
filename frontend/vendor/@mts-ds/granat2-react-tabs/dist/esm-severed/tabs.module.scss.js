@@ -1,0 +1,3 @@
+var styles = {"mtsds-tabs":"mtsds--STu7aJIc","mtsds-tabs--accent":"mtsds--mH-Kk1r-","mtsds-tabs--size--32":"mtsds--fi-r7xV9","mtsds-tabs--size--52":"mtsds--T4K7bfY1","mtsds-tabs--size--72":"mtsds--K2mJ580a","mtsds-tabs__tab":"mtsds---6HcDVmp","mtsds-tabs__tab-name":"mtsds--fv5VPdFS","mtsds-tabs__tab-icon":"mtsds--7PQdj5VF","mtsds-tabs__item--open":"mtsds--PCv8--W5","mtsds-tabs__item--active":"mtsds--TSuAXqNt","mtsds-tabs__indicator":"mtsds--X1dnMnJl","mtsds-tabs__item":"mtsds--mk3Idy6L","mtsds-tabs__tab-counter":"mtsds--Yv0JJK1p","mtsds-tabs--type--stroke":"mtsds---pZMrMJO","mtsds-tabs--type--button":"mtsds--dBagoQDv"};
+
+export { styles as default };
