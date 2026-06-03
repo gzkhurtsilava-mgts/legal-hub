@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Spinner } from "@mts-ds/granat2-react-spinner";
 import { Button } from "@mts-ds/granat2-react-button";
 import { useSectionBySlug, useKnowledgeItems } from "@/lib/api/knowledge";
@@ -9,9 +10,13 @@ import { ItemCard } from "@/components/knowledge/ItemCard";
 import { SectionCard } from "@/components/knowledge/SectionCard";
 import { FilterPanel, type KnowledgeFilters } from "@/components/knowledge/FilterPanel";
 
+const EDITOR_ROLES = ["admin", "lawyer"];
+
 export default function SectionPage() {
   const { slug } = useParams<{ slug: string }>();
   const router = useRouter();
+  const { data: session } = useSession();
+  const isEditor = EDITOR_ROLES.includes((session?.user as { role?: string })?.role ?? "");
 
   const [filters, setFilters] = useState<KnowledgeFilters>({
     tag_ids: [],
@@ -87,9 +92,19 @@ export default function SectionPage() {
         </span>
       </div>
 
-      <h1 style={{ fontFamily: "MTS Wide", fontWeight: 700, fontSize: "24px", color: "var(--color-text-primary)", marginBottom: "8px" }}>
-        {section.name}
-      </h1>
+      <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "8px" }}>
+        <h1 style={{ fontFamily: "MTS Wide", fontWeight: 700, fontSize: "24px", color: "var(--color-text-primary)", margin: 0, flex: 1 }}>
+          {section.name}
+        </h1>
+        {isEditor && !hasChildren && (
+          <button
+            onClick={() => router.push("/knowledge/admin/items/new")}
+            style={{ padding: "8px 18px", background: "var(--brand-blue)", color: "#fff", border: "none", borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "13px", fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}
+          >
+            + Добавить
+          </button>
+        )}
+      </div>
 
       {section.description && (
         <p style={{ fontFamily: "MTS Compact", fontSize: "15px", color: "var(--color-text-secondary)", marginBottom: "28px", lineHeight: 1.6 }}>

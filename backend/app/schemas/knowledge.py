@@ -108,6 +108,34 @@ class KnowledgeItemListResponse(BaseModel):
     limit: int
 
 
+# ─── Articles ─────────────────────────────────────────────────────────────────
+
+class AttachmentMeta(BaseModel):
+    filename: str
+    path: str
+    size: int
+    mime_type: str
+
+
+class ArticleContent(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    content: dict | None = None        # TipTap JSON
+    attachments: list[AttachmentMeta] = []
+    toc_enabled: bool = False
+
+
+class ArticleContentUpdate(BaseModel):
+    content: dict | None = None
+    toc_enabled: bool = False
+
+
+class UploadedFile(BaseModel):
+    url: str
+    filename: str
+    size: int
+    mime_type: str
+
+
 # ─── Typeahead ────────────────────────────────────────────────────────────────
 
 class TypeaheadSection(BaseModel):

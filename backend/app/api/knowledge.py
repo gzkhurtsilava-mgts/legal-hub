@@ -1,16 +1,23 @@
+import uuid
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+import aiofiles
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.deps import UserContext, check_section_write_access, get_current_user, require_role
 from app.services.knowledge.search import build_search_conditions, search_rank, translate_layout
+from app.services.knowledge.tiptap import extract_text as tiptap_extract_text
 from app.models.knowledge import (
+    Article,
     ItemStatus,
+    ItemType,
     KnowledgeItem,
     Section,
     Tag,
@@ -20,6 +27,9 @@ from app.models.knowledge import (
 )
 from app.models.user import UserRole
 from app.schemas.knowledge import (
+    ArticleContent,
+    ArticleContentUpdate,
+    AttachmentMeta,
     KnowledgeItemCreate,
     KnowledgeItemListResponse,
     KnowledgeItemResponse,
@@ -33,6 +43,7 @@ from app.schemas.knowledge import (
     TypeaheadItem,
     TypeaheadResponse,
     TypeaheadSection,
+    UploadedFile,
 )
 
 router = APIRouter(prefix="/knowledge", tags=["knowledge"])
@@ -649,3 +660,139 @@ async def remove_favorite(
     )
     if fav is not None:
         await db.delete(fav)
+
+
+# ─── Article content ──────────────────────────────────────────────────────────
+
+@router.get("/items/{item_id}/article", response_model=ArticleContent)
+async def get_article(
+    item_id: int,
+    current_user: UserContext = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> ArticleContent:
+    item = await _require_item(item_id, db)
+    if item.item_type != ItemType.article:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Элемент не является статьёй")
+    vis = _visible_item_filter(current_user)
+    if vis is not None and item.visibility == Visibility.bpo_only and current_user.role not in _EDITOR_ROLES:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Доступ закрыт")
+
+    result = await db.execute(select(Article).where(Article.item_id == item_id))
+    article = result.scalar_one_or_none()
+    if article is None:
+        return ArticleContent()
+    return ArticleContent.model_validate(article)
+
+
+@router.put("/items/{item_id}/article", response_model=ArticleContent)
+async def update_article(
+    item_id: int,
+    body: ArticleContentUpdate,
+    current_user: UserContext = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> ArticleContent:
+    item = await _require_item(item_id, db)
+    if item.item_type != ItemType.article:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Элемент не является статьёй")
+    await check_section_write_access(item.section_id, current_user, db)
+
+    result = await db.execute(select(Article).where(Article.item_id == item_id))
+    article = result.scalar_one_or_none()
+
+    if article is None:
+        article = Article(item_id=item_id, content=body.content, toc_enabled=body.toc_enabled)
+        db.add(article)
+    else:
+        article.content = body.content
+        article.toc_enabled = body.toc_enabled
+
+    # Update FTS content_text
+    if body.content:
+        item.content_text = tiptap_extract_text(body.content)
+
+    await db.flush()
+    await db.refresh(article)
+    return ArticleContent.model_validate(article)
+
+
+# ─── Uploads ──────────────────────────────────────────────────────────────────
+
+_ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"}
+_ALLOWED_ATTACH_TYPES = {
+    "image/jpeg", "image/png", "image/gif", "image/webp",
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "text/plain",
+}
+_MAX_INLINE_MB = 10
+_MAX_ATTACH_MB = 50
+
+
+async def _save_upload(file: UploadFile, dest: Path) -> int:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    size = 0
+    async with aiofiles.open(dest, "wb") as f:
+        while chunk := await file.read(1024 * 256):
+            await f.write(chunk)
+            size += len(chunk)
+    return size
+
+
+@router.post("/uploads/media", response_model=UploadedFile)
+async def upload_media(
+    file: UploadFile = File(...),
+    current_user: UserContext = Depends(require_role(UserRole.admin, UserRole.lawyer)),
+) -> UploadedFile:
+    if file.content_type not in _ALLOWED_IMAGE_TYPES:
+        raise HTTPException(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, detail="Недопустимый тип файла")
+
+    now = datetime.now(timezone.utc)
+    filename = f"{uuid.uuid4().hex}-{file.filename}"
+    rel_path = f"inline/{now.year}/{now.month:02d}/{filename}"
+    dest = Path(settings.media_root) / rel_path
+
+    size = await _save_upload(file, dest)
+    if size > _MAX_INLINE_MB * 1024 * 1024:
+        dest.unlink(missing_ok=True)
+        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail=f"Файл > {_MAX_INLINE_MB} МБ")
+
+    return UploadedFile(url=f"/api/files/{rel_path}", filename=file.filename or filename,
+                        size=size, mime_type=file.content_type or "application/octet-stream")
+
+
+@router.post("/uploads/attachment", response_model=UploadedFile)
+async def upload_attachment(
+    item_id: int = Query(...),
+    file: UploadFile = File(...),
+    current_user: UserContext = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> UploadedFile:
+    if file.content_type not in _ALLOWED_ATTACH_TYPES:
+        raise HTTPException(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, detail="Недопустимый тип файла")
+
+    item = await _require_item(item_id, db)
+    await check_section_write_access(item.section_id, current_user, db)
+
+    filename = f"{uuid.uuid4().hex}-{file.filename}"
+    rel_path = f"attachments/{item_id}/{filename}"
+    dest = Path(settings.media_root) / rel_path
+
+    size = await _save_upload(file, dest)
+    if size > _MAX_ATTACH_MB * 1024 * 1024:
+        dest.unlink(missing_ok=True)
+        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail=f"Файл > {_MAX_ATTACH_MB} МБ")
+
+    # Append to article.attachments
+    result = await db.execute(select(Article).where(Article.item_id == item_id))
+    article = result.scalar_one_or_none()
+    if article:
+        current = list(article.attachments or [])
+        current.append({"filename": file.filename, "path": rel_path,
+                        "size": size, "mime_type": file.content_type or "application/octet-stream"})
+        article.attachments = current
+
+    return UploadedFile(url=f"/api/files/{rel_path}", filename=file.filename or filename,
+                        size=size, mime_type=file.content_type or "application/octet-stream")

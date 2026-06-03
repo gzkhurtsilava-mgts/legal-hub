@@ -1,7 +1,7 @@
 import enum
 
-from sqlalchemy import Column, Computed, DateTime, Enum, ForeignKey, Integer, String, Table, Text
-from sqlalchemy.dialects.postgresql import TSVECTOR
+from sqlalchemy import Boolean, Column, Computed, DateTime, Enum, ForeignKey, Integer, String, Table, Text
+from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -128,3 +128,15 @@ class KnowledgeItem(Base):
     section = relationship("Section", back_populates="items")
     author = relationship("User", foreign_keys=[author_id])
     tags = relationship("Tag", secondary=knowledge_item_tags, back_populates="items")
+    article = relationship("Article", back_populates="item", uselist=False, cascade="all, delete-orphan")
+
+
+class Article(Base):
+    __tablename__ = "articles"
+
+    item_id = Column(Integer, ForeignKey("knowledge_items.id", ondelete="CASCADE"), primary_key=True)
+    content = Column(JSONB, nullable=True)        # TipTap JSON doc
+    attachments = Column(JSONB, nullable=False, default=list, server_default="[]")
+    toc_enabled = Column(Boolean, nullable=False, default=False, server_default="false")
+
+    item = relationship("KnowledgeItem", back_populates="article")

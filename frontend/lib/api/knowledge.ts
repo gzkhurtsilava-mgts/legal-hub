@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
-import { apiFetch } from "./client";
+import { apiFetch, apiFetchForm } from "./client";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -60,6 +60,15 @@ export interface KnowledgeItemListResponse {
   limit: number;
 }
 
+export interface KnowledgeItemCreate {
+  section_id: number;
+  item_type: ItemType;
+  title: string;
+  summary?: string;
+  visibility: Visibility;
+  tag_ids: number[];
+}
+
 export interface ItemFilters {
   section_id?: number;
   item_type?: ItemType;
@@ -69,6 +78,26 @@ export interface ItemFilters {
   q?: string;
   skip?: number;
   limit?: number;
+}
+
+export interface AttachmentMeta {
+  filename: string;
+  path: string;
+  size: number;
+  mime_type: string;
+}
+
+export interface ArticleContentData {
+  content: Record<string, unknown> | null;
+  attachments: AttachmentMeta[];
+  toc_enabled: boolean;
+}
+
+export interface UploadedFile {
+  url: string;
+  filename: string;
+  size: number;
+  mime_type: string;
 }
 
 // ─── Query keys ───────────────────────────────────────────────────────────────
@@ -250,4 +279,100 @@ export function useToggleFavorite(itemId: number) {
   });
 
   return { add, remove };
+}
+
+// ─── Article content ──────────────────────────────────────────────────────────
+
+export function useArticleContent(itemId: number) {
+  const token = useToken();
+  return useQuery({
+    queryKey: ["knowledge", "article", itemId],
+    queryFn: () => apiFetch<ArticleContentData>(`/api/knowledge/items/${itemId}/article`, token),
+    enabled: !!token && !!itemId,
+  });
+}
+
+export function useUpdateArticle(itemId: number) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { content: Record<string, unknown> | null; toc_enabled: boolean }) =>
+      apiFetch<ArticleContentData>(`/api/knowledge/items/${itemId}/article`, token, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["knowledge", "article", itemId] });
+      qc.invalidateQueries({ queryKey: ["knowledge", "items"] });
+    },
+  });
+}
+
+export function useUploadMedia() {
+  const token = useToken();
+  return useMutation({
+    mutationFn: (file: File) => {
+      const form = new FormData();
+      form.append("file", file);
+      return apiFetchForm<UploadedFile>("/api/knowledge/uploads/media", token, form);
+    },
+  });
+}
+
+export function useUploadAttachment(itemId: number) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (file: File) => {
+      const form = new FormData();
+      form.append("file", file);
+      return apiFetchForm<UploadedFile>(
+        `/api/knowledge/uploads/attachment?item_id=${itemId}`, token, form
+      );
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["knowledge", "article", itemId] });
+    },
+  });
+}
+
+export function useCreateKnowledgeItem() {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: KnowledgeItemCreate) =>
+      apiFetch<KnowledgeItem>("/api/knowledge/items", token, {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["knowledge", "items"] });
+    },
+  });
+}
+
+export function usePublishItem(itemId: number) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () =>
+      apiFetch<KnowledgeItem>(`/api/knowledge/items/${itemId}/publish`, token, { method: "POST" }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["knowledge", "items"] });
+      qc.invalidateQueries({ queryKey: ["knowledge", "items", itemId] });
+    },
+  });
+}
+
+export function useArchiveItem(itemId: number) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () =>
+      apiFetch<KnowledgeItem>(`/api/knowledge/items/${itemId}/archive`, token, { method: "POST" }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["knowledge", "items"] });
+      qc.invalidateQueries({ queryKey: ["knowledge", "items", itemId] });
+    },
+  });
 }
