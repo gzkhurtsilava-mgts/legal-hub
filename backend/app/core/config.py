@@ -22,5 +22,8 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 60
     refresh_token_expire_days: int = 7
 
+    # File storage (Docker volume /media)
+    media_root: str = "/media"
+
 
 settings = Settings()

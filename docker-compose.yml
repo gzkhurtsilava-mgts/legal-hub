@@ -44,16 +44,40 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-legalhub}:${POSTGRES_PASSWORD:-legalhub_dev}@postgres:5432/${POSTGRES_DB:-legalhub}
       REDIS_URL: redis://redis:6379
+      MEDIA_ROOT: /media
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app  # hot reload в dev-режиме
+      - ./backend:/app
+      - media_storage:/media
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # arq worker (фоновые задачи)
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: legal-hub-worker
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-legalhub}:${POSTGRES_PASSWORD:-legalhub_dev}@postgres:5432/${POSTGRES_DB:-legalhub}
+      REDIS_URL: redis://redis:6379
+      MEDIA_ROOT: /media
+    volumes:
+      - ./backend:/app
+      - media_storage:/media
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: arq app.worker.WorkerSettings
 
   # Next.js фронтенд
   frontend:
@@ -69,10 +93,11 @@ services:
       - "3000:3000"
     volumes:
       - ./frontend:/app
-      - /app/node_modules  # не перетирать node_modules хостовыми
+      - /app/node_modules
       - /app/.next
     depends_on:
       - backend
 
 volumes:
   postgres_data:
+  media_storage:

@@ -1,3 +1,9 @@
-# Импортируй сюда все модели при их создании.
-# Это нужно, чтобы Alembic autogenerate видел все таблицы.
 from app.models.user import User  # noqa: F401
+from app.models.knowledge import (  # noqa: F401
+    KnowledgeItem,
+    Section,
+    Tag,
+    UserFavorite,
+    knowledge_item_tags,
+    section_lawyers,
+)

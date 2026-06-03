@@ -57,3 +57,23 @@ def require_role(*roles: UserRole) -> Callable:
         return current_user
 
     return _check
+
+
+async def check_section_write_access(
+    section_id: int,
+    user: UserContext,
+    db: AsyncSession,
+) -> None:
+    """Raises 403 if user is not admin and not a declared owner of the section."""
+    if user.role == UserRole.admin:
+        return
+    from app.models.knowledge import section_lawyers  # local import avoids circular at load time
+
+    result = await db.execute(
+        select(section_lawyers).where(
+            section_lawyers.c.section_id == section_id,
+            section_lawyers.c.user_id == user.id,
+        )
+    )
+    if result.fetchone() is None:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Недостаточно прав")

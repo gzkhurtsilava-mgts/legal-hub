@@ -4,6 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api import health
 from app.api import auth
+from app.api import files
+from app.api import knowledge
 
 app = FastAPI(
     title="Legal Hub API",
@@ -26,6 +28,8 @@ app.add_middleware(
 # Роуты
 app.include_router(health.router, prefix="/api", tags=["health"])
 app.include_router(auth.router, prefix="/api")
+app.include_router(files.router)
+app.include_router(knowledge.router, prefix="/api")
 
 
 @app.on_event("startup")

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 // eslint-disable-next-line import/order
 import '@mts-ds/granat2-react-root/theme.css';
 import "./globals.css";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 
 export const metadata: Metadata = {
@@ -25,7 +26,9 @@ export default function RootLayout({
         />
       </head>
       <body className="mtsds-vars mgts-corai-vars">
-        <SessionProvider>{children}</SessionProvider>
+        <QueryProvider>
+          <SessionProvider>{children}</SessionProvider>
+        </QueryProvider>
       </body>
     </html>
   );

@@ -5,6 +5,7 @@ type UserRole = "admin" | "lawyer" | "manager" | "employee" | "guest";
 
 declare module "next-auth" {
   interface Session {
+    accessToken: string;
     user: {
       id: string;
       email: string;
