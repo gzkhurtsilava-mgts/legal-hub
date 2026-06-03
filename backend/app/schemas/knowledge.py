@@ -105,3 +105,26 @@ class KnowledgeItemListResponse(BaseModel):
     total: int
     skip: int
     limit: int
+
+
+# ─── Typeahead ────────────────────────────────────────────────────────────────
+
+class TypeaheadSection(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    name: str
+    slug: str
+    visibility: Visibility
+
+
+class TypeaheadItem(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    title: str
+    item_type: ItemType
+    section_id: int
+
+
+class TypeaheadResponse(BaseModel):
+    sections: list[TypeaheadSection]
+    items: list[TypeaheadItem]

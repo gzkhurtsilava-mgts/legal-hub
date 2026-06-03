@@ -72,6 +72,25 @@ export interface ItemFilters {
 
 // ─── Query keys ───────────────────────────────────────────────────────────────
 
+export interface TypeaheadSection {
+  id: number;
+  name: string;
+  slug: string;
+  visibility: Visibility;
+}
+
+export interface TypeaheadItem {
+  id: number;
+  title: string;
+  item_type: ItemType;
+  section_id: number;
+}
+
+export interface TypeaheadResponse {
+  sections: TypeaheadSection[];
+  items: TypeaheadItem[];
+}
+
 export const knowledgeKeys = {
   all: ["knowledge"] as const,
   sections: () => [...knowledgeKeys.all, "sections"] as const,
@@ -127,12 +146,12 @@ export function useSection(id: number) {
   });
 }
 
-export function useKnowledgeItems(filters?: ItemFilters) {
+export function useKnowledgeItems(filters?: ItemFilters, opts?: { enabled?: boolean }) {
   const token = useToken();
   return useQuery({
     queryKey: knowledgeKeys.items(filters),
     queryFn: () => apiFetch<KnowledgeItemListResponse>(buildItemsUrl(filters), token),
-    enabled: !!token,
+    enabled: (opts?.enabled !== false) && !!token,
   });
 }
 
@@ -160,6 +179,37 @@ export function useFavorites(filters?: Pick<ItemFilters, "skip" | "limit">) {
     queryKey: knowledgeKeys.favorites(filters),
     queryFn: () => apiFetch<KnowledgeItemListResponse>("/api/knowledge/favorites", token),
     enabled: !!token,
+  });
+}
+
+export function useTypeahead(q: string) {
+  const token = useToken();
+  return useQuery({
+    queryKey: knowledgeKeys.typeahead(q),
+    queryFn: () =>
+      apiFetch<TypeaheadResponse>(
+        `/api/knowledge/search/typeahead?q=${encodeURIComponent(q)}`,
+        token
+      ),
+    enabled: !!token && q.length >= 2,
+    staleTime: 30 * 1000,
+  });
+}
+
+export function useSearch(q: string, filters?: Omit<ItemFilters, "q">) {
+  const token = useToken();
+  const params = new URLSearchParams({ q });
+  if (filters?.section_id != null) params.set("section_id", String(filters.section_id));
+  if (filters?.item_type) params.set("item_type", filters.item_type);
+  if (filters?.tag_ids?.length) filters.tag_ids.forEach((t) => params.append("tag_ids", String(t)));
+  if (filters?.skip != null) params.set("skip", String(filters.skip));
+  if (filters?.limit != null) params.set("limit", String(filters.limit));
+
+  return useQuery({
+    queryKey: knowledgeKeys.search(q, filters),
+    queryFn: () =>
+      apiFetch<KnowledgeItemListResponse>(`/api/knowledge/search?${params}`, token),
+    enabled: !!token && q.length >= 2,
   });
 }
 

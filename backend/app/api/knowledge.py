@@ -2,12 +2,13 @@ from datetime import datetime, timezone
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.database import get_db
 from app.core.deps import UserContext, check_section_write_access, get_current_user, require_role
+from app.services.knowledge.search import build_search_conditions, search_rank, translate_layout
 from app.models.knowledge import (
     ItemStatus,
     KnowledgeItem,
@@ -29,6 +30,9 @@ from app.schemas.knowledge import (
     SectionUpdate,
     TagCreate,
     TagResponse,
+    TypeaheadItem,
+    TypeaheadResponse,
+    TypeaheadSection,
 )
 
 router = APIRouter(prefix="/knowledge", tags=["knowledge"])
@@ -133,6 +137,35 @@ async def create_section(
     return SectionResponse.model_validate(section)
 
 
+@router.get("/sections/by-slug/{slug}", response_model=SectionDetailResponse)
+async def get_section_by_slug(
+    slug: str,
+    current_user: UserContext = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> SectionDetailResponse:
+    result = await db.execute(
+        select(Section)
+        .options(selectinload(Section.children))
+        .where(Section.slug == slug)
+    )
+    section = result.scalar_one_or_none()
+    if section is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Раздел не найден")
+    if section.visibility == Visibility.bpo_only and current_user.role not in _EDITOR_ROLES:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Доступ закрыт")
+    item_count = await db.scalar(
+        select(func.count(KnowledgeItem.id)).where(KnowledgeItem.section_id == section.id)
+    ) or 0
+    visible_children = [
+        SectionResponse.model_validate(c)
+        for c in section.children
+        if current_user.role in _EDITOR_ROLES or c.visibility == Visibility.public
+    ]
+    return SectionDetailResponse.model_validate(section).model_copy(
+        update={"item_count": item_count, "children": visible_children}
+    )
+
+
 @router.get("/sections/{section_id}", response_model=SectionDetailResponse)
 async def get_section(
     section_id: int,
@@ -205,6 +238,102 @@ async def delete_section(
     await db.delete(section)
 
 
+# ─── Search ───────────────────────────────────────────────────────────────────
+
+@router.get("/search/typeahead", response_model=TypeaheadResponse)
+async def typeahead(
+    q: str = Query(..., min_length=2),
+    current_user: UserContext = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> TypeaheadResponse:
+    q_clean = q.strip()
+    q_ru = translate_layout(q_clean)
+    variants = list({q_clean, q_ru})
+
+    def _title_condition(col):
+        return or_(*(
+            or_(col.op("%")(v), col.ilike(f"%{v}%"))
+            for v in variants
+        ))
+
+    sec_q = (
+        select(Section)
+        .where(_title_condition(Section.name))
+        .order_by(func.similarity(Section.name, q_ru).desc())
+        .limit(5)
+    )
+    vis = _visible_section_filter(current_user)
+    if vis is not None:
+        sec_q = sec_q.where(vis)
+    sections = (await db.execute(sec_q)).scalars().all()
+
+    item_q = (
+        select(KnowledgeItem)
+        .where(_title_condition(KnowledgeItem.title))
+        .where(KnowledgeItem.status == ItemStatus.published)
+        .order_by(func.similarity(KnowledgeItem.title, q_ru).desc())
+        .limit(7)
+    )
+    vis2 = _visible_item_filter(current_user)
+    if vis2 is not None:
+        item_q = item_q.where(vis2)
+    items = (await db.execute(item_q)).scalars().all()
+
+    return TypeaheadResponse(
+        sections=[TypeaheadSection.model_validate(s) for s in sections],
+        items=[TypeaheadItem.model_validate(i) for i in items],
+    )
+
+
+@router.get("/search", response_model=KnowledgeItemListResponse)
+async def search(
+    q: str = Query(..., min_length=2),
+    section_id: int | None = Query(None),
+    item_type: str | None = Query(None),
+    tag_ids: Annotated[list[int], Query()] = [],
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=200),
+    current_user: UserContext = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> KnowledgeItemListResponse:
+    cond = build_search_conditions(q)
+    if cond is None:
+        return KnowledgeItemListResponse(items=[], total=0, skip=skip, limit=limit)
+
+    query = select(KnowledgeItem).options(selectinload(KnowledgeItem.tags)).where(cond)
+
+    vis = _visible_item_filter(current_user)
+    if vis is not None:
+        query = query.where(vis)
+    pub = _published_item_filter(current_user)
+    if pub is not None:
+        query = query.where(pub)
+
+    if section_id:
+        query = query.where(KnowledgeItem.section_id == section_id)
+    if item_type:
+        query = query.where(KnowledgeItem.item_type == item_type)
+    if tag_ids:
+        query = (
+            query.join(knowledge_item_tags, knowledge_item_tags.c.item_id == KnowledgeItem.id)
+            .where(knowledge_item_tags.c.tag_id.in_(tag_ids))
+            .distinct()
+        )
+
+    total = await db.scalar(select(func.count()).select_from(query.subquery())) or 0
+    query = query.order_by(search_rank(q).desc()).offset(skip).limit(limit)
+
+    items = (await db.execute(query)).scalars().unique().all()
+    fav_ids = await _get_favorite_ids(current_user.id, db)
+
+    return KnowledgeItemListResponse(
+        items=[_item_response(item, fav_ids) for item in items],
+        total=total,
+        skip=skip,
+        limit=limit,
+    )
+
+
 # ─── Items ────────────────────────────────────────────────────────────────────
 
 @router.get("/items", response_model=KnowledgeItemListResponse)
@@ -244,7 +373,9 @@ async def list_items(
         ).where(knowledge_item_tags.c.tag_id.in_(tag_ids)).distinct()
 
     if q:
-        query = query.where(KnowledgeItem.title.ilike(f"%{q}%"))
+        cond = build_search_conditions(q)
+        if cond is not None:
+            query = query.where(cond)
 
     if favorites_only:
         query = query.join(

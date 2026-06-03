@@ -1,6 +1,7 @@
 import enum
 
-from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, Table, Text
+from sqlalchemy import Column, Computed, DateTime, Enum, ForeignKey, Integer, String, Table, Text
+from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -112,6 +113,16 @@ class KnowledgeItem(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     content_text = Column(Text, nullable=True)
+    search_vector = Column(
+        TSVECTOR,
+        Computed(
+            "setweight(to_tsvector('russian', coalesce(title, '')), 'A') || "
+            "setweight(to_tsvector('russian', coalesce(summary, '')), 'B') || "
+            "setweight(to_tsvector('russian', coalesce(content_text, '')), 'C')",
+            persisted=True,
+        ),
+        nullable=True,
+    )
 
     section = relationship("Section", back_populates="items")
     author = relationship("User", foreign_keys=[author_id])
