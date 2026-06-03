@@ -50,8 +50,8 @@ def build_search_conditions(q: str):
     for variant in variants:
         tsq = func.plainto_tsquery("russian", variant)
         conditions.append(KnowledgeItem.search_vector.op("@@")(tsq))
-        # trigram for typos / short queries
-        conditions.append(KnowledgeItem.title.op("%")(variant))
+        # substring match: "реглам" finds "регламент" (uses pg_trgm GIN index)
+        conditions.append(KnowledgeItem.title.ilike(f"%{variant}%"))
 
     return or_(*conditions)
 

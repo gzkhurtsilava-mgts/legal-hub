@@ -2,6 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { Card } from "@mts-ds/granat2-react-card";
+import { DocumentIcon } from "@/components/icons/DocumentIcon";
+import { LinkIcon } from "@/components/icons/LinkIcon";
+import { QuestionCircleIcon } from "@/components/icons/QuestionCircleIcon";
+import { OpenBookIcon } from "@/components/icons/OpenBookIcon";
 import type { KnowledgeItem } from "@/lib/api/knowledge";
 import { FavoritesToggle } from "./FavoritesToggle";
 
@@ -19,9 +23,17 @@ const TYPE_COLORS: Record<string, string> = {
   faq: "var(--color-accent-negative)",
 };
 
+const TYPE_ICONS: Record<string, React.FC<{ size?: number }>> = {
+  article: ({ size }) => <OpenBookIcon size={size} />,
+  document: ({ size }) => <DocumentIcon size={size} />,
+  link: ({ size }) => <LinkIcon size={size} />,
+  faq: ({ size }) => <QuestionCircleIcon size={size} />,
+};
+
 export function ItemCard({ item }: { item: KnowledgeItem }) {
   const router = useRouter();
   const color = TYPE_COLORS[item.item_type] ?? "var(--brand-blue)";
+  const Icon = TYPE_ICONS[item.item_type];
 
   return (
     <Card
@@ -34,11 +46,13 @@ export function ItemCard({ item }: { item: KnowledgeItem }) {
     >
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
         <span style={{
+          display: "inline-flex", alignItems: "center", gap: "5px",
           fontFamily: "MTS Compact", fontSize: "11px", fontWeight: 500,
           color, background: `${color}18`,
-          padding: "2px 8px", borderRadius: "999px",
+          padding: "3px 8px", borderRadius: "999px",
           textTransform: "uppercase", letterSpacing: "0.5px",
         }}>
+          {Icon && <Icon size={12} />}
           {TYPE_LABELS[item.item_type] ?? item.item_type}
         </span>
         <div style={{ marginLeft: "auto" }}>

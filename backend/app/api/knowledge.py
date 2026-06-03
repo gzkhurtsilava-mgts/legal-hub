@@ -538,15 +538,19 @@ async def archive_item(
 
 @router.get("/tags", response_model=list[TagResponse])
 async def list_tags(
+    item_type: str | None = Query(None),
     current_user: UserContext = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> list[TagResponse]:
-    result = await db.execute(
+    query = (
         select(Tag, func.count(knowledge_item_tags.c.item_id).label("item_count"))
         .outerjoin(knowledge_item_tags, knowledge_item_tags.c.tag_id == Tag.id)
         .group_by(Tag.id)
         .order_by(Tag.name)
     )
+    if item_type:
+        query = query.where(Tag.entity_type == item_type)
+    result = await db.execute(query)
     return [
         TagResponse.model_validate(tag).model_copy(update={"item_count": count})
         for tag, count in result.all()

@@ -76,6 +76,7 @@ class Tag(Base):
     name = Column(String(100), nullable=False, unique=True)
     slug = Column(String(100), nullable=False, unique=True)
     color = Column(String(20), nullable=True)
+    entity_type = Column(String(20), nullable=True)  # article|document|link|faq|None
 
     items = relationship("KnowledgeItem", secondary=knowledge_item_tags, back_populates="tags")
 

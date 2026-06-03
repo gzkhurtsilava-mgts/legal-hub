@@ -21,6 +21,7 @@ class TagResponse(BaseModel):
     name: str
     slug: str
     color: str | None
+    entity_type: str | None = None
     item_count: int = 0
 
 

@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Spinner } from "@mts-ds/granat2-react-spinner";
+import { SearchIcon } from "@/components/icons/SearchIcon";
+import { CrossIcon } from "@/components/icons/CrossIcon";
 import { useTypeahead } from "@/lib/api/knowledge";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 
@@ -52,9 +54,7 @@ export function SearchBig({ initialValue = "" }: { initialValue?: string }) {
       }}
         onFocus={() => null}
       >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-icons-secondary)" strokeWidth="2" style={{ flexShrink: 0 }}>
-          <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-        </svg>
+        <SearchIcon size={20} style={{ flexShrink: 0, color: "var(--color-icons-secondary)" }} />
         <input
           ref={inputRef}
           type="text"
@@ -78,9 +78,7 @@ export function SearchBig({ initialValue = "" }: { initialValue?: string }) {
             onClick={() => { setQ(""); setOpen(false); inputRef.current?.focus(); }}
             style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", color: "var(--color-icons-secondary)", flexShrink: 0 }}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
+            <CrossIcon size={18} />
           </button>
         )}
       </div>

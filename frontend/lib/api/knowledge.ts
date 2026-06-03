@@ -15,6 +15,7 @@ export interface Tag {
   name: string;
   slug: string;
   color: string | null;
+  entity_type: string | null;
   item_count: number;
 }
 
@@ -95,9 +96,10 @@ export const knowledgeKeys = {
   all: ["knowledge"] as const,
   sections: () => [...knowledgeKeys.all, "sections"] as const,
   section: (id: number) => [...knowledgeKeys.all, "sections", id] as const,
+  sectionBySlug: (slug: string) => [...knowledgeKeys.all, "sections", "slug", slug] as const,
   items: (filters?: ItemFilters) => [...knowledgeKeys.all, "items", filters ?? {}] as const,
   item: (id: number) => [...knowledgeKeys.all, "items", id] as const,
-  tags: () => [...knowledgeKeys.all, "tags"] as const,
+  tags: (itemType?: ItemType) => [...knowledgeKeys.all, "tags", itemType ?? "all"] as const,
   favorites: (filters?: Pick<ItemFilters, "skip" | "limit">) =>
     [...knowledgeKeys.all, "favorites", filters ?? {}] as const,
   typeahead: (q: string) => [...knowledgeKeys.all, "typeahead", q] as const,
@@ -164,12 +166,24 @@ export function useKnowledgeItem(id: number) {
   });
 }
 
-export function useTags() {
+export function useTags(itemType?: ItemType) {
+  const token = useToken();
+  const url = itemType
+    ? `/api/knowledge/tags?item_type=${itemType}`
+    : "/api/knowledge/tags";
+  return useQuery({
+    queryKey: knowledgeKeys.tags(itemType),
+    queryFn: () => apiFetch<Tag[]>(url, token),
+    enabled: !!token,
+  });
+}
+
+export function useSectionBySlug(slug: string) {
   const token = useToken();
   return useQuery({
-    queryKey: knowledgeKeys.tags(),
-    queryFn: () => apiFetch<Tag[]>("/api/knowledge/tags", token),
-    enabled: !!token,
+    queryKey: knowledgeKeys.sectionBySlug(slug),
+    queryFn: () => apiFetch<SectionDetail>(`/api/knowledge/sections/by-slug/${slug}`, token),
+    enabled: !!token && !!slug,
   });
 }
 
@@ -217,20 +231,22 @@ export function useToggleFavorite(itemId: number) {
   const token = useToken();
   const qc = useQueryClient();
 
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: knowledgeKeys.item(itemId) });
+    // invalidate all items list queries (any filter combination)
+    qc.invalidateQueries({ queryKey: ["knowledge", "items"] });
+    qc.invalidateQueries({ queryKey: ["knowledge", "favorites"] });
+    qc.invalidateQueries({ queryKey: ["knowledge", "search"] });
+  };
+
   const add = useMutation({
     mutationFn: () => apiFetch<void>(`/api/knowledge/items/${itemId}/favorite`, token, { method: "POST" }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: knowledgeKeys.item(itemId) });
-      qc.invalidateQueries({ queryKey: knowledgeKeys.favorites() });
-    },
+    onSuccess: invalidate,
   });
 
   const remove = useMutation({
     mutationFn: () => apiFetch<void>(`/api/knowledge/items/${itemId}/favorite`, token, { method: "DELETE" }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: knowledgeKeys.item(itemId) });
-      qc.invalidateQueries({ queryKey: knowledgeKeys.favorites() });
-    },
+    onSuccess: invalidate,
   });
 
   return { add, remove };

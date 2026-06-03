@@ -56,9 +56,11 @@ export function SectionCard({ section }: { section: Section }) {
         </p>
       )}
 
-      <p style={{ fontFamily: "MTS Compact", fontSize: "12px", color: "var(--color-text-tertiary)" }}>
-        {pluralize(section.item_count)}
-      </p>
+      {section.item_count > 0 && (
+        <p style={{ fontFamily: "MTS Compact", fontSize: "12px", color: "var(--color-text-tertiary)" }}>
+          {pluralize(section.item_count)}
+        </p>
+      )}
     </Card>
   );
 }
