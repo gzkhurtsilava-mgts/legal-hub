@@ -115,6 +115,7 @@ class AttachmentMeta(BaseModel):
     path: str
     size: int
     mime_type: str
+    is_preview: bool = False   # показывать inline или только скачивать
 
 
 class ArticleContent(BaseModel):
@@ -134,6 +135,35 @@ class UploadedFile(BaseModel):
     filename: str
     size: int
     mime_type: str
+
+
+# ─── Documents ────────────────────────────────────────────────────────────────
+
+class DocumentVersionResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    document_id: int
+    version_label: str
+    effective_date: datetime | None
+    original_filename: str
+    original_file_path: str
+    original_mime_type: str
+    file_size: int
+    preview_status: str
+    preview_data: dict | None
+    notes: str | None
+    uploaded_at: datetime
+
+
+class DocumentVersionCreate(BaseModel):
+    version_label: str = Field(max_length=100)
+    effective_date: datetime | None = None
+    notes: str | None = None
+
+
+class AttachmentPreviewUpdate(BaseModel):
+    path: str
+    is_preview: bool
 
 
 # ─── Typeahead ────────────────────────────────────────────────────────────────

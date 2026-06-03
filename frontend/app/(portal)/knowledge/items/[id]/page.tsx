@@ -3,8 +3,9 @@
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Spinner } from "@mts-ds/granat2-react-spinner";
-import { useKnowledgeItem, useArticleContent } from "@/lib/api/knowledge";
+import { useKnowledgeItem, useArticleContent, useDocumentVersions } from "@/lib/api/knowledge";
 import { ArticleViewer } from "@/components/knowledge/viewers/ArticleViewer";
+import { DocumentViewer } from "@/components/knowledge/viewers/DocumentViewer";
 
 const TYPE_LABELS: Record<string, string> = {
   article: "Статья", document: "Документ", link: "Ссылка", faq: "FAQ",
@@ -27,8 +28,13 @@ export default function ItemPage() {
   const { data: articleContent, isLoading: articleLoading } = useArticleContent(
     item?.item_type === "article" ? itemId : 0
   );
+  const { data: versions = [], isLoading: versionsLoading } = useDocumentVersions(
+    item?.item_type === "document" ? itemId : 0
+  );
 
-  const isLoading = itemLoading || (item?.item_type === "article" && articleLoading);
+  const isLoading = itemLoading
+    || (item?.item_type === "article" && articleLoading)
+    || (item?.item_type === "document" && versionsLoading);
 
   if (isLoading) {
     return (
@@ -121,9 +127,7 @@ export default function ItemPage() {
       )}
 
       {item.item_type === "document" && (
-        <div style={{ fontFamily: "MTS Compact", fontSize: "15px", color: "var(--color-text-secondary)" }}>
-          Просмотр документов будет доступен в M4.
-        </div>
+        <DocumentViewer versions={versions} />
       )}
     </div>
   );

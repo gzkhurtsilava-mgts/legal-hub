@@ -6,9 +6,10 @@ import { useSession } from "next-auth/react";
 import { Spinner } from "@mts-ds/granat2-react-spinner";
 import {
   useKnowledgeItem, useArticleContent, useUpdateArticle,
-  usePublishItem, useArchiveItem, useUploadAttachment,
+  usePublishItem, useArchiveItem, useUploadAttachment, useToggleAttachmentPreview,
 } from "@/lib/api/knowledge";
 import { ArticleEditor } from "@/components/knowledge/editors/ArticleEditor";
+import { VersionUpload } from "@/components/knowledge/editors/VersionUpload";
 
 const EDITOR_ROLES = ["admin", "lawyer"];
 
@@ -35,6 +36,7 @@ export default function EditItemPage() {
   const publishItem = usePublishItem(itemId);
   const archiveItem = useArchiveItem(itemId);
   const uploadAttachment = useUploadAttachment(itemId);
+  const togglePreview = useToggleAttachmentPreview(itemId);
 
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [tocEnabled, setTocEnabled] = useState(false);
@@ -158,6 +160,16 @@ export default function EditItemPage() {
                 {articleData!.attachments.map((att) => (
                   <div key={att.path} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "8px 12px", background: "var(--color-background-secondary)", borderRadius: "var(--radius-m)" }}>
                     <span style={{ fontFamily: "MTS Compact", fontSize: "13px", flex: 1 }}>📎 {att.filename}</span>
+                    <label style={{ display: "flex", alignItems: "center", gap: "5px", cursor: "pointer" }}>
+                      <input
+                        type="checkbox"
+                        checked={att.is_preview ?? false}
+                        onChange={(e) => togglePreview.mutate({ path: att.path, is_preview: e.target.checked })}
+                      />
+                      <span style={{ fontFamily: "MTS Compact", fontSize: "12px", color: "var(--color-text-secondary)", whiteSpace: "nowrap" }}>
+                        Превью
+                      </span>
+                    </label>
                   </div>
                 ))}
               </div>
@@ -171,10 +183,14 @@ export default function EditItemPage() {
         </>
       )}
 
-      {item.item_type !== "article" && (
+      {item.item_type === "document" && (
+        <VersionUpload itemId={itemId} />
+      )}
+
+      {(item.item_type === "link" || item.item_type === "faq") && (
         <div style={{ padding: "32px", background: "var(--color-background-secondary)", borderRadius: "var(--radius-m)", textAlign: "center" }}>
           <p style={{ fontFamily: "MTS Compact", fontSize: "15px", color: "var(--color-text-secondary)" }}>
-            Редактор для типа «{item.item_type}» будет доступен в следующих милестоунах.
+            Редактор для типа «{item.item_type}» будет доступен в M5.
           </p>
         </div>
       )}

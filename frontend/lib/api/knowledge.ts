@@ -85,6 +85,7 @@ export interface AttachmentMeta {
   path: string;
   size: number;
   mime_type: string;
+  is_preview: boolean;
 }
 
 export interface ArticleContentData {
@@ -361,6 +362,91 @@ export function usePublishItem(itemId: number) {
       qc.invalidateQueries({ queryKey: ["knowledge", "items"] });
       qc.invalidateQueries({ queryKey: ["knowledge", "items", itemId] });
     },
+  });
+}
+
+// ─── Document versions ────────────────────────────────────────────────────────
+
+export interface DocumentVersion {
+  id: number;
+  document_id: number;
+  version_label: string;
+  effective_date: string | null;
+  original_filename: string;
+  original_file_path: string;
+  original_mime_type: string;
+  file_size: number;
+  preview_status: "pending" | "processing" | "ready" | "failed" | "na";
+  preview_data: Record<string, unknown> | null;
+  notes: string | null;
+  uploaded_at: string;
+}
+
+export function useDocumentVersions(itemId: number) {
+  const token = useToken();
+  return useQuery({
+    queryKey: ["knowledge", "versions", itemId],
+    queryFn: () => apiFetch<DocumentVersion[]>(`/api/knowledge/items/${itemId}/versions`, token),
+    enabled: !!token && !!itemId,
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      if (data?.some((v) => v.preview_status === "pending" || v.preview_status === "processing"))
+        return 3000;
+      return false;
+    },
+  });
+}
+
+export function useUploadVersion(itemId: number) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ file, versionLabel, notes }: { file: File; versionLabel: string; notes?: string }) => {
+      const form = new FormData();
+      form.append("file", file);
+      form.append("version_label", versionLabel);
+      if (notes) form.append("notes", notes);
+      return apiFetchForm<DocumentVersion>(`/api/knowledge/items/${itemId}/versions`, token, form);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["knowledge", "versions", itemId] }),
+  });
+}
+
+export function useDeleteVersion(itemId: number) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (versionId: number) =>
+      apiFetch<void>(`/api/knowledge/items/${itemId}/versions/${versionId}`, token, { method: "DELETE" }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["knowledge", "versions", itemId] }),
+  });
+}
+
+export function useUploadSlidesZip(itemId: number, versionId: number) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (file: File) => {
+      const form = new FormData();
+      form.append("file", file);
+      return apiFetchForm<DocumentVersion>(
+        `/api/knowledge/items/${itemId}/versions/${versionId}/slides`, token, form
+      );
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["knowledge", "versions", itemId] }),
+  });
+}
+
+export function useToggleAttachmentPreview(itemId: number) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ path, is_preview }: { path: string; is_preview: boolean }) =>
+      apiFetch<void>(`/api/knowledge/items/${itemId}/attachments/preview`, token, {
+        method: "PATCH",
+        body: JSON.stringify({ path, is_preview }),
+      }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["knowledge", "article", itemId] }),
   });
 }
 

@@ -1,6 +1,6 @@
 import enum
 
-from sqlalchemy import Boolean, Column, Computed, DateTime, Enum, ForeignKey, Integer, String, Table, Text
+from sqlalchemy import Boolean, Column, Computed, Date, DateTime, Enum, ForeignKey, Integer, String, Table, Text
 from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -24,6 +24,14 @@ class ItemStatus(str, enum.Enum):
     draft = "draft"
     published = "published"
     archived = "archived"
+
+
+class PreviewStatus(str, enum.Enum):
+    pending = "pending"
+    processing = "processing"
+    ready = "ready"
+    failed = "failed"
+    na = "na"  # PPTX — слайды загружаются вручную через ZIP
 
 
 # ─── Association tables ───────────────────────────────────────────────────────
@@ -129,6 +137,7 @@ class KnowledgeItem(Base):
     author = relationship("User", foreign_keys=[author_id])
     tags = relationship("Tag", secondary=knowledge_item_tags, back_populates="items")
     article = relationship("Article", back_populates="item", uselist=False, cascade="all, delete-orphan")
+    document = relationship("Document", back_populates="item", uselist=False, cascade="all, delete-orphan")
 
 
 class Article(Base):
@@ -140,3 +149,43 @@ class Article(Base):
     toc_enabled = Column(Boolean, nullable=False, default=False, server_default="false")
 
     item = relationship("KnowledgeItem", back_populates="article")
+
+
+class Document(Base):
+    __tablename__ = "documents"
+
+    item_id = Column(Integer, ForeignKey("knowledge_items.id", ondelete="CASCADE"), primary_key=True)
+
+    item = relationship("KnowledgeItem", back_populates="document")
+    versions = relationship(
+        "DocumentVersion", back_populates="document",
+        order_by="DocumentVersion.uploaded_at.desc()",
+        cascade="all, delete-orphan",
+    )
+
+
+class DocumentVersion(Base):
+    __tablename__ = "document_versions"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    document_id = Column(Integer, ForeignKey("documents.item_id", ondelete="CASCADE"), nullable=False)
+    version_label = Column(String(100), nullable=False)
+    effective_date = Column(Date, nullable=True)
+    original_filename = Column(String(500), nullable=False)
+    original_file_path = Column(String(1000), nullable=False)
+    original_mime_type = Column(String(200), nullable=False)
+    file_size = Column(Integer, nullable=False)
+    preview_status = Column(
+        Enum(PreviewStatus, name="preview_status"),
+        nullable=False,
+        default=PreviewStatus.pending,
+        server_default=PreviewStatus.pending.value,
+    )
+    preview_data = Column(JSONB, nullable=True)   # {"type": "pdf"|"html"|"slides", ...}
+    extracted_text = Column(Text, nullable=True)
+    notes = Column(Text, nullable=True)
+    uploaded_by_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    uploaded_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    document = relationship("Document", back_populates="versions")
+    uploaded_by = relationship("User", foreign_keys=[uploaded_by_id])

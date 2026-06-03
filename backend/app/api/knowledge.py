@@ -4,7 +4,9 @@ from pathlib import Path
 from typing import Annotated
 
 import aiofiles
-from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
+from arq import create_pool
+from arq.connections import RedisSettings
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -16,9 +18,12 @@ from app.services.knowledge.search import build_search_conditions, search_rank, 
 from app.services.knowledge.tiptap import extract_text as tiptap_extract_text
 from app.models.knowledge import (
     Article,
+    Document,
+    DocumentVersion,
     ItemStatus,
     ItemType,
     KnowledgeItem,
+    PreviewStatus,
     Section,
     Tag,
     UserFavorite,
@@ -30,6 +35,9 @@ from app.schemas.knowledge import (
     ArticleContent,
     ArticleContentUpdate,
     AttachmentMeta,
+    AttachmentPreviewUpdate,
+    DocumentVersionCreate,
+    DocumentVersionResponse,
     KnowledgeItemCreate,
     KnowledgeItemListResponse,
     KnowledgeItemResponse,
@@ -791,8 +799,180 @@ async def upload_attachment(
     if article:
         current = list(article.attachments or [])
         current.append({"filename": file.filename, "path": rel_path,
-                        "size": size, "mime_type": file.content_type or "application/octet-stream"})
+                        "size": size, "mime_type": file.content_type or "application/octet-stream",
+                        "is_preview": False})
         article.attachments = current
 
     return UploadedFile(url=f"/api/files/{rel_path}", filename=file.filename or filename,
                         size=size, mime_type=file.content_type or "application/octet-stream")
+
+
+# ─── Attachment is_preview toggle ─────────────────────────────────────────────
+
+@router.patch("/items/{item_id}/attachments/preview", status_code=status.HTTP_204_NO_CONTENT)
+async def toggle_attachment_preview(
+    item_id: int,
+    body: AttachmentPreviewUpdate,
+    current_user: UserContext = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    item = await _require_item(item_id, db)
+    await check_section_write_access(item.section_id, current_user, db)
+    result = await db.execute(select(Article).where(Article.item_id == item_id))
+    article = result.scalar_one_or_none()
+    if article is None:
+        raise HTTPException(status_code=404, detail="Статья не найдена")
+    article.attachments = [
+        {**att, "is_preview": body.is_preview} if att.get("path") == body.path else att
+        for att in (article.attachments or [])
+    ]
+    await db.commit()
+
+
+# ─── Document versions ────────────────────────────────────────────────────────
+
+_ALLOWED_DOC_TYPES = {
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+}
+_MAX_DOC_MB = 100
+
+
+async def _enqueue(func_name: str, *args) -> None:
+    try:
+        pool = await create_pool(RedisSettings.from_dsn(settings.redis_url))
+        await pool.enqueue_job(func_name, *args)
+        await pool.aclose()
+    except Exception:
+        pass  # Worker недоступен — задача потеряна, не критично в dev
+
+
+@router.get("/items/{item_id}/versions", response_model=list[DocumentVersionResponse])
+async def list_versions(
+    item_id: int,
+    current_user: UserContext = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> list[DocumentVersionResponse]:
+    item = await _require_item(item_id, db)
+    if item.item_type != ItemType.document:
+        raise HTTPException(status_code=400, detail="Элемент не является документом")
+    result = await db.execute(
+        select(DocumentVersion)
+        .where(DocumentVersion.document_id == item_id)
+        .order_by(DocumentVersion.uploaded_at.desc())
+    )
+    return [DocumentVersionResponse.model_validate(v) for v in result.scalars().all()]
+
+
+@router.post("/items/{item_id}/versions", response_model=DocumentVersionResponse, status_code=201)
+async def upload_version(
+    item_id: int,
+    file: UploadFile = File(...),
+    version_label: str = Form(...),
+    notes: str | None = Form(None),
+    current_user: UserContext = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> DocumentVersionResponse:
+    item = await _require_item(item_id, db)
+    if item.item_type != ItemType.document:
+        raise HTTPException(status_code=400, detail="Элемент не является документом")
+    if file.content_type not in _ALLOWED_DOC_TYPES:
+        raise HTTPException(status_code=415, detail="Недопустимый тип файла")
+    await check_section_write_access(item.section_id, current_user, db)
+
+    doc = await db.scalar(select(Document).where(Document.item_id == item_id))
+    if doc is None:
+        doc = Document(item_id=item_id)
+        db.add(doc)
+        await db.flush()
+
+    filename = f"{uuid.uuid4().hex}-{file.filename}"
+    rel_path = f"documents/{item_id}/original/{filename}"
+    dest = Path(settings.media_root) / rel_path
+    dest.parent.mkdir(parents=True, exist_ok=True)
+
+    size = await _save_upload(file, dest)
+    if size > _MAX_DOC_MB * 1024 * 1024:
+        dest.unlink(missing_ok=True)
+        raise HTTPException(status_code=413, detail=f"Файл > {_MAX_DOC_MB} МБ")
+
+    version = DocumentVersion(
+        document_id=item_id,
+        version_label=version_label,
+        original_filename=file.filename or filename,
+        original_file_path=rel_path,
+        original_mime_type=file.content_type or "application/octet-stream",
+        file_size=size,
+        notes=notes,
+        uploaded_by_id=current_user.id,
+        preview_status=PreviewStatus.pending,
+    )
+    db.add(version)
+    await db.flush()
+    await db.refresh(version)
+    await db.commit()
+
+    await _enqueue("process_document_version", version.id)
+    return DocumentVersionResponse.model_validate(version)
+
+
+@router.delete("/items/{item_id}/versions/{version_id}", status_code=204)
+async def delete_version(
+    item_id: int,
+    version_id: int,
+    current_user: UserContext = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    item = await _require_item(item_id, db)
+    await check_section_write_access(item.section_id, current_user, db)
+    version = await db.scalar(
+        select(DocumentVersion).where(
+            DocumentVersion.id == version_id,
+            DocumentVersion.document_id == item_id,
+        )
+    )
+    if version is None:
+        raise HTTPException(status_code=404, detail="Версия не найдена")
+    await db.delete(version)
+    await db.commit()
+
+
+@router.post("/items/{item_id}/versions/{version_id}/slides", response_model=DocumentVersionResponse)
+async def upload_slides_zip(
+    item_id: int,
+    version_id: int,
+    file: UploadFile = File(...),
+    current_user: UserContext = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> DocumentVersionResponse:
+    """Upload ZIP of PNG slide exports for PPTX preview."""
+    item = await _require_item(item_id, db)
+    await check_section_write_access(item.section_id, current_user, db)
+
+    if file.content_type not in ("application/zip", "application/x-zip-compressed"):
+        raise HTTPException(status_code=415, detail="Ожидается ZIP-архив")
+
+    version = await db.scalar(
+        select(DocumentVersion).where(
+            DocumentVersion.id == version_id,
+            DocumentVersion.document_id == item_id,
+        )
+    )
+    if version is None:
+        raise HTTPException(status_code=404, detail="Версия не найдена")
+
+    tmp_path = Path(settings.media_root) / "tmp" / f"{uuid.uuid4().hex}.zip"
+    tmp_path.parent.mkdir(parents=True, exist_ok=True)
+    await _save_upload(file, tmp_path)
+
+    await _enqueue("process_slides_zip", version_id, str(tmp_path))
+
+    version.preview_status = PreviewStatus.processing
+    await db.commit()
+    await db.refresh(version)
+    return DocumentVersionResponse.model_validate(version)
