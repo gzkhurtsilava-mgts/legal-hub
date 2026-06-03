@@ -1,28 +1,21 @@
-import os
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import FileResponse
+from jose import JWTError, jwt
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.database import get_db
-from app.core.deps import UserContext, get_current_user
 from app.models.knowledge import KnowledgeItem, Visibility
-from app.models.user import UserRole
+from app.models.user import User, UserRole
+from app.core.deps import UserContext
 
 router = APIRouter(tags=["files"])
 
 
 def _resolve_item_id(path: str) -> int | None:
-    """
-    Extract knowledge_item id from media path.
-    Supported patterns:
-      documents/{item_id}/...
-      attachments/{item_id}/...
-    Returns None for inline/ paths (no per-item ACL needed).
-    """
     parts = path.lstrip("/").split("/")
     if not parts:
         return None
@@ -32,17 +25,61 @@ def _resolve_item_id(path: str) -> int | None:
             return int(parts[1])
         except ValueError:
             return None
-    return None  # inline/ — only auth required
+    return None
+
+
+async def _auth_from_request(
+    request: Request,
+    token_param: str | None,
+    db: AsyncSession,
+) -> UserContext:
+    """Authenticate via Authorization header OR ?token= query param (for iframes/img tags)."""
+    raw_token: str | None = None
+
+    # 1. Try Authorization header
+    auth_header = request.headers.get("authorization", "")
+    if auth_header.startswith("Bearer "):
+        raw_token = auth_header[7:]
+
+    # 2. Fall back to query param (used by <iframe>, <img>, <a download>)
+    if not raw_token and token_param:
+        raw_token = token_param
+
+    if not raw_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    try:
+        payload = jwt.decode(raw_token, settings.secret_key, algorithms=[settings.jwt_algorithm])
+        user_id: str | None = payload.get("sub")
+        if user_id is None:
+            raise ValueError
+    except (JWTError, ValueError):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Не авторизован")
+
+    result = await db.execute(
+        select(User).where(User.id == int(user_id), User.is_active == True)  # noqa: E712
+    )
+    user = result.scalar_one_or_none()
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Не авторизован")
+
+    return UserContext(id=user.id, email=user.email, full_name=user.full_name, role=user.role)
 
 
 @router.get("/api/files/{path:path}")
 async def serve_file(
     path: str,
-    current_user: UserContext = Depends(get_current_user),
+    request: Request,
+    token: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
 ) -> FileResponse:
-    item_id = _resolve_item_id(path)
+    current_user = await _auth_from_request(request, token, db)
 
+    item_id = _resolve_item_id(path)
     if item_id is not None:
         result = await db.execute(
             select(KnowledgeItem.visibility).where(KnowledgeItem.id == item_id)

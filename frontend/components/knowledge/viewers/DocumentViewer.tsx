@@ -1,7 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import type { DocumentVersion } from "@/lib/api/knowledge";
+
+function useToken() {
+  const { data: session } = useSession();
+  return (session as Record<string, unknown> | null)?.accessToken as string | undefined;
+}
+
+function withToken(path: string, token: string | undefined): string {
+  if (!token) return `/api/files/${path}`;
+  return `/api/files/${path}?token=${encodeURIComponent(token)}`;
+}
 
 function formatBytes(b: number) {
   if (b < 1024) return `${b} Б`;
@@ -25,27 +36,27 @@ function StatusBadge({ status }: { status: DocumentVersion["preview_status"] }) 
   );
 }
 
-function PdfPreview({ path }: { path: string }) {
+function PdfPreview({ path, token }: { path: string; token: string | undefined }) {
   return (
     <iframe
-      src={`/api/files/${path}`}
+      src={withToken(path, token)}
       style={{ width: "100%", height: "600px", border: "none", borderRadius: "var(--radius-m)" }}
       title="Просмотр документа"
     />
   );
 }
 
-function HtmlPreview({ path }: { path: string }) {
+function HtmlPreview({ path, token }: { path: string; token: string | undefined }) {
   return (
     <iframe
-      src={`/api/files/${path}`}
+      src={withToken(path, token)}
       style={{ width: "100%", height: "600px", border: "1px solid var(--color-background-secondary)", borderRadius: "var(--radius-m)" }}
       title="Просмотр документа"
     />
   );
 }
 
-function SlidesPreview({ paths }: { paths: string[] }) {
+function SlidesPreview({ paths, token }: { paths: string[]; token: string | undefined }) {
   const [current, setCurrent] = useState(0);
   if (!paths.length) {
     return (
@@ -58,7 +69,7 @@ function SlidesPreview({ paths }: { paths: string[] }) {
     <div>
       <div style={{ position: "relative", textAlign: "center" }}>
         <img
-          src={`/api/files/${paths[current]}`}
+          src={withToken(paths[current], token)}
           alt={`Слайд ${current + 1}`}
           style={{ maxWidth: "100%", borderRadius: "var(--radius-m)", boxShadow: "var(--shadow-low)" }}
         />
@@ -95,6 +106,7 @@ function SlidesPreview({ paths }: { paths: string[] }) {
 }
 
 export function DocumentViewer({ versions }: { versions: DocumentVersion[] }) {
+  const token = useToken();
   const [activeId, setActiveId] = useState<number | null>(versions[0]?.id ?? null);
   const active = versions.find((v) => v.id === activeId) ?? versions[0];
 
@@ -123,14 +135,14 @@ export function DocumentViewer({ versions }: { versions: DocumentVersion[] }) {
     const type = (preview_data as Record<string, unknown> | null)?.type as string | undefined;
 
     if (type === "pdf" || original_mime_type === "application/pdf") {
-      return <PdfPreview path={original_file_path} />;
+      return <PdfPreview path={original_file_path} token={token} />;
     }
     if (type === "html") {
-      return <HtmlPreview path={(preview_data as Record<string, string>).path} />;
+      return <HtmlPreview path={(preview_data as Record<string, string>).path} token={token} />;
     }
     if (type === "slides") {
       const paths = ((preview_data as Record<string, unknown>)?.paths as string[]) ?? [];
-      return <SlidesPreview paths={paths} />;
+      return <SlidesPreview paths={paths} token={token} />;
     }
 
     return (
@@ -139,7 +151,7 @@ export function DocumentViewer({ versions }: { versions: DocumentVersion[] }) {
           Превью для этого формата недоступно
         </p>
         <a
-          href={`/api/files/${original_file_path}`}
+          href={withToken(original_file_path, token)}
           download={active.original_filename}
           style={{ fontFamily: "MTS Compact", fontSize: "14px", color: "var(--brand-blue)" }}
         >
@@ -181,7 +193,7 @@ export function DocumentViewer({ versions }: { versions: DocumentVersion[] }) {
           </span>
           <StatusBadge status={active.preview_status} />
           <a
-            href={`/api/files/${active.original_file_path}`}
+            href={withToken(active.original_file_path, token)}
             download={active.original_filename}
             style={{ fontFamily: "MTS Compact", fontSize: "13px", color: "var(--brand-blue)", marginLeft: "auto" }}
           >

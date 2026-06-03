@@ -1,6 +1,7 @@
 "use client";
 
 import { useEditor, EditorContent } from "@tiptap/react";
+import { useSession } from "next-auth/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
@@ -41,6 +42,12 @@ export function ArticleViewer({
   tocEnabled?: boolean;
   attachments?: AttachmentMeta[];
 }) {
+  const { data: session } = useSession();
+  const token = (session as Record<string, unknown> | null)?.accessToken as string | undefined;
+
+  function fileUrl(path: string) {
+    return token ? `/api/files/${path}?token=${encodeURIComponent(token)}` : `/api/files/${path}`;
+  }
   const toc = tocEnabled && content ? buildToc(content) : [];
 
   const editor = useEditor({
@@ -103,7 +110,7 @@ export function ArticleViewer({
               {attachments.map((att) => (
                 <a
                   key={att.path}
-                  href={`/api/files/${att.path}`}
+                  href={fileUrl(att.path)}
                   target="_blank"
                   rel="noreferrer"
                   style={{

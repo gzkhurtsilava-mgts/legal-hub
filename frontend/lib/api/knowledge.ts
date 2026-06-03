@@ -282,6 +282,16 @@ export function useToggleFavorite(itemId: number) {
   return { add, remove };
 }
 
+// ─── Authenticated file URLs (для <iframe>, <img>, <a download>) ──────────────
+
+export function useFileUrl(path: string | null | undefined): string | null {
+  const { data: session } = useSession();
+  const token = (session as Record<string, unknown> | null)?.accessToken as string | undefined;
+  if (!path || !token) return null;
+  const cleanPath = path.startsWith("/") ? path.slice(1) : path;
+  return `/api/files/${cleanPath}?token=${encodeURIComponent(token)}`;
+}
+
 // ─── Article content ──────────────────────────────────────────────────────────
 
 export function useArticleContent(itemId: number) {
