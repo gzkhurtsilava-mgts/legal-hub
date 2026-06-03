@@ -24,9 +24,11 @@ After completing and verifying any significant feature/task, always do two thing
    - Environment variables to add
    - Any config changes
 
-**Before installing new npm packages:** always ask which version is available in Nexus
-(corp registry: https://nexus.mgts.ru/repository/npm-all/). Version on personal laptop
-(public npm) may differ from Nexus by a patch version — that is acceptable, but must be noted.
+**Before installing new npm packages:** grep `docs/corp-inventory/nexus-npm.csv` to confirm
+the package/scope is mirrored in Nexus. If found — proceed (version on personal laptop may
+differ by a patch — acceptable). If **not found** — this is a blocker; discuss with the user.
+For Docker images: grep `docs/corp-inventory/harbor-images.csv` before adding a new `FROM`.
+Python packages: no Nexus PyPI mirror — install from pypi.org via corp proxy (transparent).
 
 ---
 
@@ -425,13 +427,33 @@ DELETE /api/{module}/{id}
 
 ---
 
+## ACTIVE PLANS
+
+Implementation plans live in `docs/plans/`. Read the relevant plan before starting a milestone.
+- `docs/plans/knowledge-module.md` — module `knowledge` (база знаний), M0–M6, ~8.5 weeks
+
+---
+
+## CORPORATE INVENTORY (Nexus & Harbor)
+
+Full inventory: `docs/corp-inventory/`. Key findings for this project:
+- `@tiptap/*`, `@tanstack/*`, `xlsx` — confirmed in Nexus npmjs repo ✅
+- `harbor.mgts.ru/dockerhub/library/node` / `postgres` / `alpine` / `nginx` ✅
+- `harbor.mgts.ru/library/python` ✅
+- `harbor.mgts.ru/dockerhub/eugenmayer/jodconverter` — Office→PDF converter for M4 ✅
+- `harbor.mgts.ru/dockerhub/minio/minio` — future file storage ✅
+- No PyPI Nexus mirror — Python packages install from pypi.org via corp proxy
+
+---
+
 ## CURRENT STATE
 
 ### What's working
 - Frontend: Next.js 14.2.35 running on localhost:3000
 - Design system: @mts-ds components render with МГТС blue (#008ae0)
 - Fonts: MTSCompact, MTSWide, MTSSans loaded via @font-face
-- Backend: FastAPI skeleton with GET /api/health
+- Backend: FastAPI with JWT auth, User model, GET /api/health, login endpoint
+- Auth: NextAuth credentials provider, custom session with role + accessToken
 - Both personal laptop and corp machine are in sync via GitHub
 
 ### Project structure
@@ -439,33 +461,41 @@ DELETE /api/{module}/{id}
 legal-hub/
 ├── backend/
 │   ├── app/
-│   │   ├── main.py          ← FastAPI entry point
-│   │   ├── api/health.py    ← GET /api/health
-│   │   └── core/
-│   │       ├── config.py    ← pydantic-settings
-│   │       └── database.py  ← async SQLAlchemy
+│   │   ├── main.py
+│   │   ├── api/health.py, auth.py
+│   │   ├── models/user.py
+│   │   ├── schemas/auth.py, user.py
+│   │   └── core/config.py, database.py, deps.py, security.py
+│   ├── alembic/              ← 2 migrations (initial + users table)
 │   ├── pyproject.toml
 │   └── Dockerfile
 ├── frontend/
 │   ├── app/
-│   │   ├── layout.tsx       ← theme.css + globals.css, body has mtsds-vars mgts-corai-vars
-│   │   ├── page.tsx         ← test page with Button + Tooltip
-│   │   └── globals.css      ← @font-face + МГТС color overrides
-│   ├── node_modules/        ← NOT in git, includes @mts-ds (39 packages)
-│   ├── .npmrc               ← registry=https://registry.npmjs.org/ (personal laptop)
-│   ├── package.json
-│   ├── next.config.js
-│   ├── tailwind.config.js
-│   └── tsconfig.json
+│   │   ├── (auth)/login/page.tsx
+│   │   ├── (portal)/layout.tsx, page.tsx
+│   │   ├── layout.tsx        ← SessionProvider + theme.css + globals.css
+│   │   └── globals.css
+│   ├── components/layout/    ← Header, Footer, NavLink, SearchBar, UserMenu, ThemeToggle
+│   ├── components/providers/ ← SessionProvider
+│   ├── components/icons/
+│   ├── vendor/@mts-ds/       ← 39 packages, file: references in package.json
+│   ├── .npmrc
+│   └── package.json
+├── docs/
+│   ├── plans/                ← implementation plans
+│   └── corp-inventory/       ← Nexus + Harbor inventory CSVs
+├── scripts/convert_inventory.py
 ├── docker-compose.yml
 ├── .env.example
 └── CLAUDE.md
 ```
 
-### Next steps
-1. Set up Alembic (async SQLAlchemy migrations)
-2. Module `core`: User model, JWT auth, get_current_user dependency, login page
-3. Module `knowledge`: Category + Article models, CRUD, CMS UI, PostgreSQL FTS
+### Next steps (M0 of knowledge module)
+See `docs/plans/knowledge-module.md` for full detail. Short list:
+1. React Query provider + API client wrapper
+2. arq worker service + media volume in docker-compose
+3. pg_trgm/unaccent extensions in new Alembic migration
+4. `sections` + `knowledge_items` models (base, without type-specific tables yet)
 
 ---
 
