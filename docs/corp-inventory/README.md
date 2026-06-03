@@ -51,6 +51,7 @@ No pre-check needed, but note that air-gapped builds are not possible for Python
 | Redis image | ✅ `it/rnd/llm-eval/redis:7.2.13-alpine` (dockerhub/valkey пуст) | `harbor.mgts.ru/it/rnd/llm-eval/redis:7.2.13-alpine` |
 | Nginx image | ✅ `library/nginx` | `harbor.mgts.ru/dockerhub/library/nginx` |
 | MinIO (future) | ✅ `minio/minio` | `harbor.mgts.ru/dockerhub/minio/minio` |
+| Python image | ✅ `dockerhub/python:3.12.7-slim` (не в Excel, но работает) | `harbor.mgts.ru/dockerhub/python:3.12.7-slim` |
 | **JodConverter** (M4 doc convert) | ✅ `eugenmayer/jodconverter` | `harbor.mgts.ru/dockerhub/eugenmayer/jodconverter` |
 | OnlyOffice (alternative preview) | ✅ `onlyoffice/documentserver` | `harbor.mgts.ru/dockerhub/onlyoffice/documentserver` |
 | TipTap npm packages | ✅ `@tiptap` scope in npmjs | `https://nexus.mgts.ru/repository/npm-all/` |
