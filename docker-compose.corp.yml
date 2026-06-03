@@ -4,18 +4,13 @@
 # Предварительно:
 #   cd frontend && cp .npmrc.corp .npmrc
 #
-# ВАЖНО: перед первым запуском проверь доступный тег valkey в Harbor:
-#   curl -sk https://harbor.mgts.ru/v2/dockerhub/valkey/valkey/tags/list
-# и замени тег в строке image: ниже.
 
 services:
   postgres:
     image: harbor.mgts.ru/dockerhub/library/postgres:16.4
 
   redis:
-    # valkey — Redis-совместимый форк, работает с redis==5.2.1 Python-клиентом без изменений.
-    # Замени тег на тот, что есть в Harbor (проверь командой выше).
-    image: harbor.mgts.ru/dockerhub/valkey/valkey:8.0-alpine
+    image: harbor.mgts.ru/it/rnd/llm-eval/redis:7.2.13-alpine
 
   backend:
     build:
