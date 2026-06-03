@@ -11,6 +11,7 @@ services:
 
   redis:
     image: harbor.mgts.ru/it/rnd/llm-eval/redis:7.2.13-alpine
+    command: redis-server --save "" --appendonly no
 
   backend:
     build:
