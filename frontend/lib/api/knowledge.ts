@@ -7,7 +7,7 @@ import { apiFetch, apiFetchForm } from "./client";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type Visibility = "public" | "bpo_only";
-export type ItemType = "article" | "document" | "link" | "faq";
+export type ItemType = "article" | "document" | "link";
 export type ItemStatus = "draft" | "published" | "archived";
 
 export interface Tag {
@@ -85,7 +85,6 @@ export interface AttachmentMeta {
   path: string;
   size: number;
   mime_type: string;
-  is_preview: boolean;
 }
 
 export interface ArticleContentData {
@@ -205,6 +204,61 @@ export function useTags(itemType?: ItemType) {
     queryKey: knowledgeKeys.tags(itemType),
     queryFn: () => apiFetch<Tag[]>(url, token),
     enabled: !!token,
+  });
+}
+
+export interface SectionCreate {
+  parent_id?: number | null;
+  name: string;
+  slug: string;
+  description?: string;
+  icon?: string;
+  order_index?: number;
+  visibility: Visibility;
+}
+
+export interface SectionUpdate {
+  name?: string;
+  slug?: string;
+  description?: string;
+  icon?: string;
+  order_index?: number;
+  visibility?: Visibility;
+}
+
+export function useCreateSection() {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: SectionCreate) =>
+      apiFetch<Section>("/api/knowledge/sections", token, {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: knowledgeKeys.sections() }),
+  });
+}
+
+export function useUpdateSection(sectionId: number) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: SectionUpdate) =>
+      apiFetch<Section>(`/api/knowledge/sections/${sectionId}`, token, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: knowledgeKeys.sections() }),
+  });
+}
+
+export function useDeleteSection(sectionId: number) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () =>
+      apiFetch<void>(`/api/knowledge/sections/${sectionId}`, token, { method: "DELETE" }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: knowledgeKeys.sections() }),
   });
 }
 
@@ -347,6 +401,34 @@ export function useUploadAttachment(itemId: number) {
   });
 }
 
+export function useUpdateKnowledgeItem(itemId: number) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { title?: string; summary?: string; visibility?: Visibility; tag_ids?: number[] }) =>
+      apiFetch<KnowledgeItem>(`/api/knowledge/items/${itemId}`, token, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: knowledgeKeys.item(itemId) });
+      qc.invalidateQueries({ queryKey: ["knowledge", "items"] });
+    },
+  });
+}
+
+export function useDeleteKnowledgeItem(itemId: number) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () =>
+      apiFetch<void>(`/api/knowledge/items/${itemId}`, token, { method: "DELETE" }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["knowledge", "items"] });
+    },
+  });
+}
+
 export function useCreateKnowledgeItem() {
   const token = useToken();
   const qc = useQueryClient();
@@ -389,6 +471,11 @@ export interface DocumentVersion {
   preview_status: "pending" | "processing" | "ready" | "failed" | "na";
   preview_data: Record<string, unknown> | null;
   notes: string | null;
+  is_current: boolean;
+  source_filename: string | null;
+  source_file_path: string | null;
+  source_file_size: number | null;
+  source_mime_type: string | null;
   uploaded_at: string;
 }
 
@@ -411,12 +498,28 @@ export function useUploadVersion(itemId: number) {
   const token = useToken();
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ file, versionLabel, notes }: { file: File; versionLabel: string; notes?: string }) => {
+    mutationFn: ({ pdfFile, sourceFile, versionLabel, notes }: { pdfFile: File; sourceFile?: File | null; versionLabel: string; notes?: string }) => {
       const form = new FormData();
-      form.append("file", file);
+      form.append("pdf_file", pdfFile);
+      if (sourceFile) form.append("source_file", sourceFile);
       form.append("version_label", versionLabel);
       if (notes) form.append("notes", notes);
       return apiFetchForm<DocumentVersion>(`/api/knowledge/items/${itemId}/versions`, token, form);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["knowledge", "versions", itemId] }),
+  });
+}
+
+export function useReplaceVersionSource(itemId: number, versionId: number) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (file: File) => {
+      const form = new FormData();
+      form.append("file", file);
+      return apiFetchForm<DocumentVersion>(
+        `/api/knowledge/items/${itemId}/versions/${versionId}/source`, token, form, "PUT"
+      );
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["knowledge", "versions", itemId] }),
   });
@@ -447,15 +550,103 @@ export function useUploadSlidesZip(itemId: number, versionId: number) {
   });
 }
 
-export function useToggleAttachmentPreview(itemId: number) {
+export function useUpdateVersionMeta(itemId: number, versionId: number) {
   const token = useToken();
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ path, is_preview }: { path: string; is_preview: boolean }) =>
-      apiFetch<void>(`/api/knowledge/items/${itemId}/attachments/preview`, token, {
+    mutationFn: (data: { version_label?: string; notes?: string; effective_date?: string | null }) =>
+      apiFetch<DocumentVersion>(`/api/knowledge/items/${itemId}/versions/${versionId}`, token, {
         method: "PATCH",
-        body: JSON.stringify({ path, is_preview }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
       }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["knowledge", "versions", itemId] }),
+  });
+}
+
+export function useSetCurrentVersion(itemId: number) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (versionId: number) =>
+      apiFetch<DocumentVersion>(`/api/knowledge/items/${itemId}/versions/${versionId}/set-current`, token, {
+        method: "POST",
+      }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["knowledge", "versions", itemId] }),
+  });
+}
+
+export function useReplaceVersionFile(itemId: number, versionId: number) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (file: File) => {
+      const form = new FormData();
+      form.append("file", file);
+      return apiFetchForm<DocumentVersion>(
+        `/api/knowledge/items/${itemId}/versions/${versionId}/file`, token, form, "PUT"
+      );
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["knowledge", "versions", itemId] }),
+  });
+}
+
+export function useReplaceVersionPdf(itemId: number, versionId: number) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (file: File) => {
+      const form = new FormData();
+      form.append("file", file);
+      return apiFetchForm<DocumentVersion>(
+        `/api/knowledge/items/${itemId}/versions/${versionId}/pdf`, token, form, "PUT"
+      );
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["knowledge", "versions", itemId] }),
+  });
+}
+
+// ─── Link content ─────────────────────────────────────────────────────────────
+
+export interface LinkContentData {
+  url: string;
+}
+
+export function useLinkContent(itemId: number) {
+  const token = useToken();
+  return useQuery({
+    queryKey: ["knowledge", "link", itemId],
+    queryFn: () => apiFetch<LinkContentData>(`/api/knowledge/items/${itemId}/link`, token),
+    enabled: !!token && !!itemId,
+  });
+}
+
+export function useUpdateLink(itemId: number) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { url: string }) =>
+      apiFetch<LinkContentData>(`/api/knowledge/items/${itemId}/link`, token, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["knowledge", "link", itemId] });
+      qc.invalidateQueries({ queryKey: ["knowledge", "items"] });
+    },
+  });
+}
+
+export function useDeleteAttachment(itemId: number) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (path: string) =>
+      apiFetch<void>(
+        `/api/knowledge/items/${itemId}/attachments?path=${encodeURIComponent(path)}`,
+        token,
+        { method: "DELETE" },
+      ),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["knowledge", "article", itemId] }),
   });
 }

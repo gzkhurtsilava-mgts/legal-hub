@@ -40,7 +40,8 @@ export async function apiFetch<T>(
 export async function apiFetchForm<T>(
   path: string,
   token: string | undefined,
-  body: FormData
+  body: FormData,
+  method: string = "POST"
 ): Promise<T> {
   const headers: Record<string, string> = {};
   if (token) {
@@ -48,7 +49,7 @@ export async function apiFetchForm<T>(
   }
 
   const res = await fetch(`${API_BASE}${path}`, {
-    method: "POST",
+    method,
     headers,
     body,
   });

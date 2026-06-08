@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Card } from "@mts-ds/granat2-react-card";
+import { Card } from "@/components/GranatCard";
 import type { Section } from "@/lib/api/knowledge";
 
 const ICON_MAP: Record<string, string> = {

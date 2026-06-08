@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Card } from "@mts-ds/granat2-react-card";
+import { Card } from "@/components/GranatCard";
 import { DocumentIcon, OpenBookIcon, NewsIcon } from "@/components/icons";
 
 const SERVICES = [

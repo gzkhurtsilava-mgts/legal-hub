@@ -9,11 +9,14 @@ export function ThemeToggle() {
   const [dark, setDark] = useState(false);
 
   useEffect(() => {
-    setDark(document.documentElement.classList.contains("dark"));
+    const isDark = document.documentElement.classList.contains("dark");
+    setDark(isDark);
+    document.documentElement.setAttribute("data-mtsds-theme", isDark ? "dark" : "light");
   }, []);
 
   const handleChange = () => {
     const isDark = document.documentElement.classList.toggle("dark");
+    document.documentElement.setAttribute("data-mtsds-theme", isDark ? "dark" : "light");
     setDark(isDark);
     try {
       localStorage.setItem("theme", isDark ? "dark" : "light");

@@ -14,6 +14,8 @@ export function Footer() {
         borderTop: "1px solid var(--color-background-secondary)",
         background: "var(--color-background-primary)",
         padding: "20px 24px",
+        position: "relative",
+        zIndex: "var(--z-index-dropdown)" as React.CSSProperties["zIndex"],
       }}
     >
       <div

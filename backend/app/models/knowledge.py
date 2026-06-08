@@ -17,7 +17,6 @@ class ItemType(str, enum.Enum):
     article = "article"
     document = "document"
     link = "link"
-    faq = "faq"
 
 
 class ItemStatus(str, enum.Enum):
@@ -84,7 +83,7 @@ class Tag(Base):
     name = Column(String(100), nullable=False, unique=True)
     slug = Column(String(100), nullable=False, unique=True)
     color = Column(String(20), nullable=True)
-    entity_type = Column(String(20), nullable=True)  # article|document|link|faq|None
+    entity_type = Column(String(20), nullable=True)  # article|document|link|None
 
     items = relationship("KnowledgeItem", secondary=knowledge_item_tags, back_populates="tags")
 
@@ -138,6 +137,7 @@ class KnowledgeItem(Base):
     tags = relationship("Tag", secondary=knowledge_item_tags, back_populates="items")
     article = relationship("Article", back_populates="item", uselist=False, cascade="all, delete-orphan")
     document = relationship("Document", back_populates="item", uselist=False, cascade="all, delete-orphan")
+    link = relationship("Link", back_populates="item", uselist=False, cascade="all, delete-orphan")
 
 
 class Article(Base):
@@ -184,8 +184,25 @@ class DocumentVersion(Base):
     preview_data = Column(JSONB, nullable=True)   # {"type": "pdf"|"html"|"slides", ...}
     extracted_text = Column(Text, nullable=True)
     notes = Column(Text, nullable=True)
+    is_current = Column(Boolean, nullable=False, default=False, server_default="false")
+    # Optional source file (docx/xlsx/pptx) — the editable original
+    source_filename = Column(String(500), nullable=True)
+    source_file_path = Column(String(1000), nullable=True)
+    source_file_size = Column(Integer, nullable=True)
+    source_mime_type = Column(String(200), nullable=True)
     uploaded_by_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     uploaded_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     document = relationship("Document", back_populates="versions")
     uploaded_by = relationship("User", foreign_keys=[uploaded_by_id])
+
+
+class Link(Base):
+    __tablename__ = "links"
+
+    item_id = Column(Integer, ForeignKey("knowledge_items.id", ondelete="CASCADE"), primary_key=True)
+    url = Column(String(2048), nullable=False)
+
+    item = relationship("KnowledgeItem", back_populates="link")
+
+

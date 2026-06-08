@@ -5,7 +5,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
   return (
     <div
       style={{
-        minHeight: "100vh",
+        minHeight: "100dvh",
         display: "flex",
         flexDirection: "column",
         background: "var(--color-background-lower)",

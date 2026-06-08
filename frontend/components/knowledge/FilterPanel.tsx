@@ -16,7 +16,6 @@ const TYPE_OPTIONS: Array<{ value: ItemType | undefined; label: string }> = [
   { value: "article",   label: "Статьи" },
   { value: "document",  label: "Документы" },
   { value: "link",      label: "Ссылки" },
-  { value: "faq",       label: "FAQ" },
 ];
 
 const STAR_GOLD = "#FFB800";

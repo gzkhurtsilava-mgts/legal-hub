@@ -7,9 +7,10 @@ import aiofiles
 from arq import create_pool
 from arq.connections import RedisSettings
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
-from sqlalchemy import func, or_, select
+from sqlalchemy import func, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from sqlalchemy.orm.attributes import flag_modified
 
 from app.core.config import settings
 from app.core.database import get_db
@@ -23,6 +24,7 @@ from app.models.knowledge import (
     ItemStatus,
     ItemType,
     KnowledgeItem,
+    Link,
     PreviewStatus,
     Section,
     Tag,
@@ -35,9 +37,9 @@ from app.schemas.knowledge import (
     ArticleContent,
     ArticleContentUpdate,
     AttachmentMeta,
-    AttachmentPreviewUpdate,
     DocumentVersionCreate,
     DocumentVersionResponse,
+    DocumentVersionUpdate,
     KnowledgeItemCreate,
     KnowledgeItemListResponse,
     KnowledgeItemResponse,
@@ -47,6 +49,8 @@ from app.schemas.knowledge import (
     SectionResponse,
     SectionUpdate,
     TagCreate,
+    LinkContent,
+    LinkContentUpdate,
     TagResponse,
     TypeaheadItem,
     TypeaheadResponse,
@@ -524,7 +528,8 @@ async def publish_item(
         )
 
     item.status = ItemStatus.published
-    item.published_at = _NOW()
+    if item.published_at is None:
+        item.published_at = _NOW()
     item.updated_at = _NOW()
     await db.flush()
     fav_ids = await _get_favorite_ids(current_user.id, db)
@@ -723,6 +728,54 @@ async def update_article(
     return ArticleContent.model_validate(article)
 
 
+# ─── Link content ─────────────────────────────────────────────────────────────
+
+@router.get("/items/{item_id}/link", response_model=LinkContent)
+async def get_link(
+    item_id: int,
+    current_user: UserContext = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> LinkContent:
+    item = await _require_item(item_id, db)
+    if item.item_type != ItemType.link:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Элемент не является ссылкой")
+    if item.visibility == Visibility.bpo_only and current_user.role not in _EDITOR_ROLES:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Доступ закрыт")
+
+    result = await db.execute(select(Link).where(Link.item_id == item_id))
+    link = result.scalar_one_or_none()
+    if link is None:
+        return LinkContent(url="")
+    return LinkContent.model_validate(link)
+
+
+@router.put("/items/{item_id}/link", response_model=LinkContent)
+async def update_link(
+    item_id: int,
+    body: LinkContentUpdate,
+    current_user: UserContext = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> LinkContent:
+    item = await _require_item(item_id, db)
+    if item.item_type != ItemType.link:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Элемент не является ссылкой")
+    await check_section_write_access(item.section_id, current_user, db)
+
+    result = await db.execute(select(Link).where(Link.item_id == item_id))
+    link = result.scalar_one_or_none()
+
+    if link is None:
+        link = Link(item_id=item_id, url=body.url)
+        db.add(link)
+    else:
+        link.url = body.url
+
+    item.content_text = body.url
+    await db.flush()
+    await db.refresh(link)
+    return LinkContent.model_validate(link)
+
+
 # ─── Uploads ──────────────────────────────────────────────────────────────────
 
 _ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"}
@@ -799,20 +852,29 @@ async def upload_attachment(
     if article:
         current = list(article.attachments or [])
         current.append({"filename": file.filename, "path": rel_path,
-                        "size": size, "mime_type": file.content_type or "application/octet-stream",
-                        "is_preview": False})
+                        "size": size, "mime_type": file.content_type or "application/octet-stream"})
         article.attachments = current
 
     return UploadedFile(url=f"/api/files/{rel_path}", filename=file.filename or filename,
                         size=size, mime_type=file.content_type or "application/octet-stream")
 
 
-# ─── Attachment is_preview toggle ─────────────────────────────────────────────
+def _remove_file_embeds(node: dict, path: str) -> dict | None:
+    """Рекурсивно удаляет fileEmbed-узлы с указанным path. Возвращает None если узел нужно удалить."""
+    if node.get("type") == "fileEmbed" and node.get("attrs", {}).get("path") == path:
+        return None
+    if "content" in node:
+        node = {**node, "content": [
+            child for raw in node["content"]
+            if (child := _remove_file_embeds(raw, path)) is not None
+        ]}
+    return node
 
-@router.patch("/items/{item_id}/attachments/preview", status_code=status.HTTP_204_NO_CONTENT)
-async def toggle_attachment_preview(
+
+@router.delete("/items/{item_id}/attachments", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_attachment(
     item_id: int,
-    body: AttachmentPreviewUpdate,
+    path: str = Query(...),
     current_user: UserContext = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> None:
@@ -823,10 +885,22 @@ async def toggle_attachment_preview(
     if article is None:
         raise HTTPException(status_code=404, detail="Статья не найдена")
     article.attachments = [
-        {**att, "is_preview": body.is_preview} if att.get("path") == body.path else att
-        for att in (article.attachments or [])
+        att for att in (article.attachments or []) if att.get("path") != path
     ]
+    # Убираем fileEmbed-узлы из тела статьи
+    if article.content:
+        article.content = _remove_file_embeds(article.content, path)
+        flag_modified(article, "content")
+    flag_modified(article, "attachments")
     await db.commit()
+    # Удаляем физический файл — проверяем что путь внутри media_root
+    # (Path(x) / "/abs" даёт "/abs", поэтому containment-check обязателен)
+    file_path = Path(settings.media_root) / path
+    try:
+        file_path.resolve().relative_to(Path(settings.media_root).resolve())
+    except ValueError:
+        return  # путь вне media_root — файл не трогаем, запись уже удалена из БД
+    file_path.unlink(missing_ok=True)
 
 
 # ─── Document versions ────────────────────────────────────────────────────────
@@ -872,7 +946,8 @@ async def list_versions(
 @router.post("/items/{item_id}/versions", response_model=DocumentVersionResponse, status_code=201)
 async def upload_version(
     item_id: int,
-    file: UploadFile = File(...),
+    pdf_file: UploadFile = File(...),
+    source_file: UploadFile | None = File(None),
     version_label: str = Form(...),
     notes: str | None = Form(None),
     current_user: UserContext = Depends(get_current_user),
@@ -881,8 +956,8 @@ async def upload_version(
     item = await _require_item(item_id, db)
     if item.item_type != ItemType.document:
         raise HTTPException(status_code=400, detail="Элемент не является документом")
-    if file.content_type not in _ALLOWED_DOC_TYPES:
-        raise HTTPException(status_code=415, detail="Недопустимый тип файла")
+    if pdf_file.content_type != "application/pdf":
+        raise HTTPException(status_code=415, detail="Основной файл должен быть PDF")
     await check_section_write_access(item.section_id, current_user, db)
 
     doc = await db.scalar(select(Document).where(Document.item_id == item_id))
@@ -891,33 +966,56 @@ async def upload_version(
         db.add(doc)
         await db.flush()
 
-    filename = f"{uuid.uuid4().hex}-{file.filename}"
-    rel_path = f"documents/{item_id}/original/{filename}"
-    dest = Path(settings.media_root) / rel_path
-    dest.parent.mkdir(parents=True, exist_ok=True)
-
-    size = await _save_upload(file, dest)
-    if size > _MAX_DOC_MB * 1024 * 1024:
-        dest.unlink(missing_ok=True)
+    # Save PDF as primary file
+    pdf_name = f"{uuid.uuid4().hex}-{pdf_file.filename or 'document.pdf'}"
+    pdf_rel = f"documents/{item_id}/pdf/{pdf_name}"
+    pdf_dest = Path(settings.media_root) / pdf_rel
+    pdf_dest.parent.mkdir(parents=True, exist_ok=True)
+    pdf_size = await _save_upload(pdf_file, pdf_dest)
+    if pdf_size > _MAX_DOC_MB * 1024 * 1024:
+        pdf_dest.unlink(missing_ok=True)
         raise HTTPException(status_code=413, detail=f"Файл > {_MAX_DOC_MB} МБ")
 
+    existing_current = await db.scalar(
+        select(DocumentVersion).where(
+            DocumentVersion.document_id == item_id,
+            DocumentVersion.is_current == True,  # noqa: E712
+        )
+    )
     version = DocumentVersion(
         document_id=item_id,
         version_label=version_label,
-        original_filename=file.filename or filename,
-        original_file_path=rel_path,
-        original_mime_type=file.content_type or "application/octet-stream",
-        file_size=size,
+        original_filename=pdf_file.filename or pdf_name,
+        original_file_path=pdf_rel,
+        original_mime_type="application/pdf",
+        file_size=pdf_size,
         notes=notes,
+        is_current=not bool(existing_current),
         uploaded_by_id=current_user.id,
-        preview_status=PreviewStatus.pending,
+        preview_status=PreviewStatus.ready,
+        preview_data={"type": "pdf"},
     )
+
+    # Save optional source file
+    if source_file and source_file.filename:
+        src_name = f"{uuid.uuid4().hex}-{source_file.filename}"
+        src_rel = f"documents/{item_id}/source/{src_name}"
+        src_dest = Path(settings.media_root) / src_rel
+        src_dest.parent.mkdir(parents=True, exist_ok=True)
+        src_size = await _save_upload(source_file, src_dest)
+        if src_size > _MAX_DOC_MB * 1024 * 1024:
+            src_dest.unlink(missing_ok=True)
+            pdf_dest.unlink(missing_ok=True)
+            raise HTTPException(status_code=413, detail=f"Исходный файл > {_MAX_DOC_MB} МБ")
+        version.source_filename = source_file.filename
+        version.source_file_path = src_rel
+        version.source_file_size = src_size
+        version.source_mime_type = source_file.content_type or "application/octet-stream"
+
     db.add(version)
     await db.flush()
     await db.refresh(version)
     await db.commit()
-
-    await _enqueue("process_document_version", version.id)
     return DocumentVersionResponse.model_validate(version)
 
 
@@ -930,15 +1028,19 @@ async def delete_version(
 ) -> None:
     item = await _require_item(item_id, db)
     await check_section_write_access(item.section_id, current_user, db)
-    version = await db.scalar(
-        select(DocumentVersion).where(
-            DocumentVersion.id == version_id,
-            DocumentVersion.document_id == item_id,
-        )
-    )
-    if version is None:
-        raise HTTPException(status_code=404, detail="Версия не найдена")
+    version = await _get_version(item_id, version_id, db)
+    was_current = version.is_current
     await db.delete(version)
+    await db.flush()
+    if was_current:
+        next_v = await db.scalar(
+            select(DocumentVersion)
+            .where(DocumentVersion.document_id == item_id, DocumentVersion.id != version_id)
+            .order_by(DocumentVersion.uploaded_at.desc())
+            .limit(1)
+        )
+        if next_v:
+            next_v.is_current = True
     await db.commit()
 
 
@@ -957,14 +1059,7 @@ async def upload_slides_zip(
     if file.content_type not in ("application/zip", "application/x-zip-compressed"):
         raise HTTPException(status_code=415, detail="Ожидается ZIP-архив")
 
-    version = await db.scalar(
-        select(DocumentVersion).where(
-            DocumentVersion.id == version_id,
-            DocumentVersion.document_id == item_id,
-        )
-    )
-    if version is None:
-        raise HTTPException(status_code=404, detail="Версия не найдена")
+    version = await _get_version(item_id, version_id, db)
 
     tmp_path = Path(settings.media_root) / "tmp" / f"{uuid.uuid4().hex}.zip"
     tmp_path.parent.mkdir(parents=True, exist_ok=True)
@@ -973,6 +1068,157 @@ async def upload_slides_zip(
     await _enqueue("process_slides_zip", version_id, str(tmp_path))
 
     version.preview_status = PreviewStatus.processing
+    await db.commit()
+    await db.refresh(version)
+    return DocumentVersionResponse.model_validate(version)
+
+
+async def _get_version(item_id: int, version_id: int, db: AsyncSession) -> DocumentVersion:
+    v = await db.scalar(
+        select(DocumentVersion).where(
+            DocumentVersion.id == version_id,
+            DocumentVersion.document_id == item_id,
+        )
+    )
+    if v is None:
+        raise HTTPException(status_code=404, detail="Версия не найдена")
+    return v
+
+
+@router.patch("/items/{item_id}/versions/{version_id}", response_model=DocumentVersionResponse)
+async def update_version_meta(
+    item_id: int,
+    version_id: int,
+    data: DocumentVersionUpdate,
+    current_user: UserContext = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> DocumentVersionResponse:
+    item = await _require_item(item_id, db)
+    await check_section_write_access(item.section_id, current_user, db)
+    version = await _get_version(item_id, version_id, db)
+    if data.version_label is not None:
+        version.version_label = data.version_label
+    if data.notes is not None:
+        version.notes = data.notes
+    if data.effective_date is not None:
+        version.effective_date = data.effective_date
+    await db.commit()
+    await db.refresh(version)
+    return DocumentVersionResponse.model_validate(version)
+
+
+@router.post("/items/{item_id}/versions/{version_id}/set-current", response_model=DocumentVersionResponse)
+async def set_current_version(
+    item_id: int,
+    version_id: int,
+    current_user: UserContext = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> DocumentVersionResponse:
+    item = await _require_item(item_id, db)
+    await check_section_write_access(item.section_id, current_user, db)
+    # Unset all others first
+    await db.execute(
+        update(DocumentVersion)
+        .where(DocumentVersion.document_id == item_id)
+        .values(is_current=False)
+    )
+    version = await _get_version(item_id, version_id, db)
+    version.is_current = True
+    await db.commit()
+    await db.refresh(version)
+    return DocumentVersionResponse.model_validate(version)
+
+
+@router.put("/items/{item_id}/versions/{version_id}/file", response_model=DocumentVersionResponse)
+async def replace_version_file(
+    item_id: int,
+    version_id: int,
+    file: UploadFile = File(...),
+    current_user: UserContext = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> DocumentVersionResponse:
+    item = await _require_item(item_id, db)
+    await check_section_write_access(item.section_id, current_user, db)
+    version = await _get_version(item_id, version_id, db)
+
+    filename = (file.filename or "document").replace(" ", "_")
+    dest = Path(settings.media_root) / "documents" / str(item_id) / str(version_id) / "original" / filename
+    size = await _save_upload(file, dest)
+    if size > _MAX_DOC_MB * 1024 * 1024:
+        dest.unlink(missing_ok=True)
+        raise HTTPException(status_code=413, detail=f"Файл > {_MAX_DOC_MB} МБ")
+    rel_path = str(dest.relative_to(Path(settings.media_root)))
+
+    version.original_filename = filename
+    version.original_file_path = rel_path
+    version.original_mime_type = file.content_type or "application/octet-stream"
+    version.file_size = size
+    version.preview_status = PreviewStatus.pending
+    version.preview_data = None
+    await db.commit()
+    await db.refresh(version)
+    await _enqueue("process_document_version", version.id)
+    return DocumentVersionResponse.model_validate(version)
+
+
+@router.put("/items/{item_id}/versions/{version_id}/pdf", response_model=DocumentVersionResponse)
+async def replace_version_pdf(
+    item_id: int,
+    version_id: int,
+    file: UploadFile = File(...),
+    current_user: UserContext = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> DocumentVersionResponse:
+    """Upload a manual PDF to use as preview (overrides auto-converted preview)."""
+    item = await _require_item(item_id, db)
+    await check_section_write_access(item.section_id, current_user, db)
+    version = await _get_version(item_id, version_id, db)
+
+    if file.content_type != "application/pdf":
+        raise HTTPException(status_code=415, detail="Ожидается PDF")
+
+    dest = Path(settings.media_root) / "documents" / str(item_id) / str(version_id) / "preview" / "manual.pdf"
+    size = await _save_upload(file, dest)
+    if size > _MAX_DOC_MB * 1024 * 1024:
+        dest.unlink(missing_ok=True)
+        raise HTTPException(status_code=413, detail=f"Файл > {_MAX_DOC_MB} МБ")
+    rel_path = str(dest.relative_to(Path(settings.media_root)))
+
+    version.preview_data = {"type": "pdf", "path": rel_path}
+    version.preview_status = PreviewStatus.ready
+    await db.commit()
+    await db.refresh(version)
+    return DocumentVersionResponse.model_validate(version)
+
+
+@router.put("/items/{item_id}/versions/{version_id}/source", response_model=DocumentVersionResponse)
+async def replace_version_source(
+    item_id: int,
+    version_id: int,
+    file: UploadFile = File(...),
+    current_user: UserContext = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> DocumentVersionResponse:
+    """Upload or replace the optional source file (docx/xlsx/pptx) for a version."""
+    item = await _require_item(item_id, db)
+    await check_section_write_access(item.section_id, current_user, db)
+    version = await _get_version(item_id, version_id, db)
+
+    content = await file.read()
+    size = len(content)
+    if size > _MAX_DOC_MB * 1024 * 1024:
+        raise HTTPException(status_code=413, detail=f"Файл > {_MAX_DOC_MB} МБ")
+
+    src_name = f"{uuid.uuid4().hex}-{file.filename or 'source'}"
+    dest = Path(settings.media_root) / "documents" / str(item_id) / "source" / src_name
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_bytes(content)
+    rel_path = str(dest.relative_to(Path(settings.media_root)))
+
+    version.source_filename = file.filename or src_name
+    version.source_file_path = rel_path
+    version.source_file_size = size
+    version.source_mime_type = file.content_type or "application/octet-stream"
     await db.commit()
     await db.refresh(version)
     return DocumentVersionResponse.model_validate(version)

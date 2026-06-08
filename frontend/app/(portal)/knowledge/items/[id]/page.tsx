@@ -3,12 +3,16 @@
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Spinner } from "@mts-ds/granat2-react-spinner";
-import { useKnowledgeItem, useArticleContent, useDocumentVersions } from "@/lib/api/knowledge";
+import {
+  useKnowledgeItem, useArticleContent, useDocumentVersions,
+  useLinkContent, useSection,
+} from "@/lib/api/knowledge";
 import { ArticleViewer } from "@/components/knowledge/viewers/ArticleViewer";
-import { DocumentViewer } from "@/components/knowledge/viewers/DocumentViewer";
+import { DocumentViewerPage } from "@/components/knowledge/viewers/DocumentViewer";
+import { LinkViewer } from "@/components/knowledge/viewers/LinkViewer";
 
 const TYPE_LABELS: Record<string, string> = {
-  article: "Статья", document: "Документ", link: "Ссылка", faq: "FAQ",
+  article: "Статья", document: "Документ", link: "Ссылка",
 };
 
 const EDITOR_ROLES = ["admin", "lawyer"];
@@ -25,16 +29,22 @@ export default function ItemPage() {
   const isEditor = EDITOR_ROLES.includes((session?.user as { role?: string })?.role ?? "");
 
   const { data: item, isLoading: itemLoading } = useKnowledgeItem(itemId);
+  const { data: section } = useSection(item?.section_id ?? 0);
+
   const { data: articleContent, isLoading: articleLoading } = useArticleContent(
     item?.item_type === "article" ? itemId : 0
   );
   const { data: versions = [], isLoading: versionsLoading } = useDocumentVersions(
     item?.item_type === "document" ? itemId : 0
   );
+  const { data: linkData, isLoading: linkLoading } = useLinkContent(
+    item?.item_type === "link" ? itemId : 0
+  );
 
   const isLoading = itemLoading
     || (item?.item_type === "article" && articleLoading)
-    || (item?.item_type === "document" && versionsLoading);
+    || (item?.item_type === "document" && versionsLoading)
+    || (item?.item_type === "link" && linkLoading);
 
   if (isLoading) {
     return (
@@ -52,13 +62,30 @@ export default function ItemPage() {
     );
   }
 
+  // Document gets its own full-page layout with side panel and full-height iframe
+  if (item.item_type === "document") {
+    return (
+      <DocumentViewerPage
+        item={item}
+        versions={versions}
+        section={section}
+        isEditor={isEditor}
+        itemId={itemId}
+      />
+    );
+  }
+
+  const sectionHref = section ? `/knowledge/sections/${section.slug}` : "/knowledge";
+
   return (
     <div style={{ padding: "32px 24px", maxWidth: "1000px", margin: "0 auto" }}>
       {/* Breadcrumb */}
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "24px", flexWrap: "wrap" }}>
         <button onClick={() => router.push("/knowledge")} style={linkBtn}>База знаний</button>
         <span style={sep}>›</span>
-        <button onClick={() => router.back()} style={linkBtn}>Раздел</button>
+        <button onClick={() => router.push(sectionHref)} style={linkBtn}>
+          {section?.name ?? "Раздел"}
+        </button>
         <span style={sep}>›</span>
         <span style={{ fontFamily: "MTS Compact", fontSize: "14px", color: "var(--color-text-secondary)" }}>
           {TYPE_LABELS[item.item_type]}
@@ -66,7 +93,7 @@ export default function ItemPage() {
       </div>
 
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "flex-start", gap: "16px", marginBottom: "24px" }}>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: "16px", marginBottom: item.summary ? "16px" : "24px" }}>
         <div style={{ flex: 1 }}>
           <h1 style={{ fontFamily: "MTS Wide", fontWeight: 700, fontSize: "26px", color: "var(--color-text-primary)", marginBottom: "8px", lineHeight: 1.25 }}>
             {item.title}
@@ -94,7 +121,6 @@ export default function ItemPage() {
         )}
       </div>
 
-      {/* Summary */}
       {item.summary && (
         <p style={{ fontFamily: "MTS Compact", fontSize: "15px", color: "var(--color-text-secondary)", marginBottom: "28px", lineHeight: 1.6, borderLeft: "3px solid var(--brand-blue)", paddingLeft: "16px" }}>
           {item.summary}
@@ -111,24 +137,9 @@ export default function ItemPage() {
       )}
 
       {item.item_type === "link" && (
-        <div style={{ padding: "20px", background: "var(--color-background-secondary)", borderRadius: "var(--radius-m)" }}>
-          <p style={{ fontFamily: "MTS Compact", fontSize: "14px", color: "var(--color-text-secondary)", marginBottom: "8px" }}>Внешняя ссылка</p>
-          <a href="#" style={{ fontFamily: "MTS Compact", fontSize: "16px", color: "var(--brand-blue)" }}>
-            Открыть ресурс →
-          </a>
-        </div>
+        <LinkViewer url={linkData?.url ?? ""} />
       )}
 
-      {item.item_type === "faq" && (
-        <div style={{ fontFamily: "MTS Compact", fontSize: "15px", color: "var(--color-text-primary)", lineHeight: 1.65 }}>
-          <p style={{ color: "var(--color-text-secondary)", marginBottom: "12px" }}>Ответ:</p>
-          <p>Содержимое FAQ будет доступно в M5.</p>
-        </div>
-      )}
-
-      {item.item_type === "document" && (
-        <DocumentViewer versions={versions} />
-      )}
     </div>
   );
 }

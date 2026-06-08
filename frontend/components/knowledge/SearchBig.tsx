@@ -9,7 +9,7 @@ import { useTypeahead } from "@/lib/api/knowledge";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 
 const TYPE_LABELS: Record<string, string> = {
-  article: "Статья", document: "Документ", link: "Ссылка", faq: "FAQ",
+  article: "Статья", document: "Документ", link: "Ссылка",
 };
 
 export function SearchBig({ initialValue = "" }: { initialValue?: string }) {

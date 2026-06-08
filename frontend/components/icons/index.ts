@@ -7,3 +7,6 @@ export { ExitIcon } from "./ExitIcon";
 export { DocumentIcon } from "./DocumentIcon";
 export { OpenBookIcon } from "./OpenBookIcon";
 export { NewsIcon } from "./NewsIcon";
+export { EditIcon } from "./EditIcon";
+export { InfoIcon } from "./InfoIcon";
+export { DownloadIcon } from "./DownloadIcon";

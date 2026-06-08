@@ -77,10 +77,19 @@ async def serve_file(
     token: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
 ) -> FileResponse:
-    current_user = await _auth_from_request(request, token, db)
+    # Reject any path containing '..' before any auth decision — Starlette does not
+    # normalize '..' in {path:path} params, so 'inline/../documents/42/x' would bypass
+    # the is_inline check below and serve authenticated files without a token.
+    if ".." in Path(path).parts:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Недопустимый путь")
+
+    # Inline media (article images) are public — URLs are UUID-based and unguessable.
+    # Storing tokens in TipTap content would cause expiration issues.
+    is_inline = path.startswith("inline/")
+    current_user = None if is_inline else await _auth_from_request(request, token, db)
 
     item_id = _resolve_item_id(path)
-    if item_id is not None:
+    if item_id is not None and current_user is not None:
         result = await db.execute(
             select(KnowledgeItem.visibility).where(KnowledgeItem.id == item_id)
         )

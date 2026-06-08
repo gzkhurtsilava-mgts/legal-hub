@@ -1,10 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Card } from "@mts-ds/granat2-react-card";
+import { Card } from "@/components/GranatCard";
 import { DocumentIcon } from "@/components/icons/DocumentIcon";
 import { LinkIcon } from "@/components/icons/LinkIcon";
-import { QuestionCircleIcon } from "@/components/icons/QuestionCircleIcon";
 import { OpenBookIcon } from "@/components/icons/OpenBookIcon";
 import type { KnowledgeItem } from "@/lib/api/knowledge";
 import { FavoritesToggle } from "./FavoritesToggle";
@@ -13,21 +12,18 @@ const TYPE_LABELS: Record<string, string> = {
   article: "Статья",
   document: "Документ",
   link: "Ссылка",
-  faq: "FAQ",
 };
 
 const TYPE_COLORS: Record<string, string> = {
   article: "var(--brand-blue)",
   document: "var(--color-accent-positive)",
   link: "var(--color-accent-warning)",
-  faq: "var(--color-accent-negative)",
 };
 
 const TYPE_ICONS: Record<string, React.FC<{ size?: number }>> = {
   article: ({ size }) => <OpenBookIcon size={size} />,
   document: ({ size }) => <DocumentIcon size={size} />,
   link: ({ size }) => <LinkIcon size={size} />,
-  faq: ({ size }) => <QuestionCircleIcon size={size} />,
 };
 
 export function ItemCard({ item }: { item: KnowledgeItem }) {

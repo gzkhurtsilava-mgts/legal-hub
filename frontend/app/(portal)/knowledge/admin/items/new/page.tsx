@@ -3,14 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { useSections, useCreateKnowledgeItem } from "@/lib/api/knowledge";
-import type { ItemType, Visibility } from "@/lib/api/knowledge";
+import { useSections, useCreateKnowledgeItem, useTags } from "@/lib/api/knowledge";
+import type { ItemType, Visibility, Tag } from "@/lib/api/knowledge";
+import { TagPicker } from "@/components/knowledge/TagPicker";
 
 const TYPE_OPTIONS: { value: ItemType; label: string; desc: string }[] = [
   { value: "article", label: "Статья", desc: "Текстовый материал с редактором" },
   { value: "link", label: "Ссылка", desc: "Ссылка на внешний ресурс" },
-  { value: "faq", label: "FAQ", desc: "Вопрос и ответ" },
-  { value: "document", label: "Документ", desc: "Файл (доступно в M4)" },
+  { value: "document", label: "Документ", desc: "Файл с версионированием" },
 ];
 
 const EDITOR_ROLES = ["admin", "lawyer"];
@@ -21,7 +21,7 @@ export default function NewItemPage() {
   const isEditor = EDITOR_ROLES.includes((session?.user as { role?: string })?.role ?? "");
 
   const { data: sections = [] } = useSections();
-  const topSections = sections.filter((s) => s.parent_id === null);
+  const { data: allTags = [] } = useTags();
   const createItem = useCreateKnowledgeItem();
 
   const [title, setTitle] = useState("");
@@ -29,6 +29,8 @@ export default function NewItemPage() {
   const [itemType, setItemType] = useState<ItemType>("article");
   const [visibility, setVisibility] = useState<Visibility>("public");
   const [summary, setSummary] = useState("");
+  const [url, setUrl] = useState("");
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const [error, setError] = useState("");
 
   if (!isEditor) {
@@ -39,11 +41,23 @@ export default function NewItemPage() {
     );
   }
 
+  const handleTypeChange = (newType: ItemType) => {
+    if (newType === itemType) return;
+    if (itemType === "link" && url.trim()) {
+      if (!confirm("Заполненный URL будет сброшен при смене типа. Продолжить?")) return;
+      setUrl("");
+    }
+    setItemType(newType);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     if (!sectionId) { setError("Выберите раздел"); return; }
     if (!title.trim()) { setError("Введите название"); return; }
+    if (itemType === "link" && url.trim() && !isValidUrl(url.trim())) {
+      setError("Введите корректный URL (https://…)"); return;
+    }
 
     try {
       const item = await createItem.mutateAsync({
@@ -52,13 +66,16 @@ export default function NewItemPage() {
         title: title.trim(),
         summary: summary.trim() || undefined,
         visibility,
-        tag_ids: [],
+        tag_ids: selectedTags.map((t) => t.id),
       });
       router.push(`/knowledge/admin/items/${item.id}/edit`);
     } catch {
       setError("Ошибка при создании. Попробуйте ещё раз.");
     }
   };
+
+  const titleLabel = "Название";
+  const titlePlaceholder = itemType === "link" ? "Краткое название ресурса" : "Введите название материала";
 
   return (
     <div style={{ padding: "32px 24px", maxWidth: "640px", margin: "0 auto" }}>
@@ -81,15 +98,13 @@ export default function NewItemPage() {
               <button
                 key={opt.value}
                 type="button"
-                disabled={opt.value === "document"}
-                onClick={() => setItemType(opt.value)}
+                onClick={() => handleTypeChange(opt.value)}
                 style={{
                   padding: "12px 16px", border: "1.5px solid",
                   borderColor: itemType === opt.value ? "var(--brand-blue)" : "var(--color-background-secondary)",
-                  borderRadius: "var(--radius-m)", background: itemType === opt.value ? "#008ae014" : "var(--color-background-primary)",
-                  cursor: opt.value === "document" ? "not-allowed" : "pointer",
-                  opacity: opt.value === "document" ? 0.5 : 1,
-                  textAlign: "left",
+                  borderRadius: "var(--radius-m)",
+                  background: itemType === opt.value ? "var(--brand-blue-tint)" : "var(--color-background-primary)",
+                  cursor: "pointer", textAlign: "left",
                 }}
               >
                 <p style={{ fontFamily: "MTS Compact", fontSize: "14px", fontWeight: 500, color: itemType === opt.value ? "var(--brand-blue)" : "var(--color-text-primary)", margin: 0 }}>{opt.label}</p>
@@ -108,9 +123,6 @@ export default function NewItemPage() {
             style={inputStyle}
           >
             <option value="">Выберите раздел…</option>
-            {sections.filter((s) => s.parent_id !== null || !topSections.some((t) => t.id === s.id)).map((s) => (
-              <option key={s.id} value={s.id}>{s.name}</option>
-            ))}
             {sections.map((s) => (
               <option key={s.id} value={s.id}>{s.name}</option>
             ))}
@@ -119,24 +131,52 @@ export default function NewItemPage() {
 
         {/* Title */}
         <div>
-          <label style={labelStyle}>Название</label>
+          <label style={labelStyle}>{titleLabel}</label>
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Введите название материала"
+            placeholder={titlePlaceholder}
             style={inputStyle}
           />
         </div>
 
+        {/* URL — only for link type */}
+        {itemType === "link" && (
+          <div>
+            <label style={labelStyle}>URL <span style={{ color: "var(--color-text-tertiary)", fontWeight: 400 }}>(можно добавить позже)</span></label>
+            <input
+              type="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://example.com"
+              style={inputStyle}
+            />
+          </div>
+        )}
+
         {/* Summary */}
         <div>
-          <label style={labelStyle}>Краткое описание <span style={{ color: "var(--color-text-tertiary)" }}>(необязательно)</span></label>
+          <label style={labelStyle}>Краткое описание <span style={{ color: "var(--color-text-tertiary)", fontWeight: 400 }}>(необязательно)</span></label>
           <textarea
             value={summary}
             onChange={(e) => setSummary(e.target.value)}
             placeholder="Одна-две строки — что содержит этот материал"
             rows={3}
-            style={{ ...inputStyle, resize: "vertical" }}
+            style={{ ...inputStyle, resize: "vertical" as const }}
+          />
+        </div>
+
+        {/* Tags */}
+        <div>
+          <label style={{ ...labelStyle, marginBottom: "8px" }}>Темы</label>
+          <TagPicker
+            selectedTags={selectedTags}
+            availableTags={allTags}
+            onAdd={(tagId) => {
+              const tag = allTags.find((t) => t.id === tagId);
+              if (tag) setSelectedTags((prev) => [...prev, tag]);
+            }}
+            onRemove={(tagId) => setSelectedTags((prev) => prev.filter((t) => t.id !== tagId))}
           />
         </div>
 
@@ -153,7 +193,7 @@ export default function NewItemPage() {
                   padding: "8px 16px", border: "1.5px solid",
                   borderColor: visibility === val ? "var(--brand-blue)" : "var(--color-background-secondary)",
                   borderRadius: "var(--radius-l)",
-                  background: visibility === val ? "#008ae014" : "transparent",
+                  background: visibility === val ? "var(--brand-blue-tint)" : "transparent",
                   fontFamily: "MTS Compact", fontSize: "14px",
                   color: visibility === val ? "var(--brand-blue)" : "var(--color-text-primary)",
                   cursor: "pointer",
@@ -176,6 +216,10 @@ export default function NewItemPage() {
       </form>
     </div>
   );
+}
+
+function isValidUrl(s: string) {
+  try { new URL(s); return true; } catch { return false; }
 }
 
 const labelStyle: React.CSSProperties = { fontFamily: "MTS Compact", fontSize: "14px", fontWeight: 500, color: "var(--color-text-primary)", display: "block", marginBottom: "6px" };
