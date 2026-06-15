@@ -404,3 +404,138 @@ class PmLandscapeResponse(BaseModel):
     domains: list[PmLandscapeDomain]
     total_domains: int
     total_processes: int
+
+
+# ─── L3 Junction input schemas ────────────────────────────────────────────────
+
+
+class PmBuAssignmentIn(BaseModel):
+    bu_id: int
+    notes: str | None = None
+
+
+class PmSystemAssignmentIn(BaseModel):
+    system_id: int
+
+
+class PmRegulationAssignmentIn(BaseModel):
+    reg_id: int
+    articles: str | None = None
+    relevance_note: str | None = None
+
+
+class PmRiskAssignmentIn(BaseModel):
+    risk_id: int
+    impact: PmImpact | None = None
+    probability: PmImpact | None = None
+    control: str | None = None
+
+
+class PmRaciRowIn(BaseModel):
+    role_id: int
+    activity_id: str | None = None
+    r: bool = False
+    a: bool = False
+    c: bool = False
+    i: bool = False
+
+
+class PmMetricIn(BaseModel):
+    name: str
+    value: str | None = None
+    unit: str | None = None
+    metric_status: PmMetricStatus = PmMetricStatus.no_data
+
+
+class PmAutomationCandidateIn(BaseModel):
+    idea: str
+    impact: str | None = None
+    effort: str | None = None
+    score: int | None = None
+
+
+# ─── L3 Junction output schemas ───────────────────────────────────────────────
+
+
+class PmBuAssignmentOut(BaseModel):
+    bu_id: int
+    bu_name: str
+    bu_type: PmBuType
+    notes: str | None = None
+
+
+class PmSystemAssignmentOut(BaseModel):
+    system_id: int
+    system_name: str
+
+
+class PmRegulationAssignmentOut(BaseModel):
+    reg_id: int
+    reg_name: str
+    articles: str | None = None
+    relevance_note: str | None = None
+
+
+class PmRiskAssignmentOut(BaseModel):
+    risk_id: int
+    risk_name: str
+    impact: PmImpact | None = None
+    probability: PmImpact | None = None
+    control: str | None = None
+
+
+class PmRaciRowOut(BaseModel):
+    role_id: int
+    role_name: str
+    activity_id: str | None = None
+    r: bool
+    a: bool
+    c: bool
+    i: bool
+
+
+class PmMetricOut(_OrmBase):
+    id: int
+    name: str
+    value: str | None
+    unit: str | None
+    metric_status: PmMetricStatus
+
+
+class PmAutomationCandidateOut(_OrmBase):
+    id: int
+    idea: str
+    impact: str | None
+    effort: str | None
+    score: int | None
+
+
+# ─── L3 Process list item (lightweight, no junctions) ────────────────────────
+
+
+class PmProcessListItem(_OrmBase):
+    id: str
+    name: str
+    type: PmProcessType
+    domain_id: str
+    status: PmStatus
+    version: str
+    owner_role_id: int | None
+    last_updated: date | None
+    next_review: date | None
+    created_at: datetime
+    updated_at: datetime
+
+
+# ─── L3 Process detail (base fields + all junction data) ─────────────────────
+
+
+class PmProcessDetail(PmProcessResponse):
+    business_units: list[PmBuAssignmentOut] = []
+    systems: list[PmSystemAssignmentOut] = []
+    regulations: list[PmRegulationAssignmentOut] = []
+    risks: list[PmRiskAssignmentOut] = []
+    raci: list[PmRaciRowOut] = []
+    metrics: list[PmMetricOut] = []
+    automation_candidates: list[PmAutomationCandidateOut] = []
+    activity_count: int = 0

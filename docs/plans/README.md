@@ -7,6 +7,7 @@ Implementation plans for legal-hub features. Each plan is a living document — 
 | Plan | Status | Milestones |
 |---|---|---|
 | [knowledge-module.md](knowledge-module.md) | 🟡 In progress (Preparation done) | M0–M6 |
+| [processes-module.md](processes-module.md) | 🟡 M0 done, M1 next | M0–M3 |
 
 ## Format
 

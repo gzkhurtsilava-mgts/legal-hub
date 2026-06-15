@@ -251,3 +251,280 @@ export function useLandscape() {
     enabled: !!session,
   });
 }
+
+// ─── L3 Process types ─────────────────────────────────────────────────────────
+
+export type PmBuMode = "all_clients" | "specific";
+export type PmImpact = "high" | "medium" | "low";
+export type PmMetricStatus = "fact" | "estimate" | "no_data";
+
+export interface PmSirporc {
+  suppliers: string[];
+  inputs: string[];
+  input_requirements: string[];
+  process_summary: string;
+  outputs: string[];
+  output_requirements: string[];
+  clients: string[];
+}
+
+export interface PmProcessListItem {
+  id: string;
+  name: string;
+  type: PmProcessType;
+  domain_id: string;
+  status: PmStatus;
+  version: string;
+  owner_role_id: number | null;
+  last_updated: string | null;
+  next_review: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PmBuAssignmentOut {
+  bu_id: number;
+  bu_name: string;
+  bu_type: PmBuType;
+  notes: string | null;
+}
+
+export interface PmSystemAssignmentOut {
+  system_id: number;
+  system_name: string;
+}
+
+export interface PmRegulationAssignmentOut {
+  reg_id: number;
+  reg_name: string;
+  articles: string | null;
+  relevance_note: string | null;
+}
+
+export interface PmRiskAssignmentOut {
+  risk_id: number;
+  risk_name: string;
+  impact: PmImpact | null;
+  probability: PmImpact | null;
+  control: string | null;
+}
+
+export interface PmRaciRowOut {
+  role_id: number;
+  role_name: string;
+  activity_id: string | null;
+  r: boolean;
+  a: boolean;
+  c: boolean;
+  i: boolean;
+}
+
+export interface PmMetricOut {
+  id: number;
+  name: string;
+  value: string | null;
+  unit: string | null;
+  metric_status: PmMetricStatus;
+}
+
+export interface PmAutomationCandidateOut {
+  id: number;
+  idea: string;
+  impact: string | null;
+  effort: string | null;
+  score: number | null;
+}
+
+export interface PmProcessDetail {
+  id: string;
+  name: string;
+  type: PmProcessType;
+  domain_id: string;
+  owner_role_id: number | null;
+  version: string;
+  status: PmStatus;
+  lifecycle_ref_id: string | null;
+  last_updated: string | null;
+  next_review: string | null;
+  sirporc: PmSirporc | null;
+  bu_mode: PmBuMode;
+  connections: Array<{ direction: string; target_process_id: string; note: string }> | null;
+  changelog: Array<{ date: string; author: string; note: string }> | null;
+  sla_days: number | null;
+  pain_points: string[] | null;
+  bpmn_diagram: string | null;
+  required_competencies: string[] | null;
+  effort_estimation: { simple: string; medium: string; complex: string; factors: string[] } | null;
+  decision_points: Array<{ decision: string; factors: string[] }> | null;
+  case_library: Array<{ case_id: string; title: string; year: number | null; effort: string; author: string; lessons: string[]; ref_to_template: string }> | null;
+  improvement_candidates: Array<{ idea: string; type: string; impact: string; effort: string; score: number }> | null;
+  created_at: string;
+  updated_at: string;
+  business_units: PmBuAssignmentOut[];
+  systems: PmSystemAssignmentOut[];
+  regulations: PmRegulationAssignmentOut[];
+  risks: PmRiskAssignmentOut[];
+  raci: PmRaciRowOut[];
+  metrics: PmMetricOut[];
+  automation_candidates: PmAutomationCandidateOut[];
+  activity_count: number;
+}
+
+export interface PmProcessCreate {
+  id: string;
+  name: string;
+  type: PmProcessType;
+  domain_id: string;
+  owner_role_id?: number | null;
+  version?: string;
+  status?: PmStatus;
+}
+
+export interface PmProcessUpdate {
+  name?: string;
+  domain_id?: string;
+  owner_role_id?: number | null;
+  version?: string;
+  status?: PmStatus;
+  lifecycle_ref_id?: string | null;
+  last_updated?: string | null;
+  next_review?: string | null;
+  sirporc?: PmSirporc | null;
+  bu_mode?: PmBuMode;
+  connections?: Array<{ direction: string; target_process_id: string; note: string }> | null;
+  changelog?: Array<{ date: string; author: string; note: string }> | null;
+  sla_days?: number | null;
+  pain_points?: string[] | null;
+  required_competencies?: string[] | null;
+  effort_estimation?: object | null;
+  decision_points?: object[] | null;
+  case_library?: object[] | null;
+  improvement_candidates?: object[] | null;
+}
+
+// ─── L3 Process hooks ─────────────────────────────────────────────────────────
+
+export function useProcesses(filters?: {
+  domain_id?: string;
+  type?: string;
+  status?: string;
+  q?: string;
+}) {
+  const token = useToken();
+  const { data: session } = useSession();
+  return useQuery<PmProcessListItem[]>({
+    queryKey: ["pm-processes", filters ?? {}],
+    queryFn: () => {
+      const params = new URLSearchParams();
+      if (filters?.domain_id) params.set("domain_id", filters.domain_id);
+      if (filters?.type) params.set("type", filters.type);
+      if (filters?.status) params.set("status", filters.status);
+      if (filters?.q) params.set("q", filters.q);
+      const qs = params.toString();
+      return apiFetch<PmProcessListItem[]>(`/api/processes/${qs ? "?" + qs : ""}`, token);
+    },
+    enabled: !!session,
+  });
+}
+
+export function useProcess(id: string) {
+  const token = useToken();
+  const { data: session } = useSession();
+  return useQuery<PmProcessDetail>({
+    queryKey: ["pm-process", id],
+    queryFn: () => apiFetch<PmProcessDetail>(`/api/processes/${id}`, token),
+    enabled: !!session && !!id,
+  });
+}
+
+export function useCreateProcess() {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation<PmProcessDetail, Error, PmProcessCreate>({
+    mutationFn: (body) =>
+      apiFetch<PmProcessDetail>("/api/processes/", token, {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ["pm-processes"] });
+      qc.invalidateQueries({ queryKey: ["pm-domain", data.domain_id] });
+      qc.invalidateQueries({ queryKey: ["pm-landscape"] });
+    },
+  });
+}
+
+export function useUpdateProcess(id: string) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation<PmProcessDetail, Error, PmProcessUpdate>({
+    mutationFn: (body) =>
+      apiFetch<PmProcessDetail>(`/api/processes/${id}`, token, {
+        method: "PUT",
+        body: JSON.stringify(body),
+      }),
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ["pm-process", id] });
+      qc.invalidateQueries({ queryKey: ["pm-processes"] });
+      qc.invalidateQueries({ queryKey: ["pm-domain", data.domain_id] });
+    },
+  });
+}
+
+export function useDeleteProcess(id: string) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation<void, Error, void>({
+    mutationFn: () =>
+      apiFetch<void>(`/api/processes/${id}`, token, { method: "DELETE" }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["pm-processes"] });
+      qc.invalidateQueries({ queryKey: ["pm-landscape"] });
+    },
+  });
+}
+
+// ─── Junction hooks ───────────────────────────────────────────────────────────
+
+export function useUpdateProcessJunction(processId: string, junction: string) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation<{ ok: boolean }, Error, unknown[]>({
+    mutationFn: (body) =>
+      apiFetch<{ ok: boolean }>(`/api/processes/${processId}/${junction}`, token, {
+        method: "PUT",
+        body: JSON.stringify(body),
+      }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["pm-process", processId] }),
+  });
+}
+
+export function useCreateToBe(processId: string) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation<PmProcessDetail, Error, void>({
+    mutationFn: () =>
+      apiFetch<PmProcessDetail>(`/api/processes/${processId}/create-to-be`, token, {
+        method: "POST",
+        body: "{}",
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["pm-processes"] });
+      qc.invalidateQueries({ queryKey: ["pm-landscape"] });
+    },
+  });
+}
+
+export function useNextProcessId(domain: string, type: string, enabled: boolean) {
+  const token = useToken();
+  return useQuery<{ suggested_id: string }>({
+    queryKey: ["pm-next-id", domain, type],
+    queryFn: () =>
+      apiFetch<{ suggested_id: string }>(
+        `/api/processes/next-id?domain=${encodeURIComponent(domain)}&type=${type}`,
+        token
+      ),
+    enabled: enabled && !!domain && !!type,
+    staleTime: 0,
+  });
+}

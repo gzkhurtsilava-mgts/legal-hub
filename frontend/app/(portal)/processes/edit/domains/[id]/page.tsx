@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Spinner } from "@mts-ds/granat2-react-spinner";
-import { useDomain, useUpdateDomain, type PmDomainUpdate } from "@/lib/api/processes";
+import { useDomain, useUpdateDomain, useProcesses, type PmDomainUpdate } from "@/lib/api/processes";
 
 export default function EditDomainPage() {
   const params = useParams();
@@ -149,6 +149,83 @@ export default function EditDomainPage() {
           </button>
         </div>
       </form>
+
+      <DomainProcesses domainId={domain.id} role={role} />
+    </div>
+  );
+}
+
+function DomainProcesses({ domainId, role }: { domainId: string; role?: string }) {
+  const router = useRouter();
+  const { data: processes, isLoading } = useProcesses({ domain_id: domainId });
+  const canEdit = role === "admin" || role === "lawyer";
+
+  const TYPE_LABELS: Record<string, string> = { workflow: "Процедура", service: "Услуга" };
+  const STATUS_LABELS: Record<string, string> = { draft: "Черновик", as_is: "As-Is", to_be: "To-Be" };
+
+  return (
+    <div style={{ marginTop: "32px" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px" }}>
+        <h2 style={{ fontFamily: "MTS Wide", fontWeight: 700, fontSize: "18px", color: "var(--color-text-primary)", margin: 0 }}>
+          Процессы домена
+        </h2>
+        {canEdit && (
+          <button
+            onClick={() => router.push(`/processes/edit/processes/new?domain_id=${domainId}`)}
+            style={primaryBtn}
+          >
+            + Добавить процесс
+          </button>
+        )}
+      </div>
+
+      {isLoading ? (
+        <div style={{ display: "flex", justifyContent: "center", padding: "32px" }}><Spinner size={24} /></div>
+      ) : !processes?.length ? (
+        <div style={{ padding: "24px 20px", background: "var(--color-background-primary)", borderRadius: "var(--radius-m)", border: "1px dashed var(--color-background-lower)", textAlign: "center" }}>
+          <p style={{ fontFamily: "MTS Compact", color: "var(--color-text-tertiary)", margin: 0 }}>
+            Процессов в домене нет
+          </p>
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+          {processes.map((p) => (
+            <div
+              key={p.id}
+              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", background: "var(--color-background-primary)", borderRadius: "var(--radius-m)", border: "1px solid var(--color-background-lower)" }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
+                <span style={{
+                  padding: "2px 7px",
+                  borderRadius: "var(--radius-s)",
+                  fontSize: "11px",
+                  fontFamily: "MTS Compact",
+                  fontWeight: 500,
+                  background: p.type === "workflow" ? "#e8f4fd" : "#f0f8ee",
+                  color: p.type === "workflow" ? "var(--brand-blue)" : "var(--color-accent-positive)",
+                  border: `1px solid ${p.type === "workflow" ? "#b3d9f7" : "#b8e6b0"}`,
+                  flexShrink: 0,
+                }}>
+                  {TYPE_LABELS[p.type]}
+                </span>
+                <span style={{ fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</span>
+                <span style={{ fontFamily: "MTS Compact", fontSize: "11px", color: "var(--color-text-tertiary)", flexShrink: 0 }}>{p.id}</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
+                <span style={{ fontFamily: "MTS Compact", fontSize: "12px", color: "var(--color-text-tertiary)" }}>{STATUS_LABELS[p.status]}</span>
+                {canEdit && (
+                  <button
+                    onClick={() => router.push(`/processes/edit/processes/${p.id}`)}
+                    style={linkBtn}
+                  >
+                    Изм. →
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
