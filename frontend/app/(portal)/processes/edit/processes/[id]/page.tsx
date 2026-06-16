@@ -12,11 +12,17 @@ import {
   useDomains,
   useRefList,
   useCreateRef,
+  useActivities,
+  useCreateActivity,
+  useDeleteActivity,
+  useReorderActivities,
+  useNextActivityId,
   type PmSirporc,
   type PmStatus,
   type PmBuMode,
   type PmImpact,
   type PmMetricStatus,
+  type PmActivityType,
   type PmRole,
   type PmSystem,
   type PmRegulation,
@@ -44,8 +50,8 @@ const SIRPORC_FIELDS: { key: keyof Omit<PmSirporc, "process_summary">; label: st
   { key: "clients", label: "C — Клиенты", hint: "Кто получает результат" },
 ];
 
-const SECTIONS_WORKFLOW = ["basic", "sirporc", "business-units", "systems", "regulations", "risks", "raci", "metrics", "pain-auto", "connections", "changelog", "json"];
-const SECTIONS_SERVICE  = ["basic", "sirporc", "business-units", "systems", "regulations", "risks", "competencies", "decision-cases", "connections", "changelog", "json"];
+const SECTIONS_WORKFLOW = ["basic", "sirporc", "business-units", "systems", "regulations", "risks", "raci", "metrics", "pain-auto", "activities", "connections", "changelog", "json"];
+const SECTIONS_SERVICE  = ["basic", "sirporc", "business-units", "systems", "regulations", "risks", "competencies", "decision-cases", "activities", "connections", "changelog", "json"];
 
 const SECTION_LABELS: Record<string, string> = {
   basic: "Основное",
@@ -59,6 +65,7 @@ const SECTION_LABELS: Record<string, string> = {
   "pain-auto": "Боли / Автоматизация",
   competencies: "Компетенции / Трудозатраты",
   "decision-cases": "Decision / Прецеденты",
+  activities: "Активности (L4)",
   connections: "Связи",
   changelog: "История изменений",
   json: "JSON",
@@ -83,6 +90,14 @@ export default function EditProcessPage() {
   const createSystem = useCreateRef<PmSystem>("systems");
   const createRegulation = useCreateRef<PmRegulation>("regulations");
   const createRisk = useCreateRef<PmRisk>("risks");
+
+  const { data: activities, isLoading: activitiesLoading } = useActivities(id);
+  const createActivity = useCreateActivity(id);
+  const reorderActivities = useReorderActivities(id);
+
+  const [newActName, setNewActName] = useState("");
+  const [newActOptional, setNewActOptional] = useState(false);
+  const [actError, setActError] = useState<string | null>(null);
 
   const updateBase = useUpdateProcess(id);
   const updateBus = useUpdateProcessJunction(id, "business-units");
@@ -165,6 +180,7 @@ export default function EditProcessPage() {
   const [connSaved, setConnSaved] = useState(false);
 
   // ── Changelog
+  const [changelog, setChangelog] = useState<Array<{ date: string; author: string; note: string }>>([]);
   const [newChangeNote, setNewChangeNote] = useState("");
   const [changelogSaved, setChangelogSaved] = useState(false);
 
@@ -199,6 +215,7 @@ export default function EditProcessPage() {
     setDecisionPoints((proc.decision_points ?? []).map((d: {decision: string; factors: string[]}) => ({ decision: d.decision, factors: d.factors ?? [] })));
     setImprovementCandidates((proc.improvement_candidates ?? []).map((c: {idea: string; type: string; impact: string; effort: string; score: number}) => ({ idea: c.idea, type: c.type ?? "", impact: c.impact ?? "", effort: c.effort ?? "", score: String(c.score ?? "") })));
     setConnections((proc.connections ?? []).map((c: {direction: string; target_process_id: string; note: string}) => ({ direction: c.direction, target_process_id: c.target_process_id, note: c.note ?? "" })));
+    setChangelog((proc.changelog ?? []) as Array<{ date: string; author: string; note: string }>);
   }, [proc]);
 
   const showSaved = useCallback((set: (v: boolean) => void) => {
@@ -225,85 +242,122 @@ export default function EditProcessPage() {
   };
 
   const saveSirporc = async () => {
-    await updateBase.mutateAsync({ sirporc });
-    showSaved(setSirporcSaved);
+    setBaseError(null);
+    try {
+      await updateBase.mutateAsync({ sirporc });
+      showSaved(setSirporcSaved);
+    } catch (err) { setBaseError((err as Error)?.message ?? "Ошибка сохранения"); }
   };
 
   const saveBus = async () => {
-    const body = buMode === "all_clients"
-      ? []
-      : buAssignments.map(b => ({ bu_id: b.bu_id, notes: b.notes || null }));
-    await Promise.all([
-      updateBase.mutateAsync({ bu_mode: buMode }),
-      updateBus.mutateAsync(body as unknown[]),
-    ]);
-    showSaved(setBuSaved);
+    setBaseError(null);
+    try {
+      const body = buMode === "all_clients"
+        ? []
+        : buAssignments.map(b => ({ bu_id: b.bu_id, notes: b.notes || null }));
+      await Promise.all([
+        updateBase.mutateAsync({ bu_mode: buMode }),
+        updateBus.mutateAsync(body as unknown[]),
+      ]);
+      showSaved(setBuSaved);
+    } catch (err) { setBaseError((err as Error)?.message ?? "Ошибка сохранения"); }
   };
 
   const saveSystems = async () => {
-    await updateSystems.mutateAsync(systems.map(s => ({ system_id: s.system_id })));
-    showSaved(setSysSaved);
+    setBaseError(null);
+    try {
+      await updateSystems.mutateAsync(systems.map(s => ({ system_id: s.system_id })));
+      showSaved(setSysSaved);
+    } catch (err) { setBaseError((err as Error)?.message ?? "Ошибка сохранения"); }
   };
 
   const saveRegulations = async () => {
-    await updateRegulations.mutateAsync(regulations.map(r => ({ reg_id: r.reg_id, articles: r.articles, relevance_note: r.relevance_note })));
-    showSaved(setRegSaved);
+    setBaseError(null);
+    try {
+      await updateRegulations.mutateAsync(regulations.map(r => ({ reg_id: r.reg_id, articles: r.articles, relevance_note: r.relevance_note })));
+      showSaved(setRegSaved);
+    } catch (err) { setBaseError((err as Error)?.message ?? "Ошибка сохранения"); }
   };
 
   const saveRisks = async () => {
-    await updateRisks.mutateAsync(risks.map(r => ({ risk_id: r.risk_id, impact: r.impact, probability: r.probability, control: r.control })));
-    showSaved(setRiskSaved);
+    setBaseError(null);
+    try {
+      await updateRisks.mutateAsync(risks.map(r => ({ risk_id: r.risk_id, impact: r.impact, probability: r.probability, control: r.control })));
+      showSaved(setRiskSaved);
+    } catch (err) { setBaseError((err as Error)?.message ?? "Ошибка сохранения"); }
   };
 
   const saveRaci = async () => {
-    await updateRaci.mutateAsync(raci.map(r => ({ role_id: r.role_id, activity_id: r.activity_id, r: r.r, a: r.a, c: r.c, i: r.i })));
-    showSaved(setRaciSaved);
+    setBaseError(null);
+    try {
+      await updateRaci.mutateAsync(raci.map(r => ({ role_id: r.role_id, activity_id: r.activity_id, r: r.r, a: r.a, c: r.c, i: r.i })));
+      showSaved(setRaciSaved);
+    } catch (err) { setBaseError((err as Error)?.message ?? "Ошибка сохранения"); }
   };
 
   const saveMetrics = async () => {
-    await Promise.all([
-      updateBase.mutateAsync({ sla_days: slaDay !== "" ? Number(slaDay) : null }),
-      updateMetrics.mutateAsync(metrics as unknown[]),
-    ]);
-    showSaved(setMetricsSaved);
+    setBaseError(null);
+    try {
+      await Promise.all([
+        updateBase.mutateAsync({ sla_days: slaDay !== "" ? Number(slaDay) : null }),
+        updateMetrics.mutateAsync(metrics as unknown[]),
+      ]);
+      showSaved(setMetricsSaved);
+    } catch (err) { setBaseError((err as Error)?.message ?? "Ошибка сохранения"); }
   };
 
   const savePainAuto = async () => {
-    await Promise.all([
-      updateBase.mutateAsync({ pain_points: painPoints }),
-      updateAutoCandidates.mutateAsync(autoCandidates as unknown[]),
-    ]);
-    showSaved(setPainAutoSaved);
+    setBaseError(null);
+    try {
+      await Promise.all([
+        updateBase.mutateAsync({ pain_points: painPoints }),
+        updateAutoCandidates.mutateAsync(autoCandidates as unknown[]),
+      ]);
+      showSaved(setPainAutoSaved);
+    } catch (err) { setBaseError((err as Error)?.message ?? "Ошибка сохранения"); }
   };
 
   const saveCompetencies = async () => {
-    await updateBase.mutateAsync({
-      required_competencies: competencies,
-      effort_estimation: { simple: effort.simple, medium: effort.medium, complex: effort.complex, factors: effort.factors },
-    });
-    showSaved(setCompSaved);
+    setBaseError(null);
+    try {
+      await updateBase.mutateAsync({
+        required_competencies: competencies,
+        effort_estimation: { simple: effort.simple, medium: effort.medium, complex: effort.complex, factors: effort.factors },
+      });
+      showSaved(setCompSaved);
+    } catch (err) { setBaseError((err as Error)?.message ?? "Ошибка сохранения"); }
   };
 
   const saveDecision = async () => {
-    await updateBase.mutateAsync({
-      decision_points: decisionPoints,
-      improvement_candidates: improvementCandidates.map(c => ({ ...c, score: c.score ? Number(c.score) : null })),
-    });
-    showSaved(setDecisionSaved);
+    setBaseError(null);
+    try {
+      await updateBase.mutateAsync({
+        decision_points: decisionPoints,
+        improvement_candidates: improvementCandidates.map(c => ({ ...c, score: c.score ? Number(c.score) : null })),
+      });
+      showSaved(setDecisionSaved);
+    } catch (err) { setBaseError((err as Error)?.message ?? "Ошибка сохранения"); }
   };
 
   const saveConnections = async () => {
-    await updateBase.mutateAsync({ connections });
-    showSaved(setConnSaved);
+    setBaseError(null);
+    try {
+      await updateBase.mutateAsync({ connections });
+      showSaved(setConnSaved);
+    } catch (err) { setBaseError((err as Error)?.message ?? "Ошибка сохранения"); }
   };
 
   const addChangelogEntry = async () => {
     if (!newChangeNote.trim()) return;
-    const entry = { date: new Date().toISOString().slice(0, 10), author: session?.user?.name ?? "—", note: newChangeNote.trim() };
-    const updated = [...(proc?.changelog ?? []), entry];
-    await updateBase.mutateAsync({ changelog: updated });
-    setNewChangeNote("");
-    showSaved(setChangelogSaved);
+    setBaseError(null);
+    try {
+      const entry = { date: new Date().toISOString().slice(0, 10), author: session?.user?.name ?? "—", note: newChangeNote.trim() };
+      const updated = [...changelog, entry];
+      await updateBase.mutateAsync({ changelog: updated });
+      setChangelog(updated);
+      setNewChangeNote("");
+      showSaved(setChangelogSaved);
+    } catch (err) { setBaseError((err as Error)?.message ?? "Ошибка сохранения"); }
   };
 
   if (!session) return null;
@@ -1016,6 +1070,24 @@ export default function EditProcessPage() {
           </div>
         )}
 
+        {/* ─── Section: Активности (L4) ─── */}
+        <ActivitiesSection
+          processId={id}
+          processType={proc.type}
+          activities={activities ?? []}
+          isLoading={activitiesLoading}
+          canEdit={canEdit}
+          newActName={newActName}
+          setNewActName={setNewActName}
+          newActOptional={newActOptional}
+          setNewActOptional={setNewActOptional}
+          actError={actError}
+          setActError={setActError}
+          createActivity={createActivity}
+          reorderActivities={reorderActivities}
+          router={router}
+        />
+
         {/* ─── Section: Связи ─── */}
         <div id="section-connections" style={sectionCard}>
           <SectionHeader title="Связи с процессами" />
@@ -1096,6 +1168,246 @@ export default function EditProcessPage() {
           </pre>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ─── Activities section component ─────────────────────────────────────────────
+
+function ActivitiesSection({
+  processId,
+  processType,
+  activities,
+  isLoading,
+  canEdit,
+  newActName,
+  setNewActName,
+  newActOptional,
+  setNewActOptional,
+  actError,
+  setActError,
+  createActivity,
+  reorderActivities,
+  router,
+}: {
+  processId: string;
+  processType: string;
+  activities: import("@/lib/api/processes").PmActivity[];
+  isLoading: boolean;
+  canEdit: boolean;
+  newActName: string;
+  setNewActName: (v: string) => void;
+  newActOptional: boolean;
+  setNewActOptional: (v: boolean) => void;
+  actError: string | null;
+  setActError: (v: string | null) => void;
+  createActivity: ReturnType<typeof useCreateActivity>;
+  reorderActivities: ReturnType<typeof useReorderActivities>;
+  router: ReturnType<typeof import("next/navigation").useRouter>;
+}) {
+  const isWorkflow = processType === "workflow";
+
+  const { data: nextId } = useNextActivityId(processId, newActOptional, canEdit);
+
+  const ACT_TYPE_LABELS: Record<string, string> = { manual: "Ручная", system: "Системная", decision: "Решение" };
+
+  const handleAddActivity = async () => {
+    if (!newActName.trim()) { setActError("Введите название активности"); return; }
+    if (!nextId?.suggested_id) { setActError("Не удалось получить ID"); return; }
+    setActError(null);
+    try {
+      await createActivity.mutateAsync({
+        id: nextId.suggested_id,
+        parent_process_id: processId,
+        order_index: activities.length,
+        name: newActName.trim(),
+        is_optional: newActOptional,
+      });
+      setNewActName("");
+      setNewActOptional(false);
+    } catch (err) {
+      setActError((err as Error)?.message ?? "Ошибка создания");
+    }
+  };
+
+  const moveActivity = async (idx: number, dir: -1 | 1) => {
+    const newOrder = activities.map((a, i) => ({ id: a.id, order_index: i }));
+    const swapIdx = idx + dir;
+    if (swapIdx < 0 || swapIdx >= newOrder.length) return;
+    [newOrder[idx].order_index, newOrder[swapIdx].order_index] = [newOrder[swapIdx].order_index, newOrder[idx].order_index];
+    await reorderActivities.mutateAsync(newOrder);
+  };
+
+  return (
+    <div id="section-activities" style={sectionCard}>
+      <SectionHeader
+        title="Активности (L4)"
+        hint={isWorkflow ? "Шаги процедуры в порядке выполнения" : "Фазы услуги (обязательные и опциональные)"}
+      />
+
+      {isLoading ? (
+        <div style={{ display: "flex", justifyContent: "center", padding: "24px" }}><Spinner size={24} /></div>
+      ) : activities.length === 0 ? (
+        <p style={{ fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-text-tertiary)", margin: "0 0 16px" }}>
+          Активностей пока нет
+        </p>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: "4px", marginBottom: "16px" }}>
+          {activities.map((act, idx) => (
+            <ActivityRow
+              key={act.id}
+              act={act}
+              idx={idx}
+              total={activities.length}
+              isWorkflow={isWorkflow}
+              canEdit={canEdit}
+              actTypeLbl={ACT_TYPE_LABELS}
+              onMove={moveActivity}
+              onEdit={() => router.push(`/processes/edit/processes/${processId}/activities/${act.id}`)}
+              processId={processId}
+            />
+          ))}
+        </div>
+      )}
+
+      {canEdit && (
+        <div style={{ borderTop: "1px solid var(--color-background-lower)", paddingTop: "14px" }}>
+          <label style={{ ...lbl, marginBottom: "8px" }}>Добавить активность</label>
+          <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
+            <input
+              value={newActName}
+              onChange={(e) => setNewActName(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAddActivity(); } }}
+              placeholder="Название активности..."
+              style={{ ...inp, flex: 1, minWidth: "200px" }}
+            />
+            {!isWorkflow && (
+              <label style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer", fontFamily: "MTS Compact", fontSize: "13px", whiteSpace: "nowrap" }}>
+                <input
+                  type="checkbox"
+                  checked={newActOptional}
+                  onChange={(e) => setNewActOptional(e.target.checked)}
+                  style={{ accentColor: "var(--brand-blue)" }}
+                />
+                Опциональная
+              </label>
+            )}
+            <button onClick={handleAddActivity} disabled={createActivity.isPending} style={saveBtn}>
+              {createActivity.isPending ? "…" : "+ Добавить"}
+            </button>
+          </div>
+          {nextId && (
+            <p style={{ fontFamily: "MTS Compact", fontSize: "11px", color: "var(--color-text-tertiary)", marginTop: "4px", marginBottom: 0 }}>
+              ID: {nextId.suggested_id}
+            </p>
+          )}
+          {actError && <p style={{ ...errorText, marginTop: "6px" }}>{actError}</p>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ActivityRow({
+  act,
+  idx,
+  total,
+  isWorkflow,
+  canEdit,
+  actTypeLbl,
+  onMove,
+  onEdit,
+  processId,
+}: {
+  act: import("@/lib/api/processes").PmActivity;
+  idx: number;
+  total: number;
+  isWorkflow: boolean;
+  canEdit: boolean;
+  actTypeLbl: Record<string, string>;
+  onMove: (idx: number, dir: -1 | 1) => void;
+  onEdit: () => void;
+  processId: string;
+}) {
+  const del = useDeleteActivity(processId, act.id);
+  const [confirming, setConfirming] = useState(false);
+
+  return (
+    <div style={{
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
+      padding: "8px 12px",
+      background: "var(--color-background-secondary)",
+      borderRadius: "var(--radius-m)",
+      border: "1px solid var(--color-background-lower)",
+    }}>
+      {/* Order controls */}
+      {canEdit && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
+          <button onClick={() => onMove(idx, -1)} disabled={idx === 0} style={{ ...removeBtn, padding: "0 4px", fontSize: "11px", lineHeight: 1.2 }}>▲</button>
+          <button onClick={() => onMove(idx, 1)} disabled={idx === total - 1} style={{ ...removeBtn, padding: "0 4px", fontSize: "11px", lineHeight: 1.2 }}>▼</button>
+        </div>
+      )}
+
+      {/* Index */}
+      <span style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--color-text-tertiary)", width: "20px", textAlign: "right", flexShrink: 0 }}>
+        {act.order_index + 1}
+      </span>
+
+      {/* Type badge */}
+      {isWorkflow && act.activity_type && (
+        <span style={{
+          padding: "1px 6px",
+          borderRadius: "var(--radius-s)",
+          fontSize: "10px",
+          fontFamily: "MTS Compact",
+          fontWeight: 500,
+          background: "var(--color-background-primary)",
+          border: "1px solid var(--color-background-lower)",
+          color: "var(--color-text-secondary)",
+          flexShrink: 0,
+        }}>
+          {actTypeLbl[act.activity_type] ?? act.activity_type}
+        </span>
+      )}
+      {!isWorkflow && (
+        <span style={{
+          padding: "1px 6px",
+          borderRadius: "var(--radius-s)",
+          fontSize: "10px",
+          fontFamily: "MTS Compact",
+          background: act.is_optional ? "#fff8e8" : "#edf8ed",
+          border: `1px solid ${act.is_optional ? "#f5dfa0" : "#b8e6b0"}`,
+          color: act.is_optional ? "#b8860b" : "var(--color-accent-positive)",
+          flexShrink: 0,
+        }}>
+          {act.is_optional ? "Опц." : "Обяз."}
+        </span>
+      )}
+
+      {/* Name */}
+      <span style={{ fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-text-primary)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        {act.name}
+      </span>
+
+      {/* ID */}
+      <span style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--color-text-tertiary)", flexShrink: 0 }}>{act.id}</span>
+
+      {/* Actions */}
+      {canEdit && (
+        <>
+          <button onClick={onEdit} style={{ ...removeBtn, color: "var(--brand-blue)" }}>Изм.</button>
+          {confirming ? (
+            <>
+              <button onClick={async () => { try { await del.mutateAsync(); } catch (e) { alert((e as Error).message); setConfirming(false); } }} style={{ ...removeBtn, color: "var(--color-accent-negative)" }}>Удалить</button>
+              <button onClick={() => setConfirming(false)} style={removeBtn}>Отмена</button>
+            </>
+          ) : (
+            <button onClick={() => setConfirming(true)} style={removeBtn}>✕</button>
+          )}
+        </>
+      )}
     </div>
   );
 }

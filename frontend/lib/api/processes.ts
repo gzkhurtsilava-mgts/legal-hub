@@ -478,6 +478,7 @@ export function useDeleteProcess(id: string) {
     mutationFn: () =>
       apiFetch<void>(`/api/processes/${id}`, token, { method: "DELETE" }),
     onSuccess: () => {
+      qc.removeQueries({ queryKey: ["pm-process", id] });
       qc.invalidateQueries({ queryKey: ["pm-processes"] });
       qc.invalidateQueries({ queryKey: ["pm-landscape"] });
     },
@@ -509,6 +510,7 @@ export function useCreateToBe(processId: string) {
         body: "{}",
       }),
     onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["pm-process", processId] });
       qc.invalidateQueries({ queryKey: ["pm-processes"] });
       qc.invalidateQueries({ queryKey: ["pm-landscape"] });
     },
@@ -526,5 +528,287 @@ export function useNextProcessId(domain: string, type: string, enabled: boolean)
       ),
     enabled: enabled && !!domain && !!type,
     staleTime: 0,
+  });
+}
+
+// ─── L4 Activity types ────────────────────────────────────────────────────────
+
+export type PmActivityType = "manual" | "system" | "decision";
+
+export interface PmDataOperation {
+  operation: "read" | "create";
+  data: string;
+  source_target: string;
+}
+
+export interface PmDecisionBranch {
+  question: string;
+  branch_yes: string;
+  branch_no: string;
+}
+
+export interface PmActivity {
+  id: string;
+  parent_process_id: string;
+  order_index: number;
+  name: string;
+  description: string | null;
+  is_optional: boolean;
+  condition_note: string | null;
+  activity_type: PmActivityType | null;
+  raci_role_id: number | null;
+  duration: string | null;
+  automation_potential: number | null;
+  data_operations: PmDataOperation[] | null;
+  decision_logic: PmDecisionBranch[] | null;
+  phase_number: number | null;
+  quality_criteria: string[] | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PmActivityCreate {
+  id: string;
+  parent_process_id: string;
+  order_index: number;
+  name: string;
+  description?: string | null;
+  is_optional?: boolean;
+  condition_note?: string | null;
+  activity_type?: PmActivityType | null;
+  raci_role_id?: number | null;
+  duration?: string | null;
+  automation_potential?: number | null;
+  data_operations?: PmDataOperation[] | null;
+  decision_logic?: PmDecisionBranch[] | null;
+  phase_number?: number | null;
+  quality_criteria?: string[] | null;
+}
+
+export interface PmActivityUpdate {
+  name?: string;
+  description?: string | null;
+  order_index?: number;
+  is_optional?: boolean;
+  condition_note?: string | null;
+  activity_type?: PmActivityType | null;
+  raci_role_id?: number | null;
+  duration?: string | null;
+  automation_potential?: number | null;
+  data_operations?: PmDataOperation[] | null;
+  decision_logic?: PmDecisionBranch[] | null;
+  phase_number?: number | null;
+  quality_criteria?: string[] | null;
+}
+
+// ─── L5 SOP types ─────────────────────────────────────────────────────────────
+
+export interface PmSopStep {
+  title: string;
+  substeps: string[];
+  tips: string[];
+  warnings: string[];
+}
+
+export interface PmSopFaq {
+  question: string;
+  answer: string;
+}
+
+export interface PmSop {
+  id: string;
+  parent_activity_id: string;
+  title: string;
+  audience_role_id: number | null;
+  preconditions: string[] | null;
+  steps: PmSopStep[] | null;
+  checklist: string[] | null;
+  faq: PmSopFaq[] | null;
+  related_docs: Array<{ title: string; ref: string }> | null;
+  changelog: Array<{ date: string; author: string; note: string }> | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PmSopCreate {
+  id: string;
+  parent_activity_id: string;
+  title: string;
+  audience_role_id?: number | null;
+  preconditions?: string[];
+  steps?: PmSopStep[];
+  checklist?: string[];
+  faq?: PmSopFaq[];
+  related_docs?: Array<{ title: string; ref: string }>;
+  changelog?: Array<{ date: string; author: string; note: string }>;
+}
+
+export interface PmSopUpdate {
+  title?: string;
+  audience_role_id?: number | null;
+  preconditions?: string[] | null;
+  steps?: PmSopStep[] | null;
+  checklist?: string[] | null;
+  faq?: PmSopFaq[] | null;
+  related_docs?: Array<{ title: string; ref: string }> | null;
+  changelog?: Array<{ date: string; author: string; note: string }> | null;
+}
+
+// ─── L4 Activity hooks ────────────────────────────────────────────────────────
+
+export function useActivities(processId: string) {
+  const token = useToken();
+  const { data: session } = useSession();
+  return useQuery<PmActivity[]>({
+    queryKey: ["pm-activities", processId],
+    queryFn: () => apiFetch<PmActivity[]>(`/api/processes/${processId}/activities/`, token),
+    enabled: !!session && !!processId,
+  });
+}
+
+export function useActivity(processId: string, activityId: string) {
+  const token = useToken();
+  const { data: session } = useSession();
+  return useQuery<PmActivity>({
+    queryKey: ["pm-activity", processId, activityId],
+    queryFn: () => apiFetch<PmActivity>(`/api/processes/${processId}/activities/${activityId}`, token),
+    enabled: !!session && !!processId && !!activityId,
+  });
+}
+
+export function useCreateActivity(processId: string) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation<PmActivity, Error, PmActivityCreate>({
+    mutationFn: (body) =>
+      apiFetch<PmActivity>(`/api/processes/${processId}/activities/`, token, {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["pm-activities", processId] });
+      qc.invalidateQueries({ queryKey: ["pm-process", processId] });
+    },
+  });
+}
+
+export function useUpdateActivity(processId: string, activityId: string) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation<PmActivity, Error, PmActivityUpdate>({
+    mutationFn: (body) =>
+      apiFetch<PmActivity>(`/api/processes/${processId}/activities/${activityId}`, token, {
+        method: "PUT",
+        body: JSON.stringify(body),
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["pm-activity", processId, activityId] });
+      qc.invalidateQueries({ queryKey: ["pm-activities", processId] });
+    },
+  });
+}
+
+export function useDeleteActivity(processId: string, activityId: string) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation<void, Error, void>({
+    mutationFn: () =>
+      apiFetch<void>(`/api/processes/${processId}/activities/${activityId}`, token, { method: "DELETE" }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["pm-activities", processId] });
+      qc.invalidateQueries({ queryKey: ["pm-process", processId] });
+    },
+  });
+}
+
+export function useReorderActivities(processId: string) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation<{ ok: boolean }, Error, Array<{ id: string; order_index: number }>>({
+    mutationFn: (body) =>
+      apiFetch<{ ok: boolean }>(`/api/processes/${processId}/activities/reorder`, token, {
+        method: "PUT",
+        body: JSON.stringify(body),
+      }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["pm-activities", processId] }),
+  });
+}
+
+export function useNextActivityId(processId: string, optional: boolean, enabled: boolean) {
+  const token = useToken();
+  return useQuery<{ suggested_id: string }>({
+    queryKey: ["pm-next-activity-id", processId, optional],
+    queryFn: () =>
+      apiFetch<{ suggested_id: string }>(
+        `/api/processes/next-activity-id?process_id=${encodeURIComponent(processId)}&optional=${optional}`,
+        token
+      ),
+    enabled: enabled && !!processId,
+    staleTime: 0,
+  });
+}
+
+// ─── L5 SOP hooks ─────────────────────────────────────────────────────────────
+
+export function useSops(processId: string, activityId: string) {
+  const token = useToken();
+  const { data: session } = useSession();
+  return useQuery<PmSop[]>({
+    queryKey: ["pm-sops", processId, activityId],
+    queryFn: () =>
+      apiFetch<PmSop[]>(`/api/processes/${processId}/activities/${activityId}/sops/`, token),
+    enabled: !!session && !!processId && !!activityId,
+  });
+}
+
+export function useSop(processId: string, activityId: string, sopId: string) {
+  const token = useToken();
+  const { data: session } = useSession();
+  return useQuery<PmSop>({
+    queryKey: ["pm-sop", processId, activityId, sopId],
+    queryFn: () =>
+      apiFetch<PmSop>(`/api/processes/${processId}/activities/${activityId}/sops/${sopId}`, token),
+    enabled: !!session && !!processId && !!activityId && !!sopId,
+  });
+}
+
+export function useCreateSop(processId: string, activityId: string) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation<PmSop, Error, PmSopCreate>({
+    mutationFn: (body) =>
+      apiFetch<PmSop>(`/api/processes/${processId}/activities/${activityId}/sops/`, token, {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["pm-sops", processId, activityId] }),
+  });
+}
+
+export function useUpdateSop(processId: string, activityId: string, sopId: string) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation<PmSop, Error, PmSopUpdate>({
+    mutationFn: (body) =>
+      apiFetch<PmSop>(`/api/processes/${processId}/activities/${activityId}/sops/${sopId}`, token, {
+        method: "PUT",
+        body: JSON.stringify(body),
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["pm-sop", processId, activityId, sopId] });
+      qc.invalidateQueries({ queryKey: ["pm-sops", processId, activityId] });
+    },
+  });
+}
+
+export function useDeleteSop(processId: string, activityId: string, sopId: string) {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation<void, Error, void>({
+    mutationFn: () =>
+      apiFetch<void>(`/api/processes/${processId}/activities/${activityId}/sops/${sopId}`, token, {
+        method: "DELETE",
+      }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["pm-sops", processId, activityId] }),
   });
 }

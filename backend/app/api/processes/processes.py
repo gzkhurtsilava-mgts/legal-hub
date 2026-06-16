@@ -438,6 +438,11 @@ async def create_to_be(
     _: UserContext = _EDITOR,
 ) -> PmProcessDetail:
     src = await _get_or_404(db, process_id)
+    if src.status != PmStatus.as_is:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Создание to-be версии возможно только для as-is процесса (текущий статус: {src.status.value})",
+        )
 
     raw_new_id = f"{process_id}.TB1"
     new_id = raw_new_id if len(raw_new_id) <= 40 else process_id[:36] + ".TB1"
@@ -501,7 +506,7 @@ async def create_to_be(
             PmProcessRaci(
                 process_id=new_id,
                 role_id=raci.role_id,
-                activity_id=None,
+                activity_id=None,  # intentional: to-be has no activities yet; will be assigned after activities are created
                 r=raci.r,
                 a=raci.a,
                 c=raci.c,
