@@ -11,6 +11,12 @@ FROM node:20.18.0-alpine
 
 WORKDIR /app
 
+# vendor/@mts-ds нужен до npm ci — package.json ссылается на них через file:
+COPY vendor/ vendor/
+
+# Скрипты preinstall/postinstall нужны до npm ci
+COPY scripts/ scripts/
+
 # Копируем lock-файл и конфиги до копирования кода — для кэширования слоёв
 COPY package.json package-lock.json .npmrc ./
 
