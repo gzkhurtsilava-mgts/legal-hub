@@ -514,7 +514,7 @@
   font-family: 'MTS Compact', sans-serif;
   font-weight: 500;
   border: 1px solid transparent;
-  border-radius: var(--radius-l);
+  border-radius: var(--radius-m);
   cursor: pointer;
   white-space: nowrap;
   text-decoration: none;
@@ -537,12 +537,14 @@
 .ui-btn--primary:hover:not(:disabled) { background: var(--color-brand-hover); }
 .ui-btn--primary:active:not(:disabled) { background: var(--color-brand-active); }
 
-.ui-btn--secondary { background: var(--color-background-secondary); color: var(--color-text-primary); border-color: var(--color-control-stroke); }
-.ui-btn--secondary:hover:not(:disabled) { background: var(--color-background-lower); border-color: var(--color-control-stroke-hover); }
-.ui-btn--secondary:active:not(:disabled) { background: var(--color-line); }
+/* secondary = синий контур (по дизайн-системе) */
+.ui-btn--secondary { background: transparent; color: var(--color-text-brand); border-color: var(--brand-blue); }
+.ui-btn--secondary:hover:not(:disabled) { background: var(--color-brand-subtle); }
+.ui-btn--secondary:active:not(:disabled) { background: var(--color-accent-brand-bg); }
 
-.ui-btn--ghost { background: transparent; color: var(--color-text-primary); }
-.ui-btn--ghost:hover:not(:disabled) { background: var(--color-background-secondary); }
+/* ghost = синий текст без фона (по дизайн-системе) */
+.ui-btn--ghost { background: transparent; color: var(--color-text-brand); }
+.ui-btn--ghost:hover:not(:disabled) { background: var(--color-brand-subtle); }
 
 .ui-btn--outline { background: transparent; color: var(--brand-blue); border-color: var(--brand-blue); }
 .ui-btn--outline:hover:not(:disabled) { background: var(--color-brand-subtle); }
