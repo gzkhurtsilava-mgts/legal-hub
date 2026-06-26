@@ -22,6 +22,7 @@ import { Typography } from "@tiptap/extension-typography";
 import { useUploadMedia } from "@/lib/api/knowledge";
 import type { AttachmentMeta } from "@/lib/api/knowledge";
 import { FileEmbedExtension } from "@/components/knowledge/editors/FileEmbedExtension";
+import { Icon } from "@/components/icons";
 
 interface TocItem { id: string; level: number; textContent: string; }
 
@@ -42,15 +43,7 @@ function ToolBtn({
   return (
     <button
       type="button" title={title} onClick={onClick} disabled={disabled}
-      style={{
-        padding: "4px 8px", border: "none", borderRadius: "var(--radius-s)",
-        background: active ? "var(--brand-blue)" : "transparent",
-        color: active ? "#fff" : "var(--color-text-primary)",
-        cursor: disabled ? "default" : "pointer",
-        opacity: disabled ? 0.4 : 1,
-        fontFamily: "MTS Compact", fontSize: "13px", fontWeight: 500,
-        minWidth: "26px", lineHeight: 1,
-      }}
+      className={active ? "ui-toolbtn is-active" : "ui-toolbtn"}
     >
       {children}
     </button>
@@ -242,7 +235,7 @@ export function ArticleEditor({
           </button>
           {currentColor && (
             <button type="button" onClick={() => editor.chain().focus().unsetColor().run()} title="Сбросить цвет"
-              style={{ padding: "2px 4px", border: "none", background: "transparent", cursor: "pointer", fontSize: "10px", color: "var(--color-text-tertiary)" }}>✕</button>
+              style={{ padding: "2px 4px", border: "none", background: "transparent", cursor: "pointer", display: "inline-flex", color: "var(--color-text-tertiary)" }}><Icon name="CrossSize16StyleOutline" size={12} /></button>
           )}
           <input
             ref={colorInputRef}
@@ -263,17 +256,17 @@ export function ArticleEditor({
         <Sep />
 
         {/* ── Alignment ── */}
-        <ToolBtn active={editor.isActive({ textAlign: "left" })} onClick={() => editor.chain().focus().setTextAlign("left").run()} title="По левому краю">⬅</ToolBtn>
+        <ToolBtn active={editor.isActive({ textAlign: "left" })} onClick={() => editor.chain().focus().setTextAlign("left").run()} title="По левому краю">←</ToolBtn>
         <ToolBtn active={editor.isActive({ textAlign: "center" })} onClick={() => editor.chain().focus().setTextAlign("center").run()} title="По центру">↔</ToolBtn>
-        <ToolBtn active={editor.isActive({ textAlign: "right" })} onClick={() => editor.chain().focus().setTextAlign("right").run()} title="По правому краю">➡</ToolBtn>
-        <ToolBtn active={editor.isActive({ textAlign: "justify" })} onClick={() => editor.chain().focus().setTextAlign("justify").run()} title="По ширине">⇔</ToolBtn>
+        <ToolBtn active={editor.isActive({ textAlign: "right" })} onClick={() => editor.chain().focus().setTextAlign("right").run()} title="По правому краю">→</ToolBtn>
+        <ToolBtn active={editor.isActive({ textAlign: "justify" })} onClick={() => editor.chain().focus().setTextAlign("justify").run()} title="По ширине">≡</ToolBtn>
 
         <Sep />
 
         {/* ── Lists ── */}
         <ToolBtn active={editor.isActive("bulletList")} onClick={() => editor.chain().focus().toggleBulletList().run()} title="Маркированный список">• —</ToolBtn>
         <ToolBtn active={editor.isActive("orderedList")} onClick={() => editor.chain().focus().toggleOrderedList().run()} title="Нумерованный список">1.</ToolBtn>
-        <ToolBtn active={editor.isActive("taskList")} onClick={() => editor.chain().focus().toggleTaskList().run()} title="Список задач (чеклист)">☑</ToolBtn>
+        <ToolBtn active={editor.isActive("taskList")} onClick={() => editor.chain().focus().toggleTaskList().run()} title="Список задач (чеклист)"><Icon name="ChecklistSize24StyleOutline" size={16} /></ToolBtn>
 
         <Sep />
 
@@ -284,30 +277,30 @@ export function ArticleEditor({
         <ToolBtn active={editor.isActive("details")} onClick={() => {
           const { to } = editor.state.selection;
           editor.chain().focus().setTextSelection(to).setDetails().run();
-        }} title="Спойлер (сворачиваемый блок)">▶</ToolBtn>
+        }} title="Спойлер (сворачиваемый блок)"><Icon name="PlaySize24StyleFill" size={12} /></ToolBtn>
 
         <Sep />
 
         {/* ── Table ── */}
         {!inTable ? (
-          <ToolBtn active={false} onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} title="Вставить таблицу 3×3">⊞</ToolBtn>
+          <ToolBtn active={false} onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} title="Вставить таблицу 3×3"><Icon name="ViewTableSize24StyleOutline" size={16} /></ToolBtn>
         ) : (
           <>
-            <ToolBtn active={false} onClick={() => editor.chain().focus().addRowBefore().run()} title="Строка выше">↑行</ToolBtn>
-            <ToolBtn active={false} onClick={() => editor.chain().focus().addRowAfter().run()} title="Строка ниже">↓行</ToolBtn>
-            <ToolBtn active={false} onClick={() => editor.chain().focus().deleteRow().run()} title="Удалить строку">✕行</ToolBtn>
-            <ToolBtn active={false} onClick={() => editor.chain().focus().addColumnBefore().run()} title="Колонка слева">↑列</ToolBtn>
-            <ToolBtn active={false} onClick={() => editor.chain().focus().addColumnAfter().run()} title="Колонка справа">↓列</ToolBtn>
-            <ToolBtn active={false} onClick={() => editor.chain().focus().deleteColumn().run()} title="Удалить колонку">✕列</ToolBtn>
-            <ToolBtn active={false} onClick={() => editor.chain().focus().deleteTable().run()} title="Удалить таблицу"><span style={{ color: "var(--color-accent-negative)" }}>✕⊞</span></ToolBtn>
+            <ToolBtn active={false} onClick={() => editor.chain().focus().addRowBefore().run()} title="Строка выше">↑ стр</ToolBtn>
+            <ToolBtn active={false} onClick={() => editor.chain().focus().addRowAfter().run()} title="Строка ниже">↓ стр</ToolBtn>
+            <ToolBtn active={false} onClick={() => editor.chain().focus().deleteRow().run()} title="Удалить строку">✕ стр</ToolBtn>
+            <ToolBtn active={false} onClick={() => editor.chain().focus().addColumnBefore().run()} title="Колонка слева">↑ кол</ToolBtn>
+            <ToolBtn active={false} onClick={() => editor.chain().focus().addColumnAfter().run()} title="Колонка справа">↓ кол</ToolBtn>
+            <ToolBtn active={false} onClick={() => editor.chain().focus().deleteColumn().run()} title="Удалить колонку">✕ кол</ToolBtn>
+            <ToolBtn active={false} onClick={() => editor.chain().focus().deleteTable().run()} title="Удалить таблицу"><span style={{ color: "var(--color-accent-negative)", display: "inline-flex" }}><Icon name="ViewTableSize24StyleOutline" size={16} /></span></ToolBtn>
           </>
         )}
 
         <Sep />
 
         {/* ── Media ── */}
-        <ToolBtn active={editor.isActive("link")} onClick={handleLinkToggle} title="Ссылка">🔗</ToolBtn>
-        <ToolBtn active={false} onClick={() => fileInputRef.current?.click()} title="Вставить изображение" disabled={uploadMedia.isPending}>🖼</ToolBtn>
+        <ToolBtn active={editor.isActive("link")} onClick={handleLinkToggle} title="Ссылка"><Icon name="LinkSize24StyleOutline" size={16} /></ToolBtn>
+        <ToolBtn active={false} onClick={() => fileInputRef.current?.click()} title="Вставить изображение" disabled={uploadMedia.isPending}><Icon name="PictureSize24StyleOutline" size={16} /></ToolBtn>
 
         {/* File embed picker */}
         <div style={{ position: "relative" }} ref={filePickerRef}>
@@ -316,7 +309,7 @@ export function ArticleEditor({
             onClick={() => setShowFilePicker((v) => !v)}
             title="Вставить вложение в текст"
             disabled={!attachments.length}
-          >📎</ToolBtn>
+          ><Icon name="DocumentSize24StyleOutline" size={16} /></ToolBtn>
           {showFilePicker && attachments.length > 0 && (
             <div style={{
               position: "absolute", top: "calc(100% + 4px)", left: 0, zIndex: 50,
@@ -344,7 +337,7 @@ export function ArticleEditor({
                   onMouseEnter={(e) => { e.currentTarget.style.background = "var(--color-background-secondary)"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
                 >
-                  <span style={{ fontSize: "15px" }}>📎</span>
+                  <Icon name="DocumentSize24StyleOutline" size={15} style={{ color: "var(--color-icons-secondary)", flexShrink: 0 }} />
                   <span style={{ flex: 1, fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {att.filename}
                   </span>
@@ -360,8 +353,8 @@ export function ArticleEditor({
         <Sep />
 
         {/* ── History ── */}
-        <ToolBtn active={false} onClick={() => editor.chain().focus().undo().run()} title="Отменить" disabled={!editor.can().undo()}>↩</ToolBtn>
-        <ToolBtn active={false} onClick={() => editor.chain().focus().redo().run()} title="Повторить" disabled={!editor.can().redo()}>↪</ToolBtn>
+        <ToolBtn active={false} onClick={() => editor.chain().focus().undo().run()} title="Отменить" disabled={!editor.can().undo()}><Icon name="ReturnSize24StyleOutline" size={16} /></ToolBtn>
+        <ToolBtn active={false} onClick={() => editor.chain().focus().redo().run()} title="Повторить" disabled={!editor.can().redo()}><Icon name="ReturnSize24StyleOutline" size={16} style={{ transform: "scaleX(-1)" }} /></ToolBtn>
       </div>
 
       {/* Scrollable content area */}
