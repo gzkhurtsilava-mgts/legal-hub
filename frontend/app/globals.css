@@ -620,9 +620,18 @@
   outline: none;
   transition: border-color var(--duration-fast) var(--ease-standard);
 }
-.ui-select:hover { border-color: var(--color-control-stroke-hover); }
+.ui-select:hover:not(:disabled) { border-color: var(--color-control-stroke-hover); }
 .ui-select:focus { border-color: var(--brand-blue); }
+.ui-select:disabled { opacity: 0.6; cursor: not-allowed; }
 .ui-select--compact { height: var(--control-s); font-size: 13px; }
+/* вариант под плотные формы со стилем поля `inp` (фон secondary, бордер lower) */
+.ui-select--inp {
+  height: auto;
+  padding: 8px 36px 8px 10px;
+  font-size: 13px;
+  background: var(--color-background-secondary);
+  border-color: var(--color-background-lower);
+}
 .ui-select-wrap::after {
   content: "";
   position: absolute;
