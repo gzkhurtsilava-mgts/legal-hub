@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { useSections, useCreateKnowledgeItem, useTags } from "@/lib/api/knowledge";
 import type { ItemType, Visibility, Tag } from "@/lib/api/knowledge";
 import { TagPicker } from "@/components/knowledge/TagPicker";
+import { Icon } from "@/components/icons";
 
 const TYPE_OPTIONS: { value: ItemType; label: string; desc: string }[] = [
   { value: "article", label: "Статья", desc: "Текстовый материал с редактором" },
@@ -210,7 +211,7 @@ export default function NewItemPage() {
         <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
           <button type="button" onClick={() => router.back()} style={secondaryBtn}>Отмена</button>
           <button type="submit" disabled={createItem.isPending} style={primaryBtn}>
-            {createItem.isPending ? "Создание…" : "Создать →"}
+            {createItem.isPending ? "Создание…" : <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>Создать<Icon name="ArrowRightSize24StyleOutline" size={14} /></span>}
           </button>
         </div>
       </form>

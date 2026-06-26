@@ -8,6 +8,7 @@ import { Button } from "@mts-ds/granat2-react-button";
 import {
   useSectionBySlug, useKnowledgeItems, useTypeahead, useSearch,
 } from "@/lib/api/knowledge";
+import { SearchIcon, CrossIcon, Icon } from "@/components/icons";
 import { ItemCard } from "@/components/knowledge/ItemCard";
 import { SectionCard } from "@/components/knowledge/SectionCard";
 import { FilterPanel, type KnowledgeFilters } from "@/components/knowledge/FilterPanel";
@@ -86,7 +87,7 @@ export default function SectionPage() {
           Раздел не найден
         </p>
         <Button variant="secondary" onClick={() => router.push("/knowledge")}>
-          ← База знаний
+          <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><Icon name="ArrowLeftSize24StyleOutline" size={16} />База знаний</span>
         </Button>
       </div>
     );
@@ -159,7 +160,7 @@ export default function SectionPage() {
           {/* Search bar */}
           <div ref={searchRef} style={{ position: "relative", marginBottom: "16px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 16px", background: "var(--color-background-primary)", borderRadius: "var(--radius-l)", border: "1.5px solid var(--color-background-lower)", boxShadow: activeSearch ? "0 0 0 2px var(--brand-blue)44" : "none" }}>
-              <span style={{ color: "var(--color-text-tertiary)", fontSize: "16px", flexShrink: 0 }}>🔍</span>
+              <SearchIcon size={18} style={{ color: "var(--color-text-tertiary)", flexShrink: 0 }} />
               <input
                 value={searchInput}
                 onChange={(e) => { setSearchInput(e.target.value); setShowTypeahead(true); }}
@@ -171,9 +172,9 @@ export default function SectionPage() {
               {searchInput && (
                 <button
                   onClick={clearSearch}
-                  style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-text-tertiary)", fontSize: "18px", lineHeight: 1, padding: 0, flexShrink: 0 }}
+                  style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-text-tertiary)", padding: 0, flexShrink: 0, display: "flex", alignItems: "center" }}
                 >
-                  ×
+                  <CrossIcon size={18} />
                 </button>
               )}
               {searchInput && !activeSearch && (
@@ -204,7 +205,7 @@ export default function SectionPage() {
                   onClick={() => handleSearchSubmit(searchInput)}
                   style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 16px", background: "none", border: "none", borderTop: "1px solid var(--color-background-lower)", cursor: "pointer", fontFamily: "MTS Compact", fontSize: "13px", color: "var(--brand-blue)" }}
                 >
-                  Показать все результаты для «{searchInput}» →
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>Показать все результаты для «{searchInput}»<Icon name="ArrowRightSize24StyleOutline" size={14} /></span>
                 </button>
               </div>
             )}

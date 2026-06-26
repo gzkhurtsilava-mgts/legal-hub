@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Spinner } from "@mts-ds/granat2-react-spinner";
+import { Icon } from "@/components/icons";
 import {
   useDomains,
   useRefList,
@@ -160,7 +161,7 @@ export default function NewProcessPage() {
                     style={{ ...iconBtn, background: "var(--color-background-secondary)", border: "1px solid var(--color-background-lower)", borderRadius: "var(--radius-m)", padding: "0 8px" }}
                     title="Сбросить к автоматическому"
                   >
-                    ↺
+                    <Icon name="UpdateSize24StyleOutline" size={16} />
                   </button>
                 )}
               </div>
@@ -214,7 +215,7 @@ export default function NewProcessPage() {
 
         <div style={{ display: "flex", gap: "10px" }}>
           <button type="submit" disabled={createProcess.isPending} style={primaryBtn}>
-            {createProcess.isPending ? "Создание…" : "Создать и перейти к редактированию →"}
+            {createProcess.isPending ? "Создание…" : <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>Создать и перейти к редактированию<Icon name="ArrowRightSize24StyleOutline" size={14} /></span>}
           </button>
           <button type="button" onClick={() => router.push("/processes/edit/processes")} style={secondaryBtn}>
             Отмена

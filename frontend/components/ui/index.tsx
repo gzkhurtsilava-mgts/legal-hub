@@ -2,6 +2,7 @@
 // Состояния (:hover/:focus/:active) заданы CSS-классами в globals.css (.ui-*).
 // Все цвета — через токены дизайн-системы, поэтому light/dark переключаются сами.
 
+import { Fragment } from "react";
 import type {
   ButtonHTMLAttributes,
   SelectHTMLAttributes,
@@ -155,6 +156,63 @@ interface BadgeProps {
   icon?: ReactNode;
   style?: CSSProperties;
 }
+
+/* ===================== PageHeader ===================== */
+
+export interface Breadcrumb {
+  label: string;
+  onClick?: () => void;
+}
+
+interface PageHeaderProps {
+  /** Хлебные крошки: элементы с onClick → ссылки, последний без onClick → текущая страница */
+  crumbs?: Breadcrumb[];
+  title?: ReactNode;
+  subtitle?: ReactNode;
+  /** Кнопки справа от заголовка */
+  actions?: ReactNode;
+  titleSize?: number;
+}
+
+export function PageHeader({ crumbs, title, subtitle, actions, titleSize = 24 }: PageHeaderProps) {
+  return (
+    <div>
+      {crumbs && crumbs.length > 0 && (
+        <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap", marginBottom: "24px" }}>
+          {crumbs.map((c, i) => (
+            <Fragment key={i}>
+              {i > 0 && <span style={{ color: "var(--color-text-tertiary)" }}>›</span>}
+              {c.onClick ? (
+                <LinkButton style={{ fontSize: "14px" }} onClick={c.onClick}>{c.label}</LinkButton>
+              ) : (
+                <span style={{ fontFamily: "MTS Compact, sans-serif", fontSize: "14px", color: "var(--color-text-secondary)" }}>{c.label}</span>
+              )}
+            </Fragment>
+          ))}
+        </div>
+      )}
+      {(title || actions) && (
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "16px", marginBottom: "28px" }}>
+          <div>
+            {title && (
+              <h1 style={{ fontFamily: "MTS Wide, sans-serif", fontWeight: 700, fontSize: `${titleSize}px`, color: "var(--color-text-primary)", margin: 0 }}>
+                {title}
+              </h1>
+            )}
+            {subtitle && (
+              <p style={{ fontFamily: "MTS Compact, sans-serif", fontSize: "13px", color: "var(--color-text-secondary)", margin: "6px 0 0" }}>
+                {subtitle}
+              </p>
+            )}
+          </div>
+          {actions && <div style={{ flexShrink: 0, display: "flex", gap: "8px" }}>{actions}</div>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ===================== Badge ===================== */
 
 export function Badge({ tone = "neutral", children, icon, style }: BadgeProps) {
   return (

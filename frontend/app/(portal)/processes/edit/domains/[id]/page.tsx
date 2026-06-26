@@ -5,6 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Spinner } from "@mts-ds/granat2-react-spinner";
 import { useDomain, useUpdateDomain, useProcesses, type PmDomainUpdate } from "@/lib/api/processes";
+import { Icon } from "@/components/icons";
+import { PageHeader, LinkButton, Button } from "@/components/ui";
 
 export default function EditDomainPage() {
   const params = useParams();
@@ -49,7 +51,7 @@ export default function EditDomainPage() {
     return (
       <div style={{ padding: "40px 24px" }}>
         <p style={{ fontFamily: "MTS Compact", color: "var(--color-accent-negative)" }}>Домен не найден</p>
-        <button onClick={() => router.push("/processes/edit/domains")} style={linkBtn}>← Все домены</button>
+        <LinkButton onClick={() => router.push("/processes/edit/domains")} icon={<Icon name="ArrowLeftSize24StyleOutline" size={16} />}>Все домены</LinkButton>
       </div>
     );
   }
@@ -73,32 +75,31 @@ export default function EditDomainPage() {
 
   return (
     <div style={{ padding: "32px 24px", maxWidth: "600px", margin: "0 auto" }}>
-      {/* Breadcrumb */}
-      <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "28px" }}>
-        <button onClick={() => router.push("/processes")} style={linkBtn}>Карта процессов</button>
-        <span style={sep}>›</span>
-        <button onClick={() => router.push("/processes/edit")} style={linkBtn}>Редактирование</button>
-        <span style={sep}>›</span>
-        <button onClick={() => router.push("/processes/edit/domains")} style={linkBtn}>Домены</button>
-        <span style={sep}>›</span>
-        <span style={{ fontFamily: "MTS Compact", fontSize: "14px", color: "var(--color-text-secondary)" }}>{domain.name}</span>
-      </div>
-
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "16px", marginBottom: "28px" }}>
-        <div>
-          <h1 style={{ fontFamily: "MTS Wide", fontWeight: 700, fontSize: "24px", color: "var(--color-text-primary)", margin: "0 0 4px" }}>
-            {domain.name}
-          </h1>
-          <p style={{ fontFamily: "MTS Compact", fontSize: "12px", color: "var(--color-text-tertiary)", margin: 0 }}>
+      <PageHeader
+        crumbs={[
+          { label: "Карта процессов", onClick: () => router.push("/processes") },
+          { label: "Редактирование", onClick: () => router.push("/processes/edit") },
+          { label: "Домены", onClick: () => router.push("/processes/edit/domains") },
+          { label: domain.name },
+        ]}
+        title={domain.name}
+        subtitle={
+          <>
             {domain.id}
             {domain.process_count > 0 && ` · ${domain.workflow_count} процедур · ${domain.service_count} услуг`}
-          </p>
-        </div>
-        <button onClick={() => router.push(`/processes/domains/${domain.id}`)} style={secondaryBtn}>
-          Просмотр →
-        </button>
-      </div>
+          </>
+        }
+        actions={
+          <Button
+            variant="secondary"
+            size="m"
+            onClick={() => router.push(`/processes/domains/${domain.id}`)}
+            iconRight={<Icon name="ArrowRightSize24StyleOutline" size={16} />}
+          >
+            Просмотр
+          </Button>
+        }
+      />
 
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
         <div style={card}>
@@ -141,12 +142,12 @@ export default function EditDomainPage() {
         )}
 
         <div style={{ display: "flex", gap: "10px" }}>
-          <button type="submit" disabled={update.isPending} style={primaryBtn}>
+          <Button type="submit" size="m" disabled={update.isPending}>
             {update.isPending ? "Сохранение…" : "Сохранить"}
-          </button>
-          <button type="button" onClick={() => router.push("/processes/edit/domains")} style={secondaryBtn}>
+          </Button>
+          <Button type="button" variant="secondary" size="m" onClick={() => router.push("/processes/edit/domains")}>
             К списку доменов
-          </button>
+          </Button>
         </div>
       </form>
 
@@ -214,12 +215,12 @@ function DomainProcesses({ domainId, role }: { domainId: string; role?: string }
               <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
                 <span style={{ fontFamily: "MTS Compact", fontSize: "12px", color: "var(--color-text-tertiary)" }}>{STATUS_LABELS[p.status]}</span>
                 {canEdit && (
-                  <button
+                  <LinkButton
                     onClick={() => router.push(`/processes/edit/processes/${p.id}`)}
-                    style={linkBtn}
+                    iconRight={<Icon name="ArrowRightSize24StyleOutline" size={14} />}
                   >
-                    Изм. →
-                  </button>
+                    Изм.
+                  </LinkButton>
                 )}
               </div>
             </div>
@@ -230,10 +231,7 @@ function DomainProcesses({ domainId, role }: { domainId: string; role?: string }
   );
 }
 
-const card: React.CSSProperties = { background: "var(--color-background-primary)", borderRadius: "1var(--radius-m)", border: "1px solid var(--color-background-lower)", padding: "16px 20px" };
+const card: React.CSSProperties = { background: "var(--color-background-primary)", borderRadius: "var(--radius-m)", border: "1px solid var(--color-background-lower)", padding: "16px 20px" };
 const lbl: React.CSSProperties = { display: "block", fontFamily: "MTS Compact", fontSize: "12px", fontWeight: 500, color: "var(--color-text-secondary)", marginBottom: "6px" };
 const inp: React.CSSProperties = { width: "100%", padding: "8px 10px", fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-text-primary)", background: "var(--color-background-secondary)", border: "1px solid var(--color-background-lower)", borderRadius: "var(--radius-m)", outline: "none", boxSizing: "border-box" };
 const primaryBtn: React.CSSProperties = { padding: "10px 24px", background: "var(--brand-blue)", color: "#fff", border: "none", borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "14px", fontWeight: 500, cursor: "pointer" };
-const secondaryBtn: React.CSSProperties = { padding: "10px 18px", background: "var(--color-background-secondary)", color: "var(--color-text-primary)", border: "none", borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "14px", cursor: "pointer" };
-const linkBtn: React.CSSProperties = { fontFamily: "MTS Compact", fontSize: "14px", color: "var(--brand-blue)", background: "none", border: "none", cursor: "pointer", padding: 0 };
-const sep: React.CSSProperties = { color: "var(--color-text-tertiary)" };

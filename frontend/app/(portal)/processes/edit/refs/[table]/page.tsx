@@ -11,6 +11,7 @@ import {
   useDeleteRef,
   type RefTable,
 } from "@/lib/api/processes";
+import { Icon } from "@/components/icons";
 
 // ─── Table config ─────────────────────────────────────────────────────────────
 
@@ -286,16 +287,16 @@ function RefRow({ item, config, table }: RowProps) {
             </div>
           </div>
           <div style={{ display: "flex", gap: "6px", flexShrink: 0 }}>
-            <button onClick={() => setEditing(true)} style={iconBtn} title="Редактировать">
-              ✏️
+            <button onClick={() => setEditing(true)} style={{ ...iconBtn, display: "flex", alignItems: "center" }} title="Редактировать">
+              <Icon name="EditSize24StyleOutline" size={16} />
             </button>
             {!confirmDelete ? (
               <button
                 onClick={() => setConfirmDelete(true)}
-                style={{ ...iconBtn, color: "var(--color-accent-negative)" }}
+                style={{ ...iconBtn, display: "flex", alignItems: "center", color: "var(--color-accent-negative)" }}
                 title="Удалить"
               >
-                🗑
+                <Icon name="DeleteSize24StyleOutline" size={16} />
               </button>
             ) : (
               <>
@@ -456,8 +457,8 @@ export default function RefTablePage() {
         <p style={{ fontFamily: "MTS Compact", color: "var(--color-accent-negative)" }}>
           Неизвестный справочник: {table}
         </p>
-        <button onClick={() => router.push("/processes/edit/refs")} style={linkBtn}>
-          ← Все справочники
+        <button onClick={() => router.push("/processes/edit/refs")} style={{ ...linkBtn, display: "inline-flex", alignItems: "center", gap: "6px" }}>
+          <Icon name="ArrowLeftSize24StyleOutline" size={16} />Все справочники
         </button>
       </div>
     );

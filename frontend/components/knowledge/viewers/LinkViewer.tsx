@@ -1,5 +1,7 @@
 "use client";
 
+import { Icon } from "@/components/icons";
+
 interface Props {
   url: string;
 }
@@ -37,7 +39,9 @@ export function LinkViewer({ url }: Props) {
           target="_blank"
           rel="noopener noreferrer"
           style={{
-            display: "inline-block",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "6px",
             padding: "8px 20px",
             background: "var(--brand-blue)",
             color: "#fff",
@@ -49,7 +53,7 @@ export function LinkViewer({ url }: Props) {
             whiteSpace: "nowrap",
           }}
         >
-          Открыть ресурс →
+          Открыть ресурс<Icon name="OpenInNewSize24StyleOutline" size={15} />
         </a>
       </div>
     </div>

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Spinner } from "@mts-ds/granat2-react-spinner";
 import { SearchIcon } from "@/components/icons/SearchIcon";
 import { CrossIcon } from "@/components/icons/CrossIcon";
+import { Icon } from "@/components/icons";
 import { useTypeahead } from "@/lib/api/knowledge";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 
@@ -125,7 +126,9 @@ export function SearchBig({ initialValue = "" }: { initialValue?: string }) {
                 fontFamily: "MTS Compact", fontSize: "14px", color: "var(--brand-blue)",
               }}
             >
-              Все результаты по запросу «{q}» →
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                Все результаты по запросу «{q}»<Icon name="ArrowRightSize24StyleOutline" size={14} />
+              </span>
             </button>
           )}
         </div>

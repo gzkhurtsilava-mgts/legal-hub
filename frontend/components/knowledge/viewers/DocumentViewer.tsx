@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ButtonIcon } from "@mts-ds/granat2-react-button";
 import type { KnowledgeItem, DocumentVersion, Section } from "@/lib/api/knowledge";
-import { EditIcon, InfoIcon, DownloadIcon, CrossIcon } from "@/components/icons";
+import { EditIcon, InfoIcon, DownloadIcon, CrossIcon, Icon } from "@/components/icons";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -91,9 +91,9 @@ function PreviewContent({ active, token }: { active: DocumentVersion; token: str
           style={{ maxWidth: "100%", borderRadius: "var(--radius-m)", boxShadow: "var(--shadow-low)" }}
         />
         <div style={{ display: "flex", alignItems: "center", gap: "16px", marginTop: "16px" }}>
-          <button onClick={() => setSlide((s) => Math.max(0, s - 1))} disabled={slide === 0} style={slideBtn}>←</button>
+          <button onClick={() => setSlide((s) => Math.max(0, s - 1))} disabled={slide === 0} style={slideBtn} aria-label="Предыдущий слайд"><Icon name="ArrowLeftSize24StyleOutline" size={18} /></button>
           <span style={{ fontFamily: "MTS Compact", fontSize: "14px", color: "var(--color-text-secondary)" }}>{slide + 1} / {paths.length}</span>
-          <button onClick={() => setSlide((s) => Math.min(paths.length - 1, s + 1))} disabled={slide === paths.length - 1} style={slideBtn}>→</button>
+          <button onClick={() => setSlide((s) => Math.min(paths.length - 1, s + 1))} disabled={slide === paths.length - 1} style={slideBtn} aria-label="Следующий слайд"><Icon name="ArrowRightSize24StyleOutline" size={18} /></button>
         </div>
         <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginTop: "12px", justifyContent: "center" }}>
           {paths.map((_, i) => (
