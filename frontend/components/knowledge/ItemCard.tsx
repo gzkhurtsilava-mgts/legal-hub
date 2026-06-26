@@ -2,9 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/GranatCard";
-import { DocumentIcon } from "@/components/icons/DocumentIcon";
-import { LinkIcon } from "@/components/icons/LinkIcon";
-import { OpenBookIcon } from "@/components/icons/OpenBookIcon";
+import { Icon } from "@/components/icons";
 import type { KnowledgeItem } from "@/lib/api/knowledge";
 import { FavoritesToggle } from "./FavoritesToggle";
 
@@ -20,16 +18,16 @@ const TYPE_COLORS: Record<string, string> = {
   link: "var(--color-accent-warning)",
 };
 
-const TYPE_ICONS: Record<string, React.FC<{ size?: number }>> = {
-  article: ({ size }) => <OpenBookIcon size={size} />,
-  document: ({ size }) => <DocumentIcon size={size} />,
-  link: ({ size }) => <LinkIcon size={size} />,
+const TYPE_ICON_NAMES: Record<string, string> = {
+  article: "OpenBookSize16StyleOutline",
+  document: "DocumentSize16StyleOutline",
+  link: "LinkSize16StyleOutline",
 };
 
 export function ItemCard({ item }: { item: KnowledgeItem }) {
   const router = useRouter();
   const color = TYPE_COLORS[item.item_type] ?? "var(--brand-blue)";
-  const Icon = TYPE_ICONS[item.item_type];
+  const iconName = TYPE_ICON_NAMES[item.item_type];
 
   return (
     <Card
@@ -37,18 +35,18 @@ export function ItemCard({ item }: { item: KnowledgeItem }) {
       device="desktop"
       size="m"
       cornerRadius={32}
-      style={{ padding: "20px", cursor: "pointer" }}
+      className="ui-cardlink"
+      style={{ padding: "20px" }}
       onClick={() => router.push(`/knowledge/items/${item.id}`)}
     >
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
         <span style={{
           display: "inline-flex", alignItems: "center", gap: "5px",
-          fontFamily: "MTS Compact", fontSize: "11px", fontWeight: 500,
+          fontFamily: "MTS Compact", fontSize: "12px", fontWeight: 500,
           color, background: `${color}18`,
           padding: "3px 8px", borderRadius: "999px",
-          textTransform: "uppercase", letterSpacing: "0.5px",
         }}>
-          {Icon && <Icon size={12} />}
+          {iconName && <Icon name={iconName} size={14} />}
           {TYPE_LABELS[item.item_type] ?? item.item_type}
         </span>
         <div style={{ marginLeft: "auto" }}>
@@ -57,7 +55,7 @@ export function ItemCard({ item }: { item: KnowledgeItem }) {
       </div>
 
       <p style={{
-        fontFamily: "MTS Wide", fontWeight: 700, fontSize: "15px",
+        fontFamily: "MTS Compact", fontWeight: 700, fontSize: "15px",
         color: "var(--color-text-primary)", marginBottom: "8px", lineHeight: 1.3,
       }}>
         {item.title}

@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Spinner } from "@mts-ds/granat2-react-spinner";
-import { Button } from "@mts-ds/granat2-react-button";
+import { Button, LinkButton } from "@/components/ui";
 import {
   useSectionBySlug, useKnowledgeItems, useTypeahead, useSearch,
 } from "@/lib/api/knowledge";
@@ -104,21 +104,11 @@ export default function SectionPage() {
     <div style={{ padding: "32px 24px", maxWidth: "1100px", margin: "0 auto" }}>
       {/* Breadcrumb */}
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "24px", flexWrap: "wrap" }}>
-        <button
-          onClick={() => router.push("/knowledge")}
-          style={{ fontFamily: "MTS Compact", fontSize: "14px", color: "var(--brand-blue)", background: "none", border: "none", cursor: "pointer", padding: 0 }}
-        >
-          База знаний
-        </button>
+        <LinkButton onClick={() => router.push("/knowledge")}>База знаний</LinkButton>
         {section.parent_id && (
           <>
             <span style={{ color: "var(--color-text-tertiary)" }}>›</span>
-            <button
-              onClick={() => router.back()}
-              style={{ fontFamily: "MTS Compact", fontSize: "14px", color: "var(--brand-blue)", background: "none", border: "none", cursor: "pointer", padding: 0 }}
-            >
-              Назад
-            </button>
+            <LinkButton onClick={() => router.back()}>Назад</LinkButton>
           </>
         )}
         <span style={{ color: "var(--color-text-tertiary)" }}>›</span>
@@ -133,12 +123,12 @@ export default function SectionPage() {
           {section.name}
         </h1>
         {isEditor && !hasChildren && (
-          <button
+          <Button
             onClick={() => router.push("/knowledge/admin/items/new")}
-            style={{ padding: "8px 18px", background: "var(--brand-blue)", color: "#fff", border: "none", borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "13px", fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}
+            icon={<Icon name="PlusSize24StyleOutline" size={16} />}
           >
-            + Добавить
-          </button>
+            Добавить
+          </Button>
         )}
       </div>
 

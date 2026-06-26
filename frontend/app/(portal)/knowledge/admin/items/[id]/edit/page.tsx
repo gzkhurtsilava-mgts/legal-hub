@@ -20,7 +20,7 @@ import { TagPicker } from "@/components/knowledge/TagPicker";
 import { ConfirmModal } from "@/components/knowledge/editors/ConfirmModal";
 import { useDocumentVersions } from "@/lib/api/knowledge";
 import { Icon } from "@/components/icons";
-import { LinkButton } from "@/components/ui";
+import { Button, LinkButton } from "@/components/ui";
 
 const EDITOR_ROLES = ["admin", "lawyer"];
 
@@ -181,24 +181,23 @@ export default function EditItemPage() {
 
       {/* Actions bar */}
       <div style={{ display: "flex", gap: "10px", marginBottom: "28px", flexWrap: "wrap", alignItems: "center" }}>
-        <button onClick={() => router.push(`/knowledge/items/${itemId}`)} style={{ ...secondaryBtn, display: "inline-flex", alignItems: "center", gap: "6px" }}>
-          <Icon name="ShowSize24StyleOutline" size={15} style={{ color: "var(--color-text-secondary)" }} />
+        <Button variant="secondary" onClick={() => router.push(`/knowledge/items/${itemId}`)} icon={<Icon name="ShowSize24StyleOutline" size={15} />}>
           Просмотр
-        </button>
+        </Button>
         {item.status !== "published" && (
-          <button onClick={() => publishItem.mutate()} disabled={publishItem.isPending} style={{ ...primaryBtn, display: "inline-flex", alignItems: "center", gap: "6px" }}>
-            {publishItem.isPending ? "…" : <><Icon name="CheckCircleSize24StyleOutline" size={15} />Опубликовать</>}
-          </button>
+          <Button onClick={() => publishItem.mutate()} disabled={publishItem.isPending} icon={publishItem.isPending ? undefined : <Icon name="CheckCircleSize24StyleOutline" size={15} />}>
+            {publishItem.isPending ? "…" : "Опубликовать"}
+          </Button>
         )}
         {item.status === "published" && (
-          <button onClick={() => archiveItem.mutate()} disabled={archiveItem.isPending} style={warningBtn}>
+          <Button variant="secondary" onClick={() => archiveItem.mutate()} disabled={archiveItem.isPending}>
             {archiveItem.isPending ? "…" : "Архивировать"}
-          </button>
+          </Button>
         )}
         <div style={{ flex: 1 }} />
-        <button onClick={() => setDeleteDocConfirm(true)} disabled={deleteItem.isPending} style={dangerBtn}>
+        <Button variant="negative" onClick={() => setDeleteDocConfirm(true)} disabled={deleteItem.isPending}>
           {deleteItem.isPending ? "…" : "Удалить"}
-        </button>
+        </Button>
       </div>
 
       {/* ── Metadata section ─────────────────────────────────────────── */}
@@ -334,7 +333,8 @@ export default function EditItemPage() {
 
       {/* ── Bottom actions ── */}
       <div style={{ display: "flex", gap: "10px", marginTop: "36px", paddingTop: "20px", borderTop: "1px solid var(--color-background-secondary)" }}>
-        <button
+        <Button
+          size="m"
           onClick={async () => {
             if (editTitle.trim() && (editTitle !== item.title || editSummary !== (item.summary ?? ""))) {
               await updateItem.mutateAsync({ title: editTitle.trim(), summary: editSummary.trim() || undefined });
@@ -348,16 +348,12 @@ export default function EditItemPage() {
             router.push(`/knowledge/items/${itemId}`);
           }}
           disabled={updateItem.isPending || updateArticle.isPending || !editTitle.trim()}
-          style={primaryBtn}
         >
           {(updateItem.isPending || updateArticle.isPending) ? "…" : "Сохранить и выйти"}
-        </button>
-        <button
-          onClick={() => router.push(`/knowledge/items/${itemId}`)}
-          style={secondaryBtn}
-        >
+        </Button>
+        <Button variant="secondary" size="m" onClick={() => router.push(`/knowledge/items/${itemId}`)}>
           Отмена
-        </button>
+        </Button>
       </div>
     </div>
     </>
@@ -365,9 +361,5 @@ export default function EditItemPage() {
 }
 
 const sep: React.CSSProperties = { color: "var(--color-text-tertiary)", fontSize: "16px" };
-const primaryBtn: React.CSSProperties = { padding: "8px 20px", background: "var(--brand-blue)", color: "#fff", border: "none", borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "13px", fontWeight: 500, cursor: "pointer" };
-const secondaryBtn: React.CSSProperties = { padding: "8px 16px", background: "var(--color-background-secondary)", color: "var(--color-text-primary)", border: "none", borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "13px", cursor: "pointer" };
-const warningBtn: React.CSSProperties = { padding: "8px 16px", background: "transparent", color: "var(--color-accent-warning)", border: "1.5px solid var(--color-accent-warning)", borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "13px", cursor: "pointer" };
-const dangerBtn: React.CSSProperties = { padding: "8px 16px", background: "transparent", color: "var(--color-accent-negative)", border: "1.5px solid var(--color-accent-negative)", borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "13px", cursor: "pointer" };
 const metaLabel: React.CSSProperties = { display: "block", fontFamily: "MTS Compact", fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", marginBottom: "5px" };
 const metaInput: React.CSSProperties = { width: "100%", padding: "8px 12px", fontFamily: "MTS Compact", fontSize: "14px", color: "var(--color-text-primary)", background: "var(--color-background-secondary)", border: "1.5px solid transparent", borderRadius: "var(--radius-m)", outline: "none", boxSizing: "border-box" };

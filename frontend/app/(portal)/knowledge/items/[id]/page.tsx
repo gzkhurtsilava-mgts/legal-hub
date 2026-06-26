@@ -7,6 +7,8 @@ import {
   useKnowledgeItem, useArticleContent, useDocumentVersions,
   useLinkContent, useSection,
 } from "@/lib/api/knowledge";
+import { EditIcon } from "@/components/icons";
+import { Button, LinkButton } from "@/components/ui";
 import { ArticleViewer } from "@/components/knowledge/viewers/ArticleViewer";
 import { DocumentViewerPage } from "@/components/knowledge/viewers/DocumentViewer";
 import { LinkViewer } from "@/components/knowledge/viewers/LinkViewer";
@@ -81,11 +83,9 @@ export default function ItemPage() {
     <div style={{ padding: "32px 24px", maxWidth: "1000px", margin: "0 auto" }}>
       {/* Breadcrumb */}
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "24px", flexWrap: "wrap" }}>
-        <button onClick={() => router.push("/knowledge")} style={linkBtn}>База знаний</button>
+        <LinkButton onClick={() => router.push("/knowledge")}>База знаний</LinkButton>
         <span style={sep}>›</span>
-        <button onClick={() => router.push(sectionHref)} style={linkBtn}>
-          {section?.name ?? "Раздел"}
-        </button>
+        <LinkButton onClick={() => router.push(sectionHref)}>{section?.name ?? "Раздел"}</LinkButton>
         <span style={sep}>›</span>
         <span style={{ fontFamily: "MTS Compact", fontSize: "14px", color: "var(--color-text-secondary)" }}>
           {TYPE_LABELS[item.item_type]}
@@ -112,12 +112,13 @@ export default function ItemPage() {
           </div>
         </div>
         {isEditor && (
-          <button
+          <Button
+            variant="secondary"
             onClick={() => router.push(`/knowledge/admin/items/${itemId}/edit`)}
-            style={{ padding: "8px 16px", background: "var(--color-background-secondary)", border: "none", borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "13px", cursor: "pointer", whiteSpace: "nowrap" }}
+            icon={<EditIcon size={15} />}
           >
-            ✏️ Редактировать
-          </button>
+            Редактировать
+          </Button>
         )}
       </div>
 
@@ -144,8 +145,4 @@ export default function ItemPage() {
   );
 }
 
-const linkBtn: React.CSSProperties = {
-  fontFamily: "MTS Compact", fontSize: "14px", color: "var(--brand-blue)",
-  background: "none", border: "none", cursor: "pointer", padding: 0,
-};
 const sep: React.CSSProperties = { color: "var(--color-text-tertiary)", fontSize: "16px" };

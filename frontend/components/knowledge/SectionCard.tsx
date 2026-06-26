@@ -2,13 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/GranatCard";
+import { Icon } from "@/components/icons";
 import type { Section } from "@/lib/api/knowledge";
 
-const ICON_MAP: Record<string, string> = {
-  "file-text": "📄",
-  scale: "⚖️",
-  "book-open": "📖",
-  lock: "🔒",
+const ICON_NAME_MAP: Record<string, string> = {
+  "file-text": "DocumentSize24StyleOutline",
+  scale: "GavelSize24StyleOutline",
+  "book-open": "OpenBookSize24StyleOutline",
+  lock: "LockSize24StyleOutline",
 };
 
 function pluralize(n: number): string {
@@ -27,17 +28,22 @@ export function SectionCard({ section }: { section: Section }) {
       device="desktop"
       size="m"
       cornerRadius={32}
+      className="ui-cardlink"
       onClick={() => router.push(`/knowledge/sections/${section.slug}`)}
-      style={{ cursor: "pointer", padding: "24px" }}
+      style={{ padding: "24px" }}
     >
       <div style={{
         width: "48px", height: "48px",
         borderRadius: "var(--radius-m)",
         background: "var(--color-background-secondary)",
         display: "flex", alignItems: "center", justifyContent: "center",
-        marginBottom: "16px", fontSize: "24px",
+        marginBottom: "16px",
       }}>
-        {ICON_MAP[section.icon ?? ""] ?? "📋"}
+        <Icon
+          name={ICON_NAME_MAP[section.icon ?? ""] ?? "FolderSize24StyleOutline"}
+          size={24}
+          style={{ color: "var(--brand-blue)" }}
+        />
       </div>
 
       <p style={{

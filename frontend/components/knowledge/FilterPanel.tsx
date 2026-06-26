@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@mts-ds/granat2-react-button";
+import { Button } from "@/components/ui";
 import { StarIcon } from "@/components/icons/StarIcon";
 import { useTags } from "@/lib/api/knowledge";
 import type { ItemType } from "@/lib/api/knowledge";
@@ -60,7 +60,7 @@ export function FilterPanel({
           <Button
             key={opt.value ?? "all"}
             variant={filters.item_type === opt.value ? "primary" : "secondary"}
-            size={24}
+            size="xs"
             onClick={() => setType(opt.value)}
           >
             {opt.label}
@@ -71,7 +71,7 @@ export function FilterPanel({
 
         <Button
           variant={filters.favorites_only ? "primary" : "secondary"}
-          size={24}
+          size="xs"
           onClick={() => onChange({ ...filters, favorites_only: !filters.favorites_only })}
         >
           <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: filters.favorites_only ? STAR_GOLD : undefined }}>
@@ -88,7 +88,7 @@ export function FilterPanel({
             <Button
               key={tag.id}
               variant={filters.tag_ids.includes(tag.id) ? "primary" : "secondary"}
-              size={24}
+              size="xs"
               onClick={() => toggleTag(tag.id)}
             >
               {tag.name}

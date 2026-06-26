@@ -537,8 +537,8 @@
 .ui-btn--primary:hover:not(:disabled) { background: var(--color-brand-hover); }
 .ui-btn--primary:active:not(:disabled) { background: var(--color-brand-active); }
 
-.ui-btn--secondary { background: var(--color-background-secondary); color: var(--color-text-primary); }
-.ui-btn--secondary:hover:not(:disabled) { background: var(--color-background-lower); }
+.ui-btn--secondary { background: var(--color-background-secondary); color: var(--color-text-primary); border-color: var(--color-control-stroke); }
+.ui-btn--secondary:hover:not(:disabled) { background: var(--color-background-lower); border-color: var(--color-control-stroke-hover); }
 .ui-btn--secondary:active:not(:disabled) { background: var(--color-line); }
 
 .ui-btn--ghost { background: transparent; color: var(--color-text-primary); }
@@ -617,13 +617,14 @@
 .ui-toolbtn.is-active { background: var(--brand-blue); color: #fff; }
 .ui-toolbtn:disabled { opacity: 0.4; cursor: default; }
 
-/* — Кликабельная карточка (hover-тень) — */
+/* — Кликабельная карточка (hover: подъём + тень) — */
 .ui-cardlink {
   cursor: pointer;
   transition: box-shadow var(--duration-fast) var(--ease-standard),
+              transform var(--duration-fast) var(--ease-standard),
               border-color var(--duration-fast) var(--ease-standard);
 }
-.ui-cardlink:hover { box-shadow: var(--shadow-low); border-color: var(--color-line); }
+.ui-cardlink:hover { box-shadow: var(--shadow-middle); transform: translateY(-2px); border-color: var(--color-line); }
 
 /* — Select (нативный, темизированный, со своим chevron) — */
 .ui-select-wrap { position: relative; display: inline-flex; width: 100%; }
