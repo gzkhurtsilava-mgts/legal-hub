@@ -19,6 +19,8 @@ import { LinkEditor } from "@/components/knowledge/editors/LinkEditor";
 import { TagPicker } from "@/components/knowledge/TagPicker";
 import { ConfirmModal } from "@/components/knowledge/editors/ConfirmModal";
 import { useDocumentVersions } from "@/lib/api/knowledge";
+import { Icon } from "@/components/icons";
+import { LinkButton } from "@/components/ui";
 
 const EDITOR_ROLES = ["admin", "lawyer"];
 
@@ -156,13 +158,13 @@ export default function EditItemPage() {
     <div style={{ padding: "32px 24px", maxWidth: "960px", margin: "0 auto" }}>
       {/* Breadcrumb */}
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "24px" }}>
-        <button onClick={() => router.push("/knowledge")} style={linkBtn}>База знаний</button>
+        <LinkButton onClick={() => router.push("/knowledge")}>База знаний</LinkButton>
         <span style={sep}>›</span>
-        <button onClick={() => router.push(sectionHref)} style={linkBtn}>
+        <LinkButton onClick={() => router.push(sectionHref)}>
           {section?.name ?? "Раздел"}
-        </button>
+        </LinkButton>
         <span style={sep}>›</span>
-        <button onClick={() => router.push(`/knowledge/items/${itemId}`)} style={linkBtn}>{item.title}</button>
+        <LinkButton onClick={() => router.push(`/knowledge/items/${itemId}`)}>{item.title}</LinkButton>
         <span style={sep}>›</span>
         <span style={{ fontFamily: "MTS Compact", fontSize: "14px", color: "var(--color-text-secondary)" }}>Редактирование</span>
       </div>
@@ -179,12 +181,13 @@ export default function EditItemPage() {
 
       {/* Actions bar */}
       <div style={{ display: "flex", gap: "10px", marginBottom: "28px", flexWrap: "wrap", alignItems: "center" }}>
-        <button onClick={() => router.push(`/knowledge/items/${itemId}`)} style={secondaryBtn}>
-          👁 Просмотр
+        <button onClick={() => router.push(`/knowledge/items/${itemId}`)} style={{ ...secondaryBtn, display: "inline-flex", alignItems: "center", gap: "6px" }}>
+          <Icon name="ShowSize24StyleOutline" size={15} style={{ color: "var(--color-text-secondary)" }} />
+          Просмотр
         </button>
         {item.status !== "published" && (
-          <button onClick={() => publishItem.mutate()} disabled={publishItem.isPending} style={primaryBtn}>
-            {publishItem.isPending ? "…" : "✓ Опубликовать"}
+          <button onClick={() => publishItem.mutate()} disabled={publishItem.isPending} style={{ ...primaryBtn, display: "inline-flex", alignItems: "center", gap: "6px" }}>
+            {publishItem.isPending ? "…" : <><Icon name="CheckCircleSize24StyleOutline" size={15} />Опубликовать</>}
           </button>
         )}
         {item.status === "published" && (
@@ -213,8 +216,9 @@ export default function EditItemPage() {
           <span style={{ fontFamily: "MTS Wide", fontWeight: 700, fontSize: "12px", color: "var(--color-text-tertiary)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
             Свойства
           </span>
-          <span style={{ fontFamily: "MTS Compact", fontSize: "12px", color: "var(--color-text-tertiary)" }}>
-            {propertiesOpen ? "▲ Свернуть" : "▼ Развернуть"}
+          <span style={{ fontFamily: "MTS Compact", fontSize: "12px", color: "var(--color-text-tertiary)", display: "inline-flex", alignItems: "center", gap: "4px" }}>
+            <Icon name={propertiesOpen ? "ArrowUpSize24StyleOutline" : "ArrowDownSize24StyleOutline"} size={14} />
+            {propertiesOpen ? "Свернуть" : "Развернуть"}
           </span>
         </button>
 
@@ -260,7 +264,7 @@ export default function EditItemPage() {
           Содержимое
         </p>
         {contentSaveSuccess && (
-          <span style={{ fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-accent-positive)" }}>✓ Сохранено</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-accent-positive)" }}><Icon name="CheckCircleSize24StyleOutline" size={15} />Сохранено</span>
         )}
       </div>
 
@@ -294,16 +298,17 @@ export default function EditItemPage() {
               <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginBottom: "12px" }}>
                 {articleData!.attachments.map((att) => (
                   <div key={att.path} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "8px 12px", background: "var(--color-background-secondary)", borderRadius: "var(--radius-m)" }}>
-                    <span style={{ fontFamily: "MTS Compact", fontSize: "13px", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>📎 {att.filename}</span>
+                    <Icon name="DocumentSize24StyleOutline" size={16} style={{ color: "var(--color-icons-secondary)", flexShrink: 0 }} />
+                    <span style={{ fontFamily: "MTS Compact", fontSize: "13px", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{att.filename}</span>
                     <button
                       type="button"
                       onClick={() => deleteAttachment.mutate(att.path)}
                       disabled={deleteAttachment.isPending}
                       title="Удалить вложение"
-                      style={{ background: "none", border: "none", cursor: "pointer", padding: "2px 6px", fontSize: "14px", color: "var(--color-text-tertiary)", flexShrink: 0, lineHeight: 1 }}
+                      style={{ background: "none", border: "none", cursor: "pointer", padding: "2px 6px", color: "var(--color-text-tertiary)", flexShrink: 0, display: "flex", alignItems: "center" }}
                       onMouseEnter={(e) => { e.currentTarget.style.color = "var(--color-accent-negative)"; }}
                       onMouseLeave={(e) => { e.currentTarget.style.color = "var(--color-text-tertiary)"; }}
-                    >✕</button>
+                    ><Icon name="CrossSize16StyleOutline" size={14} /></button>
                   </div>
                 ))}
               </div>
@@ -359,7 +364,6 @@ export default function EditItemPage() {
   );
 }
 
-const linkBtn: React.CSSProperties = { fontFamily: "MTS Compact", fontSize: "14px", color: "var(--brand-blue)", background: "none", border: "none", cursor: "pointer", padding: 0 };
 const sep: React.CSSProperties = { color: "var(--color-text-tertiary)", fontSize: "16px" };
 const primaryBtn: React.CSSProperties = { padding: "8px 20px", background: "var(--brand-blue)", color: "#fff", border: "none", borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "13px", fontWeight: 500, cursor: "pointer" };
 const secondaryBtn: React.CSSProperties = { padding: "8px 16px", background: "var(--color-background-secondary)", color: "var(--color-text-primary)", border: "none", borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "13px", cursor: "pointer" };

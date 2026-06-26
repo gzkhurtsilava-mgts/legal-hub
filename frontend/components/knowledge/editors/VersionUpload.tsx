@@ -9,6 +9,7 @@ import {
 import type { DocumentVersion } from "@/lib/api/knowledge";
 import { apiFetchForm } from "@/lib/api/client";
 import { ConfirmModal } from "./ConfirmModal";
+import { Icon } from "@/components/icons";
 
 function formatBytes(b: number) {
   if (b < 1048576) return `${(b / 1024).toFixed(0)} КБ`;
@@ -138,7 +139,7 @@ function VersionRow({
             {expanded ? "Свернуть" : "Изменить"}
           </button>
 
-          <button onClick={() => setDeleteConfirm(true)} disabled={remove.isPending} style={deleteBtn} title="Удалить версию">✕</button>
+          <button onClick={() => setDeleteConfirm(true)} disabled={remove.isPending} style={{ ...deleteBtn, display: "flex", alignItems: "center" }} title="Удалить версию"><Icon name="CrossSize16StyleOutline" size={14} /></button>
         </div>
 
         {/* Expanded editor */}
@@ -159,7 +160,7 @@ function VersionRow({
               <button onClick={handleSaveMeta} disabled={updateMeta.isPending || !label.trim()} style={{ ...primaryBtn, fontSize: "13px", padding: "7px 18px" }}>
                 {updateMeta.isPending ? "…" : "Сохранить"}
               </button>
-              {saved && <span style={{ fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-accent-positive)" }}>✓ Сохранено</span>}
+              {saved && <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-accent-positive)" }}><Icon name="CheckCircleSize24StyleOutline" size={15} />Сохранено</span>}
             </div>
 
             {/* Current files */}
@@ -168,9 +169,10 @@ function VersionRow({
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 {/* Primary PDF */}
                 <div style={fileRow}>
-                  <span style={{ fontFamily: "MTS Compact", fontSize: "13px", flex: 1, color: "var(--color-text-primary)" }}>
-                    📋 Основной документ (PDF)
-                    {pdfInfo && <span style={{ color: "var(--color-text-tertiary)", marginLeft: 6 }}>· {v.original_filename}</span>}
+                  <span style={{ fontFamily: "MTS Compact", fontSize: "13px", flex: 1, color: "var(--color-text-primary)", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                    <Icon name="DocumentSize24StyleOutline" size={16} style={{ flexShrink: 0, color: "var(--color-text-secondary)" }} />
+                    Основной документ (PDF)
+                    {pdfInfo && <span style={{ color: "var(--color-text-tertiary)" }}>· {v.original_filename}</span>}
                   </span>
                   {pdfInfo && <a href={withToken(pdfInfo.path)} download={v.original_filename} style={fileAction}>Скачать</a>}
                   <label style={{ ...fileAction, cursor: "pointer" }}>
@@ -183,8 +185,9 @@ function VersionRow({
 
                 {/* Source file (optional) */}
                 <div style={fileRow}>
-                  <span style={{ fontFamily: "MTS Compact", fontSize: "13px", flex: 1, color: v.source_filename ? "var(--color-text-primary)" : "var(--color-text-tertiary)" }}>
-                    📄 {v.source_filename
+                  <span style={{ fontFamily: "MTS Compact", fontSize: "13px", flex: 1, color: v.source_filename ? "var(--color-text-primary)" : "var(--color-text-tertiary)", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                    <Icon name="DocumentSize24StyleOutline" size={16} style={{ flexShrink: 0, color: "var(--color-text-secondary)" }} />
+                    {v.source_filename
                       ? <>Исходный файл <span style={{ color: "var(--color-text-tertiary)" }}>· {v.source_filename}{v.source_file_size ? ` (${formatBytes(v.source_file_size)})` : ""}</span></>
                       : "Исходный файл не загружен (необязательно)"}
                   </span>
@@ -293,8 +296,9 @@ export function VersionUpload({ itemId, token }: { itemId: number; token?: strin
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           {/* PDF — required */}
           <div style={fileRow}>
-            <span style={{ fontFamily: "MTS Compact", fontSize: "13px", flex: 1, color: pdfFile ? "var(--color-text-primary)" : "var(--color-text-tertiary)" }}>
-              📋 {pdfFile ? `${pdfFile.name} (${formatBytes(pdfFile.size)})` : "Основной документ (PDF) не выбран"}
+            <span style={{ fontFamily: "MTS Compact", fontSize: "13px", flex: 1, color: pdfFile ? "var(--color-text-primary)" : "var(--color-text-tertiary)", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+              <Icon name="DocumentSize24StyleOutline" size={16} style={{ flexShrink: 0, color: "var(--color-text-secondary)" }} />
+              {pdfFile ? `${pdfFile.name} (${formatBytes(pdfFile.size)})` : "Основной документ (PDF) не выбран"}
             </span>
             <label style={{ ...fileAction, cursor: "pointer", color: "var(--brand-blue)" }}>
               {pdfFile ? "Изменить" : "Выбрать"}
@@ -307,8 +311,9 @@ export function VersionUpload({ itemId, token }: { itemId: number; token?: strin
 
           {/* Source file — optional */}
           <div style={fileRow}>
-            <span style={{ fontFamily: "MTS Compact", fontSize: "13px", flex: 1, color: sourceFile ? "var(--color-text-primary)" : "var(--color-text-tertiary)" }}>
-              📄 {sourceFile ? `${sourceFile.name} (${formatBytes(sourceFile.size)})` : "Исходный файл (необязательно)"}
+            <span style={{ fontFamily: "MTS Compact", fontSize: "13px", flex: 1, color: sourceFile ? "var(--color-text-primary)" : "var(--color-text-tertiary)", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+              <Icon name="DocumentSize24StyleOutline" size={16} style={{ flexShrink: 0, color: "var(--color-text-secondary)" }} />
+              {sourceFile ? `${sourceFile.name} (${formatBytes(sourceFile.size)})` : "Исходный файл (необязательно)"}
             </span>
             {sourceFile && (
               <button onClick={() => { setSourceFile(null); if (sourceRef.current) sourceRef.current.value = ""; }}

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Spinner } from "@mts-ds/granat2-react-spinner";
+import { Icon } from "@/components/icons";
 import {
   useProcess,
   useActivity,
@@ -228,7 +229,7 @@ export default function ActivityEditPage() {
           </h1>
           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
             <span style={{ fontFamily: "monospace", fontSize: "12px", color: "var(--color-text-tertiary)" }}>{act.id}</span>
-            <span style={{ ...tagBadge, background: isWorkflow ? "#e8f0fe" : "#e8f5e9", color: isWorkflow ? "#1a73e8" : "#2e7d32" }}>
+            <span style={{ ...tagBadge, background: isWorkflow ? "var(--color-accent-brand-bg)" : "var(--color-accent-positive-bg)", color: isWorkflow ? "var(--color-text-brand)" : "var(--color-accent-positive)" }}>
               {isWorkflow ? "Workflow" : "Service"}
             </span>
             {isWorkflow && act.activity_type && (
@@ -382,7 +383,7 @@ export default function ActivityEditPage() {
       {/* Save bar */}
       {canEdit && (
         <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end", marginTop: "8px" }}>
-          <button onClick={() => router.push(`/processes/edit/processes/${processId}`)} style={cancelBtn}>← Назад к процессу</button>
+          <button onClick={() => router.push(`/processes/edit/processes/${processId}`)} style={{ ...cancelBtn, display: "inline-flex", alignItems: "center", gap: "6px" }}><Icon name="ArrowLeftSize24StyleOutline" size={16} />Назад к процессу</button>
           <button onClick={handleSave} disabled={saving || !dirty} style={{ ...saveBtn, opacity: !dirty ? 0.5 : 1 }}>
             {saving ? "Сохранение…" : "Сохранить изменения"}
           </button>
@@ -518,7 +519,7 @@ function SopRow({
               <button onClick={() => setConfirming(false)} style={removeBtn}>Отмена</button>
             </>
           ) : (
-            <button onClick={() => setConfirming(true)} style={removeBtn}>✕</button>
+            <button onClick={() => setConfirming(true)} style={removeBtn}><Icon name="CrossSize16StyleOutline" size={14} /></button>
           )}
         </>
       )}
@@ -551,8 +552,8 @@ function DataOpsEditor({
   const remove = (idx: number) => onChange(items.filter((_, i) => i !== idx));
 
   const OP_COLORS: Record<string, { bg: string; color: string }> = {
-    read: { bg: "#e8f0fe", color: "#1a73e8" },
-    create: { bg: "#edf8ed", color: "#2e7d32" },
+    read: { bg: "var(--color-accent-brand-bg)", color: "var(--color-text-brand)" },
+    create: { bg: "var(--color-accent-positive-bg)", color: "var(--color-accent-positive)" },
   };
 
   return (
@@ -573,7 +574,7 @@ function DataOpsEditor({
                   <span style={{ fontFamily: "MTS Compact", fontSize: "11px", color: "var(--color-text-tertiary)" }}>{item.source_target}</span>
                 )}
                 {!readOnly && (
-                  <button onClick={() => remove(i)} style={{ ...removeBtn, padding: "0 4px" }}>✕</button>
+                  <button onClick={() => remove(i)} style={{ ...removeBtn, padding: "0 4px" }}><Icon name="CrossSize16StyleOutline" size={14} /></button>
                 )}
               </div>
             );
@@ -624,13 +625,19 @@ function DecisionEditor({
     <div>
       {items.map((item, i) => (
         <div key={i} style={{ marginBottom: "8px", padding: "10px 12px", background: "var(--color-background-secondary)", borderRadius: "var(--radius-m)", position: "relative" }}>
-          <p style={{ fontFamily: "MTS Compact", fontSize: "12px", fontWeight: 500, color: "var(--color-text-primary)", margin: "0 0 6px" }}>❓ {item.question}</p>
+          <p style={{ display: "flex", alignItems: "center", gap: "6px", fontFamily: "MTS Compact", fontSize: "12px", fontWeight: 500, color: "var(--color-text-primary)", margin: "0 0 6px" }}>
+            <Icon name="QuestionCircleSize24StyleOutline" size={15} style={{ color: "var(--color-icons-secondary)", flexShrink: 0 }} />{item.question}
+          </p>
           <div style={{ display: "flex", gap: "12px" }}>
-            <p style={{ fontFamily: "MTS Compact", fontSize: "12px", color: "#2e7d32", margin: 0 }}>✅ Да: {item.branch_yes || "—"}</p>
-            <p style={{ fontFamily: "MTS Compact", fontSize: "12px", color: "var(--color-accent-negative)", margin: 0 }}>❌ Нет: {item.branch_no || "—"}</p>
+            <p style={{ display: "flex", alignItems: "center", gap: "6px", fontFamily: "MTS Compact", fontSize: "12px", color: "var(--color-accent-positive)", margin: 0 }}>
+              <Icon name="CheckCircleSize24StyleOutline" size={15} style={{ flexShrink: 0 }} />Да: {item.branch_yes || "—"}
+            </p>
+            <p style={{ display: "flex", alignItems: "center", gap: "6px", fontFamily: "MTS Compact", fontSize: "12px", color: "var(--color-accent-negative)", margin: 0 }}>
+              <Icon name="CrossCircleSize24StyleOutline" size={15} style={{ flexShrink: 0 }} />Нет: {item.branch_no || "—"}
+            </p>
           </div>
           {!readOnly && (
-            <button onClick={() => remove(i)} style={{ ...removeBtn, position: "absolute", top: "8px", right: "8px" }}>✕</button>
+            <button onClick={() => remove(i)} style={{ ...removeBtn, position: "absolute", top: "8px", right: "8px" }}><Icon name="CrossSize16StyleOutline" size={14} /></button>
           )}
         </div>
       ))}
@@ -685,7 +692,7 @@ function StringListEditor({
       {items.map((item, i) => (
         <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "6px 10px", background: "var(--color-background-secondary)", borderRadius: "var(--radius-s)", marginBottom: "4px" }}>
           <span style={{ fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-text-primary)", flex: 1 }}>{item}</span>
-          {!readOnly && <button onClick={() => remove(i)} style={removeBtn}>✕</button>}
+          {!readOnly && <button onClick={() => remove(i)} style={removeBtn}><Icon name="CrossSize16StyleOutline" size={14} /></button>}
         </div>
       ))}
       {!readOnly && (
