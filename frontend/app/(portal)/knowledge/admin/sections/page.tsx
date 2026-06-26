@@ -8,13 +8,28 @@ import {
   useSections, useCreateSection, useUpdateSection, useDeleteSection,
 } from "@/lib/api/knowledge";
 import type { Section, SectionCreate, SectionUpdate, Visibility } from "@/lib/api/knowledge";
+import { Icon } from "@/components/icons";
+import { Button, IconButton, LinkButton, Select } from "@/components/ui";
+import type { SelectOption } from "@/components/ui";
 
-const ICON_OPTIONS = [
-  { value: "file-text", label: "📄 Документы" },
-  { value: "scale",     label: "⚖️ Право" },
-  { value: "book-open", label: "📖 Книга" },
-  { value: "lock",      label: "🔒 Закрытый" },
-  { value: "",          label: "📋 По умолчанию" },
+const SECTION_ICON_NAMES: Record<string, string> = {
+  "file-text": "DocumentSize24StyleOutline",
+  scale: "GavelSize24StyleOutline",
+  "book-open": "OpenBookSize24StyleOutline",
+  lock: "LockSize24StyleOutline",
+};
+
+const ICON_OPTIONS: SelectOption[] = [
+  { value: "file-text", label: "Документы" },
+  { value: "scale",     label: "Право" },
+  { value: "book-open", label: "Книга" },
+  { value: "lock",      label: "Закрытый" },
+  { value: "",          label: "По умолчанию" },
+];
+
+const VISIBILITY_OPTIONS: SelectOption[] = [
+  { value: "public", label: "Все сотрудники" },
+  { value: "bpo_only", label: "Только БПО" },
 ];
 
 function slugify(name: string) {
@@ -91,29 +106,24 @@ function SectionRow({ section, allSections, depth = 0 }: SectionRowProps) {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
               <div>
                 <label style={lbl}>Иконка</label>
-                <select value={icon} onChange={(e) => setIcon(e.target.value)} style={inp}>
-                  {ICON_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                </select>
+                <Select className="ui-select--compact" value={icon} onChange={(e) => setIcon(e.target.value)} options={ICON_OPTIONS} />
               </div>
               <div>
                 <label style={lbl}>Видимость</label>
-                <select value={visibility} onChange={(e) => setVisibility(e.target.value as Visibility)} style={inp}>
-                  <option value="public">Все сотрудники</option>
-                  <option value="bpo_only">Только БПО</option>
-                </select>
+                <Select className="ui-select--compact" value={visibility} onChange={(e) => setVisibility(e.target.value as Visibility)} options={VISIBILITY_OPTIONS} />
               </div>
             </div>
             <div style={{ display: "flex", gap: "8px" }}>
-              <button onClick={handleSave} disabled={update.isPending} style={primaryBtn}>
+              <Button onClick={handleSave} disabled={update.isPending}>
                 {update.isPending ? "…" : "Сохранить"}
-              </button>
-              <button onClick={() => setEditing(false)} style={secondaryBtn}>Отмена</button>
+              </Button>
+              <Button variant="secondary" onClick={() => setEditing(false)}>Отмена</Button>
             </div>
           </div>
         ) : (
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <span style={{ fontSize: "18px", flexShrink: 0 }}>
-              {ICON_OPTIONS.find((o) => o.value === section.icon)?.label.split(" ")[0] ?? "📋"}
+            <span style={{ flexShrink: 0, display: "flex", color: "var(--brand-blue)" }}>
+              <Icon name={SECTION_ICON_NAMES[section.icon ?? ""] ?? "FolderSize24StyleOutline"} size={20} />
             </span>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
@@ -124,7 +134,7 @@ function SectionRow({ section, allSections, depth = 0 }: SectionRowProps) {
                   /{section.slug}
                 </span>
                 {section.visibility === "bpo_only" && (
-                  <span style={{ fontFamily: "MTS Compact", fontSize: "11px", color: "var(--color-accent-warning)", background: "var(--color-background-warning-soft)", padding: "1px 7px", borderRadius: "999px" }}>
+                  <span style={{ fontFamily: "MTS Compact", fontSize: "11px", color: "var(--color-accent-warning)", background: "var(--color-accent-warning-bg)", padding: "1px 7px", borderRadius: "999px" }}>
                     БПО
                   </span>
                 )}
@@ -138,23 +148,26 @@ function SectionRow({ section, allSections, depth = 0 }: SectionRowProps) {
                 </p>
               )}
             </div>
-            <div style={{ display: "flex", gap: "6px", flexShrink: 0 }}>
-              <button
+            <div style={{ display: "flex", gap: "6px", flexShrink: 0, alignItems: "center" }}>
+              <IconButton
                 onClick={() => router.push(`/knowledge/sections/${section.slug}`)}
-                style={iconBtn}
-                title="Открыть раздел"
+                label="Открыть раздел"
               >
-                👁
-              </button>
-              <button onClick={() => setEditing(true)} style={iconBtn} title="Редактировать">✏️</button>
+                <Icon name="ShowSize24StyleOutline" size={16} />
+              </IconButton>
+              <IconButton onClick={() => setEditing(true)} label="Редактировать">
+                <Icon name="EditSize24StyleOutline" size={16} />
+              </IconButton>
               {!confirmDelete ? (
-                <button onClick={() => setConfirmDelete(true)} style={{ ...iconBtn, color: "var(--color-accent-negative)" }} title="Удалить">🗑</button>
+                <IconButton danger onClick={() => setConfirmDelete(true)} label="Удалить">
+                  <Icon name="DeleteSize24StyleOutline" size={16} />
+                </IconButton>
               ) : (
                 <>
-                  <button onClick={handleDelete} disabled={del.isPending} style={{ ...iconBtn, color: "var(--color-accent-negative)", fontWeight: 700 }}>
+                  <Button variant="negative" size="xs" onClick={handleDelete} disabled={del.isPending}>
                     {del.isPending ? "…" : "Да"}
-                  </button>
-                  <button onClick={() => setConfirmDelete(false)} style={iconBtn}>Нет</button>
+                  </Button>
+                  <Button variant="secondary" size="xs" onClick={() => setConfirmDelete(false)}>Нет</Button>
                 </>
               )}
             </div>
@@ -182,6 +195,11 @@ function CreateForm({ allSections, onDone }: CreateFormProps) {
   const [parentId, setParentId] = useState<number | "">("");
   const [visibility, setVisibility] = useState<Visibility>("public");
   const create = useCreateSection();
+
+  const parentOptions: SelectOption[] = [
+    { value: "", label: "— верхний уровень —" },
+    ...allSections.filter((s) => s.parent_id === null).map((s) => ({ value: s.id, label: s.name })),
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -227,32 +245,27 @@ function CreateForm({ allSections, onDone }: CreateFormProps) {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px" }}>
         <div>
           <label style={lbl}>Родительский раздел</label>
-          <select value={parentId} onChange={(e) => setParentId(e.target.value ? Number(e.target.value) : "")} style={inp}>
-            <option value="">— верхний уровень —</option>
-            {allSections.filter((s) => s.parent_id === null).map((s) => (
-              <option key={s.id} value={s.id}>{s.name}</option>
-            ))}
-          </select>
+          <Select
+            className="ui-select--compact"
+            value={parentId}
+            onChange={(e) => setParentId(e.target.value ? Number(e.target.value) : "")}
+            options={parentOptions}
+          />
         </div>
         <div>
           <label style={lbl}>Иконка</label>
-          <select value={icon} onChange={(e) => setIcon(e.target.value)} style={inp}>
-            {ICON_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
+          <Select className="ui-select--compact" value={icon} onChange={(e) => setIcon(e.target.value)} options={ICON_OPTIONS} />
         </div>
         <div>
           <label style={lbl}>Видимость</label>
-          <select value={visibility} onChange={(e) => setVisibility(e.target.value as Visibility)} style={inp}>
-            <option value="public">Все сотрудники</option>
-            <option value="bpo_only">Только БПО</option>
-          </select>
+          <Select className="ui-select--compact" value={visibility} onChange={(e) => setVisibility(e.target.value as Visibility)} options={VISIBILITY_OPTIONS} />
         </div>
       </div>
       <div style={{ display: "flex", gap: "8px" }}>
-        <button type="submit" disabled={create.isPending} style={primaryBtn}>
+        <Button type="submit" disabled={create.isPending}>
           {create.isPending ? "Создание…" : "Создать раздел"}
-        </button>
-        <button type="button" onClick={onDone} style={secondaryBtn}>Отмена</button>
+        </Button>
+        <Button type="button" variant="secondary" onClick={onDone}>Отмена</Button>
       </div>
     </form>
   );
@@ -278,7 +291,7 @@ export default function AdminSectionsPage() {
   return (
     <div style={{ padding: "32px 24px", maxWidth: "900px", margin: "0 auto" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "24px" }}>
-        <button onClick={() => router.push("/knowledge")} style={linkBtn}>База знаний</button>
+        <LinkButton onClick={() => router.push("/knowledge")}>База знаний</LinkButton>
         <span style={{ color: "var(--color-text-tertiary)" }}>›</span>
         <span style={{ fontFamily: "MTS Compact", fontSize: "14px", color: "var(--color-text-secondary)" }}>Управление разделами</span>
       </div>
@@ -287,9 +300,9 @@ export default function AdminSectionsPage() {
         <h1 style={{ fontFamily: "MTS Wide", fontWeight: 700, fontSize: "24px", color: "var(--color-text-primary)", margin: 0, flex: 1 }}>
           Разделы
         </h1>
-        <button onClick={() => setShowCreate(true)} style={primaryBtn}>
-          + Создать раздел
-        </button>
+        <Button onClick={() => setShowCreate(true)} icon={<Icon name="PlusSize24StyleOutline" size={16} />}>
+          Создать раздел
+        </Button>
       </div>
 
       {showCreate && (
@@ -318,8 +331,4 @@ export default function AdminSectionsPage() {
 }
 
 const lbl: React.CSSProperties = { display: "block", fontFamily: "MTS Compact", fontSize: "12px", fontWeight: 500, color: "var(--color-text-secondary)", marginBottom: "4px" };
-const inp: React.CSSProperties = { width: "100%", padding: "7px 10px", fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-text-primary)", background: "var(--color-background-secondary)", border: "1px solid var(--color-background-lower)", borderRadius: "var(--radius-m)", outline: "none", boxSizing: "border-box" };
-const primaryBtn: React.CSSProperties = { padding: "8px 18px", background: "var(--brand-blue)", color: "#fff", border: "none", borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "13px", fontWeight: 500, cursor: "pointer" };
-const secondaryBtn: React.CSSProperties = { padding: "8px 14px", background: "var(--color-background-secondary)", color: "var(--color-text-primary)", border: "none", borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "13px", cursor: "pointer" };
-const iconBtn: React.CSSProperties = { padding: "4px 8px", background: "none", border: "none", cursor: "pointer", fontSize: "14px", borderRadius: "var(--radius-s)", color: "var(--color-text-secondary)" };
-const linkBtn: React.CSSProperties = { fontFamily: "MTS Compact", fontSize: "14px", color: "var(--brand-blue)", background: "none", border: "none", cursor: "pointer", padding: 0 };
+const inp: React.CSSProperties = { width: "100%", height: "36px", padding: "0 12px", fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-text-primary)", background: "var(--color-background-secondary)", border: "1px solid var(--color-background-lower)", borderRadius: "var(--radius-m)", outline: "none", boxSizing: "border-box" };

@@ -68,31 +68,171 @@
   font-display: swap;
 }
 
-/* ===== МГТС: переопределяем МТС-красный на МГТС-синий ===== */
+/* ===== МГТС Design System tokens — светлая тема ===== */
 :root {
-  --brand-blue: #008ae0;
+  /* Бренд */
+  --brand-blue:          #008ae0;
+  --color-brand:         #008ae0;
+  --color-brand-hover:   #0072bd;
+  --color-brand-active:  #005c99;
+  --color-brand-subtle:  #e6f4fc;
   --color-brand-mts-red: var(--brand-blue);
+
+  /* Текст */
+  --color-text-primary:   #1d2023;
+  --color-text-secondary: #626c77;
+  --color-text-tertiary:  #969fa8;
+  --color-text-inverted:  #fafafa;
+  --color-text-brand:     var(--brand-blue);
+
+  /* Иконки */
+  --color-icons-primary:   #1d2023;
+  --color-icons-secondary: #8d969f;
+  --color-icons-tertiary:  #969fa8;
+  --color-icons-inverted:  #fafafa;
+  --color-icons-brand:     var(--brand-blue);
+
+  /* Фоны */
+  --color-background-primary:   #ffffff;
+  --color-background-secondary: #f2f3f7;
+  --color-background-lower:     #e9ecf0;
+  --color-background-inverted:  #1d2023;
+
+  /* Бордеры и разделители */
+  --color-line:                 #e2e5eb;
+  --color-control-stroke:       #969fa8;
+  --color-control-stroke-hover: #626c77;
+
+  /* Акцентные цвета */
+  --color-accent-positive:    #26cd58;
+  --color-accent-warning:     #fac031;
+  --color-accent-negative:    #f95721;
+
+  /* Акцентные фоны (для бейджей / баннеров) */
+  --color-accent-positive-bg: #e3f9ea;
+  --color-accent-warning-bg:  #fff4d6;
+  --color-accent-negative-bg: #ffe5dc;
+  --color-accent-brand-bg:    var(--color-brand-subtle);
+
+  /* Оверлеи */
+  --color-overlay:       rgba(29, 32, 35, 0.5);
+  --color-overlay-light: rgba(29, 32, 35, 0.08);
+
+  /* Тени */
+  --shadow-low:    0 2px 8px rgba(29,32,35,0.08), 0 0 1px rgba(29,32,35,0.12);
+  --shadow-middle: 0 4px 16px rgba(29,32,35,0.12), 0 0 1px rgba(29,32,35,0.12);
+  --shadow-high:   0 12px 40px rgba(29,32,35,0.18), 0 0 1px rgba(29,32,35,0.12);
+
+  /* Шрифтовые стеки */
+  --font-wide:    'MTS Wide',    'Segoe UI', system-ui, sans-serif;
+  --font-compact: 'MTS Compact', 'Segoe UI', system-ui, sans-serif;
+  --font-sans:    'MTS Sans',    'Segoe UI', system-ui, sans-serif;
+  --font-text:    'MTS Text',    'Segoe UI', system-ui, sans-serif;
+
+  /* Жирность */
+  --fw-regular: 400;
+  --fw-medium:  500;
+  --fw-bold:    700;
+
+  /* Типографика — шкала */
+  --type-h1-size: 32px; --type-h1-lh: 36px; --type-h1-weight: 700;
+  --type-h2-size: 24px; --type-h2-lh: 28px; --type-h2-weight: 700;
+  --type-h3-size: 20px; --type-h3-lh: 24px; --type-h3-weight: 700;
+  --type-h4-size: 17px; --type-h4-lh: 24px; --type-h4-weight: 500;
+  --type-body-lg-size: 17px; --type-body-lg-lh: 24px;
+  --type-body-size:    15px; --type-body-lh:    20px;
+  --type-body-sm-size: 14px; --type-body-sm-lh: 20px;
+  --type-caption-size: 12px; --type-caption-lh: 16px;
+
+  /* Отступы (сетка 4px) */
+  --space-2:  2px;
+  --space-4:  4px;
+  --space-6:  6px;
+  --space-8:  8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-64: 64px;
+
+  /* Высоты контролов */
+  --control-xs: 28px;
+  --control-s:  36px;
+  --control-m:  44px;
+  --control-l:  52px;
+
+  /* Движение */
+  --ease-standard:  cubic-bezier(0.4, 0.0, 0.2, 1);
+  --duration-fast:  120ms;
+  --duration-base:  200ms;
+
+  /* Z-индексы */
+  --z-index-dropdown: 1000;
+  --z-index-modal:    2000;
+  --z-index-tooltip:  3000;
 }
 
-/* ===== Granat semantic tokens — светлая тема ===== */
+/* ===== МГТС Design System tokens — тёмная тема ===== */
+.dark {
+  --color-brand:        #008ae0;
+  --color-brand-subtle: rgba(0, 138, 224, 0.16);
+  --color-text-brand:   #45b6fc;
+  --color-icons-brand:  #45b6fc;
+
+  --color-text-primary:   #fafafa;
+  --color-text-secondary: #969fa8;
+  --color-text-tertiary:  #626c77;
+  --color-text-inverted:  #1d2023;
+
+  --color-icons-primary:   #fafafa;
+  --color-icons-secondary: #8d969f;
+  --color-icons-tertiary:  #626c77;
+  --color-icons-inverted:  #1d2023;
+
+  --color-background-primary:   #1d2023;
+  --color-background-secondary: #26292c;
+  --color-background-lower:     #141719;
+  --color-background-inverted:  #fafafa;
+
+  --color-line:                 #2c3135;
+  --color-control-stroke:       #3a4045;
+  --color-control-stroke-hover: #626c77;
+
+  --color-accent-positive:    #74df8b;
+  --color-accent-warning:     #fad67d;
+  --color-accent-negative:    #fa8a64;
+
+  --color-accent-positive-bg: rgba(38, 205, 88, 0.16);
+  --color-accent-warning-bg:  rgba(250, 192, 49, 0.16);
+  --color-accent-negative-bg: rgba(249, 87, 33, 0.16);
+  --color-accent-brand-bg:    rgba(0, 138, 224, 0.16);
+
+  --color-overlay:       rgba(0, 0, 0, 0.6);
+  --color-overlay-light: rgba(255, 255, 255, 0.08);
+
+  --shadow-low:    0 2px 8px rgba(0,0,0,0.24), 0 0 1px rgba(0,0,0,0.32);
+  --shadow-middle: 0 4px 16px rgba(0,0,0,0.32), 0 0 1px rgba(0,0,0,0.32);
+  --shadow-high:   0 12px 40px rgba(0,0,0,0.48), 0 0 1px rgba(0,0,0,0.32);
+}
+
+/* ===== Granat overrides — заменяем МТС-красный на МГТС-синий ===== */
 .mtsds-vars {
   --color-control-primary-active: var(--brand-blue);
-  --color-control-active-tabbar: var(--brand-blue);
-  --color-accent-notification: var(--brand-blue);
-  --color-brand-mts-red: var(--brand-blue);
-  --brand-blue-tint: rgba(0, 138, 224, 0.08);
+  --color-control-active-tabbar:  var(--brand-blue);
+  --color-accent-notification:    var(--brand-blue);
+  --color-brand-mts-red:          var(--brand-blue);
+  --brand-blue-tint:              rgba(0, 138, 224, 0.08);
 }
 
-/* ===== Radius и z-index МГТС ===== */
+/* ===== Radius МГТС — переопределяем @mts-ds токены радиусов ===== */
 .mgts-corai-vars {
   --radius-s: 8px;
   --radius-m: 12px;
   --radius-l: 32px;
   --radius-xl: 80px;
-
-  --z-index-dropdown: 1000;
-  --z-index-modal: 2000;
-  --z-index-tooltip: 3000;
 }
 
 /* ===== Тёмная тема — переопределяем Granat-токены внутри .mtsds-vars ===== */
@@ -211,9 +351,9 @@
   line-height: 1.65;
 }
 .ProseMirror > * + * { margin-top: 0.75em; }
-.ProseMirror h1 { font-family: 'MTS Wide', sans-serif; font-size: 24px; font-weight: 700; line-height: 1.25; margin-top: 1.5em; scroll-margin-top: 80px; }
-.ProseMirror h2 { font-family: 'MTS Wide', sans-serif; font-size: 20px; font-weight: 700; line-height: 1.3; margin-top: 1.25em; scroll-margin-top: 80px; }
-.ProseMirror h3 { font-family: 'MTS Wide', sans-serif; font-size: 16px; font-weight: 700; line-height: 1.35; margin-top: 1em; scroll-margin-top: 80px; }
+.ProseMirror h1 { font-family: 'MTS Wide', sans-serif; font-size: 32px; font-weight: 700; line-height: 36px; margin-top: 1.5em; scroll-margin-top: 80px; }
+.ProseMirror h2 { font-family: 'MTS Wide', sans-serif; font-size: 24px; font-weight: 700; line-height: 28px; margin-top: 1.25em; scroll-margin-top: 80px; }
+.ProseMirror h3 { font-family: 'MTS Wide', sans-serif; font-size: 20px; font-weight: 700; line-height: 24px; margin-top: 1em; scroll-margin-top: 80px; }
 .ProseMirror ul { list-style: disc; padding-left: 1.5em; }
 .ProseMirror ol { list-style: decimal; padding-left: 1.5em; }
 .ProseMirror ul ul { list-style: circle; }
@@ -359,3 +499,140 @@
 }
 .ProseMirror.resize-cursor { cursor: col-resize; }
 .ProseMirror table { table-layout: fixed; }
+
+/* ===== UI-примитивы (общие кнопки/контролы с :hover/:focus/:active) =====
+   Инлайн-стили не дают псевдоклассов — поэтому состояния живут здесь, в CSS.
+   Используются компонентами из components/ui/. Все цвета — через токены,
+   значит light/dark переключаются автоматически. */
+
+/* — Button — */
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: 'MTS Compact', sans-serif;
+  font-weight: 500;
+  border: 1px solid transparent;
+  border-radius: var(--radius-l);
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background var(--duration-fast) var(--ease-standard),
+              color var(--duration-fast) var(--ease-standard),
+              border-color var(--duration-fast) var(--ease-standard),
+              opacity var(--duration-fast) var(--ease-standard);
+}
+.ui-btn:focus-visible { outline: 2px solid var(--brand-blue); outline-offset: 2px; }
+.ui-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* размеры */
+.ui-btn--xs { height: var(--control-xs); padding: 0 12px; font-size: 12px; }
+.ui-btn--s  { height: var(--control-s);  padding: 0 16px; font-size: 13px; }
+.ui-btn--m  { height: var(--control-m);  padding: 0 20px; font-size: 14px; }
+.ui-btn--l  { height: var(--control-l);  padding: 0 24px; font-size: 15px; }
+
+/* варианты */
+.ui-btn--primary { background: var(--brand-blue); color: #fff; }
+.ui-btn--primary:hover:not(:disabled) { background: var(--color-brand-hover); }
+.ui-btn--primary:active:not(:disabled) { background: var(--color-brand-active); }
+
+.ui-btn--secondary { background: var(--color-background-secondary); color: var(--color-text-primary); }
+.ui-btn--secondary:hover:not(:disabled) { background: var(--color-background-lower); }
+.ui-btn--secondary:active:not(:disabled) { background: var(--color-line); }
+
+.ui-btn--ghost { background: transparent; color: var(--color-text-primary); }
+.ui-btn--ghost:hover:not(:disabled) { background: var(--color-background-secondary); }
+
+.ui-btn--outline { background: transparent; color: var(--brand-blue); border-color: var(--brand-blue); }
+.ui-btn--outline:hover:not(:disabled) { background: var(--color-brand-subtle); }
+
+.ui-btn--negative { background: var(--color-accent-negative); color: #fff; }
+.ui-btn--negative:hover:not(:disabled) { filter: brightness(0.93); }
+
+/* — Link-кнопка (текстовая, акцентная) — */
+.ui-linkbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'MTS Compact', sans-serif;
+  font-size: 14px;
+  color: var(--color-text-brand);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+.ui-linkbtn:hover { color: var(--color-brand-hover); }
+.ui-linkbtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* — Icon-кнопка (квадратная, для иконок-действий) — */
+.ui-iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: var(--radius-s);
+  color: var(--color-icons-secondary);
+  cursor: pointer;
+  padding: 6px;
+  transition: background var(--duration-fast) var(--ease-standard),
+              color var(--duration-fast) var(--ease-standard);
+}
+.ui-iconbtn:hover:not(:disabled) { background: var(--color-background-secondary); color: var(--color-text-primary); }
+.ui-iconbtn:focus-visible { outline: 2px solid var(--brand-blue); outline-offset: 1px; }
+.ui-iconbtn:disabled { opacity: 0.4; cursor: not-allowed; }
+.ui-iconbtn--danger { color: var(--color-accent-negative); }
+.ui-iconbtn--danger:hover:not(:disabled) { background: var(--color-accent-negative-bg); color: var(--color-accent-negative); }
+
+/* — Кликабельная строка/строка-список (hover-подсветка) — */
+.ui-row {
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-standard);
+}
+.ui-row:hover { background: var(--color-background-lower) !important; }
+
+/* — Кликабельная карточка (hover-тень) — */
+.ui-cardlink {
+  cursor: pointer;
+  transition: box-shadow var(--duration-fast) var(--ease-standard),
+              border-color var(--duration-fast) var(--ease-standard);
+}
+.ui-cardlink:hover { box-shadow: var(--shadow-low); border-color: var(--color-line); }
+
+/* — Select (нативный, темизированный, со своим chevron) — */
+.ui-select-wrap { position: relative; display: inline-flex; width: 100%; }
+.ui-select {
+  width: 100%;
+  height: var(--control-m);
+  padding: 0 36px 0 12px;
+  font-family: 'MTS Compact', sans-serif;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-control-stroke);
+  border-radius: var(--radius-m);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+.ui-select:hover { border-color: var(--color-control-stroke-hover); }
+.ui-select:focus { border-color: var(--brand-blue); }
+.ui-select--compact { height: var(--control-s); font-size: 13px; }
+.ui-select-wrap::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  margin-top: -5px;
+  pointer-events: none;
+  background-color: var(--color-icons-secondary);
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M6 9l6 6 6-6' stroke='black' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>") center / contain no-repeat;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M6 9l6 6 6-6' stroke='black' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>") center / contain no-repeat;
+}

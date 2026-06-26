@@ -3,15 +3,17 @@
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useDomains, useLandscape, useProcesses } from "@/lib/api/processes";
+import { Icon } from "@/components/icons";
+import { Button, LinkButton, Badge } from "@/components/ui";
 
 const QUICK_LINKS = [
-  { label: "Роли", href: "/processes/edit/refs/roles", icon: "👤" },
-  { label: "ИТ-системы", href: "/processes/edit/refs/systems", icon: "💻" },
-  { label: "Нормативные акты", href: "/processes/edit/refs/regulations", icon: "📜" },
-  { label: "Политики", href: "/processes/edit/refs/policies", icon: "📋" },
-  { label: "Риски", href: "/processes/edit/refs/risks", icon: "⚠️" },
-  { label: "Типы документов", href: "/processes/edit/refs/doc-types", icon: "📄" },
-  { label: "Бизнес-юниты", href: "/processes/edit/refs/business-units", icon: "🏢" },
+  { label: "Роли", href: "/processes/edit/refs/roles", icon: "UserSize24StyleOutline" },
+  { label: "ИТ-системы", href: "/processes/edit/refs/systems", icon: "MonitorSize24StyleOutline" },
+  { label: "Нормативные акты", href: "/processes/edit/refs/regulations", icon: "GavelSize24StyleOutline" },
+  { label: "Политики", href: "/processes/edit/refs/policies", icon: "ChecklistSize24StyleOutline" },
+  { label: "Риски", href: "/processes/edit/refs/risks", icon: "WarningSize24StyleOutline" },
+  { label: "Типы документов", href: "/processes/edit/refs/doc-types", icon: "DocumentSize24StyleOutline" },
+  { label: "Бизнес-юниты", href: "/processes/edit/refs/business-units", icon: "BusinessSize24StyleOutline" },
 ];
 
 export default function ProcessesEditPage() {
@@ -33,14 +35,11 @@ export default function ProcessesEditPage() {
     );
   }
 
-
   return (
     <div style={{ padding: "32px 24px", maxWidth: "1100px", margin: "0 auto" }}>
       {/* Breadcrumb */}
       <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "24px" }}>
-        <button onClick={() => router.push("/processes")} style={linkBtn}>
-          Карта процессов
-        </button>
+        <LinkButton onClick={() => router.push("/processes")}>Карта процессов</LinkButton>
         <span style={{ color: "var(--color-text-tertiary)" }}>›</span>
         <span style={{ fontFamily: "MTS Compact", fontSize: "14px", color: "var(--color-text-secondary)" }}>
           Редактирование
@@ -119,18 +118,15 @@ export default function ProcessesEditPage() {
               Домены (L2)
             </h2>
             <div style={{ display: "flex", gap: "8px" }}>
-              <button
+              <Button
                 onClick={() => router.push("/processes/edit/domains/new")}
-                style={primaryBtn}
+                icon={<Icon name="PlusSize24StyleOutline" size={16} />}
               >
-                + Создать
-              </button>
-              <button
-                onClick={() => router.push("/processes/edit/domains")}
-                style={secondaryBtn}
-              >
+                Создать
+              </Button>
+              <Button variant="secondary" onClick={() => router.push("/processes/edit/domains")}>
                 Все домены
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -144,6 +140,7 @@ export default function ProcessesEditPage() {
                 <div
                   key={d.id}
                   onClick={() => router.push(`/processes/edit/domains/${d.id}`)}
+                  className="ui-row"
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -151,7 +148,6 @@ export default function ProcessesEditPage() {
                     padding: "10px 12px",
                     background: "var(--color-background-secondary)",
                     borderRadius: "var(--radius-s)",
-                    cursor: "pointer",
                   }}
                 >
                   <div>
@@ -168,12 +164,13 @@ export default function ProcessesEditPage() {
                 </div>
               ))}
               {domains.length > 5 && (
-                <button
+                <LinkButton
                   onClick={() => router.push("/processes/edit/domains")}
-                  style={{ ...linkBtn, padding: "4px 0", fontSize: "13px" }}
+                  iconRight={<Icon name="ArrowRightSize24StyleOutline" size={14} />}
+                  style={{ padding: "4px 0", fontSize: "13px" }}
                 >
-                  Ещё {domains.length - 5} доменов →
-                </button>
+                  Ещё {domains.length - 5} доменов
+                </LinkButton>
               )}
             </div>
           )}
@@ -196,6 +193,7 @@ export default function ProcessesEditPage() {
               <button
                 key={link.href}
                 onClick={() => router.push(link.href)}
+                className="ui-row"
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -204,14 +202,13 @@ export default function ProcessesEditPage() {
                   background: "none",
                   border: "none",
                   borderRadius: "var(--radius-s)",
-                  cursor: "pointer",
                   textAlign: "left",
                   width: "100%",
                 }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "var(--color-background-secondary)")}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "none")}
               >
-                <span style={{ fontSize: "16px", flexShrink: 0 }}>{link.icon}</span>
+                <span style={{ flexShrink: 0, display: "flex", color: "var(--color-icons-secondary)" }}>
+                  <Icon name={link.icon} size={18} />
+                </span>
                 <span style={{ fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-text-primary)" }}>
                   {link.label}
                 </span>
@@ -235,12 +232,15 @@ export default function ProcessesEditPage() {
             Процессы / Услуги (L3)
           </h2>
           <div style={{ display: "flex", gap: "8px" }}>
-            <button onClick={() => router.push("/processes/edit/processes/new")} style={primaryBtn}>
-              + Создать
-            </button>
-            <button onClick={() => router.push("/processes/edit/processes")} style={secondaryBtn}>
+            <Button
+              onClick={() => router.push("/processes/edit/processes/new")}
+              icon={<Icon name="PlusSize24StyleOutline" size={16} />}
+            >
+              Создать
+            </Button>
+            <Button variant="secondary" onClick={() => router.push("/processes/edit/processes")}>
               Все процессы
-            </button>
+            </Button>
           </div>
         </div>
         {processes.length === 0 ? (
@@ -253,31 +253,26 @@ export default function ProcessesEditPage() {
               <div
                 key={p.id}
                 onClick={() => router.push(`/processes/edit/processes/${p.id}`)}
-                style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 10px", background: "var(--color-background-secondary)", borderRadius: "var(--radius-s)", cursor: "pointer" }}
+                className="ui-row"
+                style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 10px", background: "var(--color-background-secondary)", borderRadius: "var(--radius-s)" }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", minWidth: 0 }}>
-                  <span style={{
-                    padding: "1px 6px",
-                    borderRadius: "var(--radius-s)",
-                    fontSize: "10px",
-                    fontFamily: "MTS Compact",
-                    fontWeight: 500,
-                    flexShrink: 0,
-                    background: p.type === "workflow" ? "#e8f4fd" : "#f0f8ee",
-                    color: p.type === "workflow" ? "var(--brand-blue)" : "var(--color-accent-positive)",
-                    border: `1px solid ${p.type === "workflow" ? "#b3d9f7" : "#b8e6b0"}`,
-                  }}>
+                  <Badge tone={p.type === "workflow" ? "brand" : "positive"}>
                     {p.type === "workflow" ? "Проц." : "Услуга"}
-                  </span>
+                  </Badge>
                   <span style={{ fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</span>
                 </div>
                 <span style={{ fontFamily: "MTS Compact", fontSize: "11px", color: "var(--color-text-tertiary)", flexShrink: 0, marginLeft: "12px" }}>{p.domain_id}</span>
               </div>
             ))}
             {processes.length > 6 && (
-              <button onClick={() => router.push("/processes/edit/processes")} style={{ ...linkBtn, padding: "4px 0", fontSize: "13px" }}>
-                Ещё {processes.length - 6} процессов →
-              </button>
+              <LinkButton
+                onClick={() => router.push("/processes/edit/processes")}
+                iconRight={<Icon name="ArrowRightSize24StyleOutline" size={14} />}
+                style={{ padding: "4px 0", fontSize: "13px" }}
+              >
+                Ещё {processes.length - 6} процессов
+              </LinkButton>
             )}
           </div>
         )}
@@ -285,35 +280,3 @@ export default function ProcessesEditPage() {
     </div>
   );
 }
-
-const primaryBtn: React.CSSProperties = {
-  padding: "7px 14px",
-  background: "var(--brand-blue)",
-  color: "#fff",
-  border: "none",
-  borderRadius: "var(--radius-l)",
-  fontFamily: "MTS Compact",
-  fontSize: "13px",
-  cursor: "pointer",
-};
-
-const secondaryBtn: React.CSSProperties = {
-  padding: "7px 14px",
-  background: "var(--color-background-secondary)",
-  color: "var(--color-text-primary)",
-  border: "none",
-  borderRadius: "var(--radius-l)",
-  fontFamily: "MTS Compact",
-  fontSize: "13px",
-  cursor: "pointer",
-};
-
-const linkBtn: React.CSSProperties = {
-  fontFamily: "MTS Compact",
-  fontSize: "14px",
-  color: "var(--brand-blue)",
-  background: "none",
-  border: "none",
-  cursor: "pointer",
-  padding: 0,
-};
