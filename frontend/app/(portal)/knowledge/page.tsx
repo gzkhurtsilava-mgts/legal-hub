@@ -6,9 +6,11 @@ import { useSession } from "next-auth/react";
 import { Spinner } from "@mts-ds/granat2-react-spinner";
 import { Card } from "@/components/GranatCard";
 import { useSections, useSearch, useFavorites } from "@/lib/api/knowledge";
+import { Icon } from "@/components/icons";
 import { SearchBig } from "@/components/knowledge/SearchBig";
 import { SectionCard } from "@/components/knowledge/SectionCard";
 import { ItemCard } from "@/components/knowledge/ItemCard";
+import { Button } from "@/components/ui";
 
 export default function KnowledgePage() {
   const router = useRouter();
@@ -37,12 +39,14 @@ export default function KnowledgePage() {
           </h1>
         </div>
         {isAdmin && (
-          <button
+          <Button
+            variant="secondary"
             onClick={() => router.push("/knowledge/admin/sections")}
-            style={{ padding: "8px 16px", background: "var(--color-background-secondary)", color: "var(--color-text-secondary)", border: "none", borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "13px", cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}
+            icon={<Icon name="SettingsSize24StyleOutline" size={15} />}
+            style={{ flexShrink: 0 }}
           >
-            ⚙ Разделы
-          </button>
+            Разделы
+          </Button>
         )}
       </div>
       <p style={{
@@ -102,11 +106,12 @@ export default function KnowledgePage() {
                 device="desktop"
                 size="m"
                 cornerRadius={32}
+                className="ui-cardlink"
                 onClick={() => router.push("/knowledge/favorites")}
-                style={{ cursor: "pointer", padding: "24px" }}
+                style={{ padding: "24px" }}
               >
-                <div style={{ width: "48px", height: "48px", borderRadius: "var(--radius-m)", background: "var(--color-background-secondary)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px", fontSize: "24px" }}>
-                  ⭐
+                <div style={{ width: "48px", height: "48px", borderRadius: "var(--radius-m)", background: "var(--color-background-secondary)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px" }}>
+                  <Icon name="StarSize24StyleFill" size={24} style={{ color: "#FFB800" }} />
                 </div>
                 <p style={{ fontFamily: "MTS Wide", fontWeight: 700, fontSize: "15px", color: "var(--color-text-primary)", marginBottom: "8px", lineHeight: 1.3 }}>
                   Избранное
