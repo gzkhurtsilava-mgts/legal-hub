@@ -20,7 +20,7 @@ import { TagPicker } from "@/components/knowledge/TagPicker";
 import { ConfirmModal } from "@/components/knowledge/editors/ConfirmModal";
 import { useDocumentVersions } from "@/lib/api/knowledge";
 import { Icon } from "@/components/icons";
-import { Button, LinkButton } from "@/components/ui";
+import { Button, LinkButton, Checkbox } from "@/components/ui";
 
 const EDITOR_ROLES = ["admin", "lawyer"];
 
@@ -270,16 +270,12 @@ export default function EditItemPage() {
       {item.item_type === "article" && (
         <>
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "14px" }}>
-            <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
-              <input
-                type="checkbox"
-                checked={tocEnabled}
-                onChange={(e) => setTocEnabled(e.target.checked)}
-              />
-              <span style={{ fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-text-secondary)" }}>
-                Показывать оглавление
-              </span>
-            </label>
+            <Checkbox
+              checked={tocEnabled}
+              onChange={setTocEnabled}
+              label="Показывать оглавление"
+              style={{ fontSize: "13px", color: "var(--color-text-secondary)" }}
+            />
           </div>
           <ArticleEditor
             initialContent={articleData?.content ?? null}
@@ -312,11 +308,25 @@ export default function EditItemPage() {
                 ))}
               </div>
             )}
-            <label style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "8px 16px", background: "var(--color-background-secondary)", borderRadius: "var(--radius-l)", cursor: "pointer", fontFamily: "MTS Compact", fontSize: "13px" }}>
-              + Прикрепить файл
+            <label
+              className="ui-dropzone"
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                if (e.dataTransfer.files?.length) {
+                  handleAttachmentUpload({ target: { files: e.dataTransfer.files } } as unknown as React.ChangeEvent<HTMLInputElement>);
+                }
+              }}
+            >
+              <Icon name="DownloadSize24StyleOutline" size={28} style={{ color: "var(--color-icons-brand)" }} />
+              <span style={{ fontFamily: "MTS Compact", fontSize: "14px", fontWeight: 500, color: "var(--color-text-primary)" }}>
+                Перетащите файл или нажмите для выбора
+              </span>
+              <span style={{ fontFamily: "MTS Compact", fontSize: "12px", color: "var(--color-text-tertiary)" }}>
+                {uploadAttachment.isPending ? "Загрузка…" : "Любой документ до 20 МБ"}
+              </span>
               <input type="file" style={{ display: "none" }} onChange={handleAttachmentUpload} disabled={uploadAttachment.isPending} />
             </label>
-            {uploadAttachment.isPending && <span style={{ fontFamily: "MTS Compact", fontSize: "12px", color: "var(--color-text-tertiary)", marginLeft: "8px" }}>Загрузка…</span>}
           </div>
         </>
       )}

@@ -619,6 +619,23 @@
 .ui-toolbtn.is-active { background: var(--brand-blue); color: #fff; }
 .ui-toolbtn:disabled { opacity: 0.4; cursor: default; }
 
+/* — Drop-зона для файлов (пунктир + hover) — */
+.ui-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 20px;
+  text-align: center;
+  cursor: pointer;
+  background: var(--color-background-secondary);
+  border: 1.5px dashed var(--color-control-stroke);
+  border-radius: var(--radius-l);
+  transition: background var(--duration-fast) var(--ease-standard),
+              border-color var(--duration-fast) var(--ease-standard);
+}
+.ui-dropzone:hover { background: var(--color-brand-subtle); border-color: var(--brand-blue); }
+
 /* — Кликабельная карточка (hover: подъём + тень) — */
 .ui-cardlink {
   cursor: pointer;
@@ -687,6 +704,31 @@
 .ui-select-opt[aria-selected="true"] {
   background: var(--color-brand-subtle);
   color: var(--color-text-brand);
+}
+/* тонкий темизированный скроллбар панели опций */
+.ui-select-panel { scrollbar-width: thin; scrollbar-color: var(--color-control-stroke) transparent; }
+.ui-select-panel::-webkit-scrollbar { width: 10px; }
+.ui-select-panel::-webkit-scrollbar-track { background: transparent; }
+.ui-select-panel::-webkit-scrollbar-thumb {
+  background: var(--color-control-stroke);
+  border-radius: 6px;
+  border: 3px solid var(--color-background-primary);
+}
+.ui-select-panel::-webkit-scrollbar-thumb:hover { background: var(--color-control-stroke-hover); }
+
+/* ===== Текстовые поля: синяя обводка при фокусе (по дизайн-системе) =====
+   Затрагивает только поля, у которых есть видимая рамка (инлайн-инпуты форм);
+   у @mts-ds-полей border: none, поэтому правило их не задевает. */
+input[type="text"]:focus,
+input[type="url"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="search"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus,
+input:not([type]):focus,
+textarea:focus {
+  border-color: var(--brand-blue) !important;
 }
 /* вариант под плотные формы со стилем поля `inp` (фон secondary, бордер lower) */
 .ui-select--inp {

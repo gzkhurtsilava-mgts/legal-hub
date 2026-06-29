@@ -345,3 +345,116 @@ export function Badge({ tone = "neutral", children, icon, style }: BadgeProps) {
     </span>
   );
 }
+
+/* ===================== SegmentedControl ===================== */
+
+interface SegmentOption {
+  value: string;
+  label: string;
+}
+
+interface SegmentedControlProps {
+  segments: SegmentOption[];
+  value: string;
+  onChange: (value: string) => void;
+  size?: "s" | "m";
+  fullWidth?: boolean;
+  style?: CSSProperties;
+}
+
+export function SegmentedControl({ segments, value, onChange, size = "m", fullWidth, style }: SegmentedControlProps) {
+  const heights = { s: 36, m: 44 };
+  const pad = { s: 3, m: 4 };
+  return (
+    <div
+      style={{
+        display: "inline-flex",
+        gap: "2px",
+        padding: `${pad[size]}px`,
+        background: "var(--color-background-secondary)",
+        borderRadius: "var(--radius-m)",
+        width: fullWidth ? "100%" : "auto",
+        ...style,
+      }}
+    >
+      {segments.map((s) => {
+        const active = s.value === value;
+        return (
+          <button
+            key={s.value}
+            type="button"
+            onClick={() => onChange(s.value)}
+            style={{
+              flex: fullWidth ? 1 : undefined,
+              height: heights[size] - pad[size] * 2,
+              padding: "0 16px",
+              border: "none",
+              borderRadius: "calc(var(--radius-m) - 3px)",
+              background: active ? "var(--color-background-primary)" : "transparent",
+              boxShadow: active ? "var(--shadow-low)" : "none",
+              color: active ? "var(--color-text-primary)" : "var(--color-text-secondary)",
+              fontFamily: "MTS Compact, sans-serif",
+              fontSize: "14px",
+              fontWeight: active ? 500 : 400,
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+              transition: "background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard)",
+            }}
+          >
+            {s.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ===================== Checkbox ===================== */
+
+interface CheckboxProps {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  label?: ReactNode;
+  disabled?: boolean;
+  style?: CSSProperties;
+}
+
+export function Checkbox({ checked, onChange, label, disabled, style }: CheckboxProps) {
+  return (
+    <label
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "10px",
+        cursor: disabled ? "not-allowed" : "pointer",
+        fontFamily: "MTS Compact, sans-serif",
+        fontSize: "14px",
+        color: disabled ? "var(--color-text-tertiary)" : "var(--color-text-primary)",
+        ...style,
+      }}
+    >
+      <span
+        onClick={() => !disabled && onChange(!checked)}
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "20px",
+          height: "20px",
+          flexShrink: 0,
+          borderRadius: "var(--radius-s)",
+          background: checked ? "var(--brand-blue)" : "transparent",
+          border: checked ? "1px solid transparent" : "1px solid var(--color-control-stroke)",
+          transition: "background var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard)",
+        }}
+      >
+        {checked && (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 12l5 5L20 7" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        )}
+      </span>
+      {label && <span>{label}</span>}
+    </label>
+  );
+}

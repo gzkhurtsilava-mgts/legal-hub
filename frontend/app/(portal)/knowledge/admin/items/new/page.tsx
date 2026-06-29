@@ -6,8 +6,7 @@ import { useSession } from "next-auth/react";
 import { useSections, useCreateKnowledgeItem, useTags } from "@/lib/api/knowledge";
 import type { ItemType, Visibility, Tag } from "@/lib/api/knowledge";
 import { TagPicker } from "@/components/knowledge/TagPicker";
-import { Icon } from "@/components/icons";
-import { Button, LinkButton, Select } from "@/components/ui";
+import { Button, LinkButton, Select, SegmentedControl } from "@/components/ui";
 
 const TYPE_OPTIONS: { value: ItemType; label: string; desc: string }[] = [
   { value: "article", label: "Статья", desc: "Текстовый материал с редактором" },
@@ -95,24 +94,15 @@ export default function NewItemPage() {
         {/* Type selector */}
         <div>
           <label style={labelStyle}>Тип материала</label>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginTop: "8px" }}>
-            {TYPE_OPTIONS.map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => handleTypeChange(opt.value)}
-                style={{
-                  padding: "12px 16px", border: "1.5px solid",
-                  borderColor: itemType === opt.value ? "var(--brand-blue)" : "var(--color-background-secondary)",
-                  borderRadius: "var(--radius-m)",
-                  background: itemType === opt.value ? "var(--brand-blue-tint)" : "var(--color-background-primary)",
-                  cursor: "pointer", textAlign: "left",
-                }}
-              >
-                <p style={{ fontFamily: "MTS Compact", fontSize: "14px", fontWeight: 500, color: itemType === opt.value ? "var(--brand-blue)" : "var(--color-text-primary)", margin: 0 }}>{opt.label}</p>
-                <p style={{ fontFamily: "MTS Compact", fontSize: "12px", color: "var(--color-text-tertiary)", margin: "2px 0 0" }}>{opt.desc}</p>
-              </button>
-            ))}
+          <div style={{ marginTop: "8px" }}>
+            <SegmentedControl
+              segments={TYPE_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
+              value={itemType}
+              onChange={(v) => handleTypeChange(v as ItemType)}
+            />
+            <p style={{ fontFamily: "MTS Compact", fontSize: "12px", color: "var(--color-text-tertiary)", margin: "8px 0 0" }}>
+              {TYPE_OPTIONS.find((o) => o.value === itemType)?.desc}
+            </p>
           </div>
         </div>
 
@@ -184,25 +174,12 @@ export default function NewItemPage() {
         {/* Visibility */}
         <div>
           <label style={labelStyle}>Доступ</label>
-          <div style={{ display: "flex", gap: "10px", marginTop: "8px" }}>
-            {([["public", "Все сотрудники"], ["bpo_only", "Только БПО"]] as const).map(([val, lbl]) => (
-              <button
-                key={val}
-                type="button"
-                onClick={() => setVisibility(val)}
-                style={{
-                  padding: "8px 16px", border: "1.5px solid",
-                  borderColor: visibility === val ? "var(--brand-blue)" : "var(--color-background-secondary)",
-                  borderRadius: "var(--radius-l)",
-                  background: visibility === val ? "var(--brand-blue-tint)" : "transparent",
-                  fontFamily: "MTS Compact", fontSize: "14px",
-                  color: visibility === val ? "var(--brand-blue)" : "var(--color-text-primary)",
-                  cursor: "pointer",
-                }}
-              >
-                {lbl}
-              </button>
-            ))}
+          <div style={{ marginTop: "8px" }}>
+            <SegmentedControl
+              segments={[{ value: "public", label: "Все сотрудники" }, { value: "bpo_only", label: "Только БПО" }]}
+              value={visibility}
+              onChange={(v) => setVisibility(v as Visibility)}
+            />
           </div>
         </div>
 
@@ -210,11 +187,7 @@ export default function NewItemPage() {
 
         <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
           <Button type="button" variant="secondary" onClick={() => router.back()}>Отмена</Button>
-          <Button
-            type="submit"
-            disabled={createItem.isPending}
-            iconRight={createItem.isPending ? undefined : <Icon name="ArrowRightSize24StyleOutline" size={16} />}
-          >
+          <Button type="submit" disabled={createItem.isPending}>
             {createItem.isPending ? "Создание…" : "Создать"}
           </Button>
         </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import type { Tag } from "@/lib/api/knowledge";
+import { Icon } from "@/components/icons";
 
 interface Props {
   selectedTags: Tag[];
@@ -51,13 +52,14 @@ export function TagPicker({ selectedTags, availableTags, onAdd, onRemove, disabl
             {!disabled && (
               <button
                 onClick={() => onRemove(tag.id)}
+                aria-label="Убрать тему"
                 style={{
                   background: "none", border: "none", cursor: "pointer",
                   color: "inherit", padding: "0 0 0 2px", lineHeight: 1,
-                  fontSize: "14px",
+                  display: "inline-flex", alignItems: "center",
                 }}
               >
-                ×
+                <Icon name="CrossSize16StyleOutline" size={13} />
               </button>
             )}
           </span>
@@ -67,14 +69,15 @@ export function TagPicker({ selectedTags, availableTags, onAdd, onRemove, disabl
           <button
             onClick={() => setOpen(!open)}
             style={{
-              padding: "3px 10px", borderRadius: "999px",
-              background: "none",
-              border: "1.5px dashed var(--color-text-tertiary)",
+              display: "inline-flex", alignItems: "center", gap: "4px",
+              padding: "3px 10px 3px 8px", borderRadius: "999px",
+              background: "var(--color-brand-subtle)",
+              border: "1px dashed var(--brand-blue)",
               fontFamily: "MTS Compact", fontSize: "12px",
-              color: "var(--color-text-secondary)", cursor: "pointer",
+              color: "var(--color-text-brand)", cursor: "pointer",
             }}
           >
-            + Тема
+            <Icon name="PlusSize24StyleOutline" size={13} />Тема
           </button>
         )}
       </div>

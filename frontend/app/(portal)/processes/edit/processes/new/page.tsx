@@ -215,11 +215,7 @@ export default function NewProcessPage() {
         )}
 
         <div style={{ display: "flex", gap: "10px" }}>
-          <Button
-            type="submit"
-            disabled={createProcess.isPending}
-            iconRight={createProcess.isPending ? undefined : <Icon name="ArrowRightSize24StyleOutline" size={16} />}
-          >
+          <Button type="submit" disabled={createProcess.isPending}>
             {createProcess.isPending ? "Создание…" : "Создать и перейти к редактированию"}
           </Button>
           <Button type="button" variant="secondary" onClick={() => router.push("/processes/edit/processes")}>
