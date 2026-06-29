@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Spinner } from "@mts-ds/granat2-react-spinner";
 import { Icon } from "@/components/icons";
-import { LinkButton, Select } from "@/components/ui";
+import { LinkButton, Select, Button, IconButton, DatePicker } from "@/components/ui";
 import {
   useProcess,
   useUpdateProcess,
@@ -385,7 +385,7 @@ export default function EditProcessPage() {
       {/* Sidebar */}
       <div style={{ width: "180px", flexShrink: 0 }}>
         <div style={{ position: "sticky", top: "80px" }}>
-          <p style={{ fontFamily: "MTS Compact", fontSize: "11px", fontWeight: 500, color: "var(--color-text-tertiary)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 8px" }}>
+          <p style={{ fontFamily: "MTS Compact", fontSize: "12px", fontWeight: 500, color: "var(--color-text-tertiary)", margin: "0 0 8px" }}>
             Разделы
           </p>
           {sections.map((s) => (
@@ -394,12 +394,12 @@ export default function EditProcessPage() {
             </a>
           ))}
           <div style={{ borderTop: "1px solid var(--color-background-lower)", marginTop: "12px", paddingTop: "12px" }}>
-            <button
+            <LinkButton
               onClick={() => router.push(`/processes/${proc.id}`)}
-              style={{ ...navLink, display: "inline-flex", alignItems: "center", gap: "4px", textAlign: "left", background: "none", border: "none", cursor: "pointer", color: "var(--brand-blue)" }}
+              iconRight={<Icon name="ArrowRightSize24StyleOutline" size={14} />}
             >
-              Просмотр<Icon name="ArrowRightSize24StyleOutline" size={14} />
-            </button>
+              Просмотр
+            </LinkButton>
           </div>
         </div>
       </div>
@@ -439,7 +439,8 @@ export default function EditProcessPage() {
               </p>
             </div>
             {canEdit && !proc.lifecycle_ref_id && (
-              <button
+              <Button
+                variant="secondary"
                 onClick={async () => {
                   if (!confirm("Создать to-be версию этого процесса?")) return;
                   try {
@@ -448,10 +449,9 @@ export default function EditProcessPage() {
                   } catch (err) { alert((err as Error)?.message); }
                 }}
                 disabled={createToBe.isPending}
-                style={secondaryBtn}
               >
-                {createToBe.isPending ? "Создание…" : <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>Создать To-Be<Icon name="ArrowRightSize24StyleOutline" size={14} /></span>}
-              </button>
+                {createToBe.isPending ? "Создание…" : "Создать To-Be"}
+              </Button>
             )}
           </div>
         </div>
@@ -506,17 +506,17 @@ export default function EditProcessPage() {
             <div style={grid2}>
               <div>
                 <label style={lbl}>Последнее обновление</label>
-                <input type="date" value={lastUpdated} onChange={(e) => setLastUpdated(e.target.value)} disabled={!canEdit} style={inp} />
+                <DatePicker value={lastUpdated} onChange={(e) => setLastUpdated(e.target.value)} disabled={!canEdit} className="ui-select--inp" />
               </div>
               <div>
                 <label style={lbl}>Следующий пересмотр</label>
-                <input type="date" value={nextReview} onChange={(e) => setNextReview(e.target.value)} disabled={!canEdit} style={inp} />
+                <DatePicker value={nextReview} onChange={(e) => setNextReview(e.target.value)} disabled={!canEdit} className="ui-select--inp" />
               </div>
             </div>
             {baseError && <p style={errorText}>{baseError}</p>}
             {canEdit && (
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <button type="submit" disabled={updateBase.isPending} style={saveBtn}>Сохранить</button>
+                <button type="submit" disabled={updateBase.isPending} className="ui-btn ui-btn--primary ui-btn--s">Сохранить</button>
                 {baseSaved && <span style={savedText}><Icon name="CheckCircleSize24StyleOutline" size={14} />Сохранено</span>}
               </div>
             )}
@@ -552,7 +552,7 @@ export default function EditProcessPage() {
             </div>
             {canEdit && (
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <button onClick={saveSirporc} disabled={updateBase.isPending} style={saveBtn}>Сохранить</button>
+                <button onClick={saveSirporc} disabled={updateBase.isPending} className="ui-btn ui-btn--primary ui-btn--s">Сохранить</button>
                 {sirporcSaved && <span style={savedText}><Icon name="CheckCircleSize24StyleOutline" size={14} />Сохранено</span>}
               </div>
             )}
@@ -626,7 +626,7 @@ export default function EditProcessPage() {
             )}
             {canEdit && (
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <button onClick={saveBus} disabled={updateBus.isPending} style={saveBtn}>Сохранить</button>
+                <button onClick={saveBus} disabled={updateBus.isPending} className="ui-btn ui-btn--primary ui-btn--s">Сохранить</button>
                 {buSaved && <span style={savedText}><Icon name="CheckCircleSize24StyleOutline" size={14} />Сохранено</span>}
               </div>
             )}
@@ -641,7 +641,7 @@ export default function EditProcessPage() {
               <div key={s.system_id} style={tagRow}>
                 <span style={tag}>{s.system_name}</span>
                 {canEdit && (
-                  <button onClick={() => setSystems(systems.filter(x => x.system_id !== s.system_id))} style={removeBtn}><Icon name="CrossSize16StyleOutline" size={14} /></button>
+                  <button onClick={() => setSystems(systems.filter(x => x.system_id !== s.system_id))} className="ui-iconbtn"><Icon name="CrossSize16StyleOutline" size={14} /></button>
                 )}
               </div>
             ))}
@@ -663,7 +663,7 @@ export default function EditProcessPage() {
                   }}
                 />
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <button onClick={saveSystems} disabled={updateSystems.isPending} style={saveBtn}>Сохранить</button>
+                  <button onClick={saveSystems} disabled={updateSystems.isPending} className="ui-btn ui-btn--primary ui-btn--s">Сохранить</button>
                   {sysSaved && <span style={savedText}><Icon name="CheckCircleSize24StyleOutline" size={14} />Сохранено</span>}
                 </div>
               </>
@@ -680,7 +680,7 @@ export default function EditProcessPage() {
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%" }}>
                   <span style={tag}>{r.reg_name}</span>
                   {canEdit && (
-                    <button onClick={() => setRegulations(regulations.filter(x => x.reg_id !== r.reg_id))} style={removeBtn}><Icon name="CrossSize16StyleOutline" size={14} /></button>
+                    <button onClick={() => setRegulations(regulations.filter(x => x.reg_id !== r.reg_id))} className="ui-iconbtn"><Icon name="CrossSize16StyleOutline" size={14} /></button>
                   )}
                 </div>
                 {canEdit && (
@@ -719,7 +719,7 @@ export default function EditProcessPage() {
                   }}
                 />
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <button onClick={saveRegulations} disabled={updateRegulations.isPending} style={saveBtn}>Сохранить</button>
+                  <button onClick={saveRegulations} disabled={updateRegulations.isPending} className="ui-btn ui-btn--primary ui-btn--s">Сохранить</button>
                   {regSaved && <span style={savedText}><Icon name="CheckCircleSize24StyleOutline" size={14} />Сохранено</span>}
                 </div>
               </>
@@ -736,7 +736,7 @@ export default function EditProcessPage() {
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
                   <span style={tag}>{r.risk_name}</span>
                   {canEdit && (
-                    <button onClick={() => setRisks(risks.filter(x => x.risk_id !== r.risk_id))} style={removeBtn}><Icon name="CrossSize16StyleOutline" size={14} /></button>
+                    <button onClick={() => setRisks(risks.filter(x => x.risk_id !== r.risk_id))} className="ui-iconbtn"><Icon name="CrossSize16StyleOutline" size={14} /></button>
                   )}
                 </div>
                 {canEdit && (
@@ -787,7 +787,7 @@ export default function EditProcessPage() {
                   }}
                 />
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <button onClick={saveRisks} disabled={updateRisks.isPending} style={saveBtn}>Сохранить</button>
+                  <button onClick={saveRisks} disabled={updateRisks.isPending} className="ui-btn ui-btn--primary ui-btn--s">Сохранить</button>
                   {riskSaved && <span style={savedText}><Icon name="CheckCircleSize24StyleOutline" size={14} />Сохранено</span>}
                 </div>
               </>
@@ -827,7 +827,7 @@ export default function EditProcessPage() {
                           ))}
                           {canEdit && (
                             <td style={td}>
-                              <button onClick={() => setRaci(raci.filter((_, j) => j !== i))} style={removeBtn}><Icon name="CrossSize16StyleOutline" size={14} /></button>
+                              <button onClick={() => setRaci(raci.filter((_, j) => j !== i))} className="ui-iconbtn"><Icon name="CrossSize16StyleOutline" size={14} /></button>
                             </td>
                           )}
                         </tr>
@@ -856,7 +856,7 @@ export default function EditProcessPage() {
                       <option key={r.id} value={r.id}>{r.name}</option>
                     ))}
                   </Select>
-                  <button onClick={saveRaci} disabled={updateRaci.isPending} style={saveBtn}>Сохранить</button>
+                  <button onClick={saveRaci} disabled={updateRaci.isPending} className="ui-btn ui-btn--primary ui-btn--s">Сохранить</button>
                   {raciSaved && <span style={savedText}><Icon name="CheckCircleSize24StyleOutline" size={14} />Сохранено</span>}
                 </div>
               )}
@@ -916,13 +916,13 @@ export default function EditProcessPage() {
                         <option key={s} value={s}>{METRIC_STATUS_LABELS[s]}</option>
                       ))}
                     </Select>
-                    {canEdit && <button onClick={() => setMetrics(metrics.filter((_, j) => j !== i))} style={removeBtn}><Icon name="CrossSize16StyleOutline" size={14} /></button>}
+                    {canEdit && <button onClick={() => setMetrics(metrics.filter((_, j) => j !== i))} className="ui-iconbtn"><Icon name="CrossSize16StyleOutline" size={14} /></button>}
                   </div>
                 ))}
                 {canEdit && (
                   <button
                     onClick={() => setMetrics([...metrics, { name: "", value: null, unit: null, metric_status: "no_data" }])}
-                    style={addBtn}
+                    className="ui-btn ui-btn--secondary ui-btn--xs"
                   >
                     + Добавить метрику
                   </button>
@@ -930,7 +930,7 @@ export default function EditProcessPage() {
               </div>
               {canEdit && (
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <button onClick={saveMetrics} disabled={updateMetrics.isPending} style={saveBtn}>Сохранить</button>
+                  <button onClick={saveMetrics} disabled={updateMetrics.isPending} className="ui-btn ui-btn--primary ui-btn--s">Сохранить</button>
                   {metricsSaved && <span style={savedText}><Icon name="CheckCircleSize24StyleOutline" size={14} />Сохранено</span>}
                 </div>
               )}
@@ -962,18 +962,18 @@ export default function EditProcessPage() {
                     <input value={c.impact ?? ""} onChange={(e) => setAutoCandidates(autoCandidates.map((x, j) => j === i ? { ...x, impact: e.target.value } : x))} disabled={!canEdit} placeholder="Эффект" style={{ ...inp, flex: 1 }} />
                     <input value={c.effort ?? ""} onChange={(e) => setAutoCandidates(autoCandidates.map((x, j) => j === i ? { ...x, effort: e.target.value } : x))} disabled={!canEdit} placeholder="Усилия" style={{ ...inp, flex: 1 }} />
                     <input type="number" value={c.score ?? ""} onChange={(e) => setAutoCandidates(autoCandidates.map((x, j) => j === i ? { ...x, score: e.target.value === "" ? null : Number(e.target.value) } : x))} disabled={!canEdit} placeholder="Балл" style={{ ...inp, width: "60px" }} />
-                    {canEdit && <button onClick={() => setAutoCandidates(autoCandidates.filter((_, j) => j !== i))} style={removeBtn}><Icon name="CrossSize16StyleOutline" size={14} /></button>}
+                    {canEdit && <button onClick={() => setAutoCandidates(autoCandidates.filter((_, j) => j !== i))} className="ui-iconbtn"><Icon name="CrossSize16StyleOutline" size={14} /></button>}
                   </div>
                 ))}
                 {canEdit && (
-                  <button onClick={() => setAutoCandidates([...autoCandidates, { idea: "", impact: null, effort: null, score: null }])} style={addBtn}>
+                  <button onClick={() => setAutoCandidates([...autoCandidates, { idea: "", impact: null, effort: null, score: null }])} className="ui-btn ui-btn--secondary ui-btn--xs">
                     + Добавить
                   </button>
                 )}
               </div>
               {canEdit && (
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <button onClick={savePainAuto} disabled={updateBase.isPending} style={saveBtn}>Сохранить</button>
+                  <button onClick={savePainAuto} disabled={updateBase.isPending} className="ui-btn ui-btn--primary ui-btn--s">Сохранить</button>
                   {painAutoSaved && <span style={savedText}><Icon name="CheckCircleSize24StyleOutline" size={14} />Сохранено</span>}
                 </div>
               )}
@@ -1005,7 +1005,7 @@ export default function EditProcessPage() {
               </div>
               {canEdit && (
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <button onClick={saveCompetencies} disabled={updateBase.isPending} style={saveBtn}>Сохранить</button>
+                  <button onClick={saveCompetencies} disabled={updateBase.isPending} className="ui-btn ui-btn--primary ui-btn--s">Сохранить</button>
                   {compSaved && <span style={savedText}><Icon name="CheckCircleSize24StyleOutline" size={14} />Сохранено</span>}
                 </div>
               )}
@@ -1030,7 +1030,7 @@ export default function EditProcessPage() {
                         placeholder="Вопрос / точка принятия решения"
                         style={{ ...inp, flex: 1 }}
                       />
-                      {canEdit && <button onClick={() => setDecisionPoints(decisionPoints.filter((_, j) => j !== i))} style={removeBtn}><Icon name="CrossSize16StyleOutline" size={14} /></button>}
+                      {canEdit && <button onClick={() => setDecisionPoints(decisionPoints.filter((_, j) => j !== i))} className="ui-iconbtn"><Icon name="CrossSize16StyleOutline" size={14} /></button>}
                     </div>
                     <ListEditor
                       items={dp.factors}
@@ -1041,7 +1041,7 @@ export default function EditProcessPage() {
                   </div>
                 ))}
                 {canEdit && (
-                  <button onClick={() => setDecisionPoints([...decisionPoints, { decision: "", factors: [] }])} style={addBtn}>
+                  <button onClick={() => setDecisionPoints([...decisionPoints, { decision: "", factors: [] }])} className="ui-btn ui-btn--secondary ui-btn--xs">
                     + Добавить decision point
                   </button>
                 )}
@@ -1057,18 +1057,18 @@ export default function EditProcessPage() {
                     </Select>
                     <input value={c.impact} onChange={(e) => setImprovementCandidates(improvementCandidates.map((x, j) => j === i ? { ...x, impact: e.target.value } : x))} disabled={!canEdit} placeholder="Эффект" style={{ ...inp, flex: 1 }} />
                     <input value={c.effort} onChange={(e) => setImprovementCandidates(improvementCandidates.map((x, j) => j === i ? { ...x, effort: e.target.value } : x))} disabled={!canEdit} placeholder="Усилия" style={{ ...inp, flex: 1 }} />
-                    {canEdit && <button onClick={() => setImprovementCandidates(improvementCandidates.filter((_, j) => j !== i))} style={removeBtn}><Icon name="CrossSize16StyleOutline" size={14} /></button>}
+                    {canEdit && <button onClick={() => setImprovementCandidates(improvementCandidates.filter((_, j) => j !== i))} className="ui-iconbtn"><Icon name="CrossSize16StyleOutline" size={14} /></button>}
                   </div>
                 ))}
                 {canEdit && (
-                  <button onClick={() => setImprovementCandidates([...improvementCandidates, { idea: "", type: "", impact: "", effort: "", score: "" }])} style={addBtn}>
+                  <button onClick={() => setImprovementCandidates([...improvementCandidates, { idea: "", type: "", impact: "", effort: "", score: "" }])} className="ui-btn ui-btn--secondary ui-btn--xs">
                     + Добавить
                   </button>
                 )}
               </div>
               {canEdit && (
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <button onClick={saveDecision} disabled={updateBase.isPending} style={saveBtn}>Сохранить</button>
+                  <button onClick={saveDecision} disabled={updateBase.isPending} className="ui-btn ui-btn--primary ui-btn--s">Сохранить</button>
                   {decisionSaved && <span style={savedText}><Icon name="CheckCircleSize24StyleOutline" size={14} />Сохранено</span>}
                 </div>
               )}
@@ -1107,16 +1107,16 @@ export default function EditProcessPage() {
                 </Select>
                 <input value={c.target_process_id} onChange={(e) => setConnections(connections.map((x, j) => j === i ? { ...x, target_process_id: e.target.value } : x))} disabled={!canEdit} placeholder="ID процесса" style={{ ...inp, flex: 1, fontFamily: "monospace" }} />
                 <input value={c.note} onChange={(e) => setConnections(connections.map((x, j) => j === i ? { ...x, note: e.target.value } : x))} disabled={!canEdit} placeholder="Примечание" style={{ ...inp, flex: 2 }} />
-                {canEdit && <button onClick={() => setConnections(connections.filter((_, j) => j !== i))} style={removeBtn}><Icon name="CrossSize16StyleOutline" size={14} /></button>}
+                {canEdit && <button onClick={() => setConnections(connections.filter((_, j) => j !== i))} className="ui-iconbtn"><Icon name="CrossSize16StyleOutline" size={14} /></button>}
               </div>
             ))}
             {canEdit && (
               <>
-                <button onClick={() => setConnections([...connections, { direction: "related", target_process_id: "", note: "" }])} style={addBtn}>
+                <button onClick={() => setConnections([...connections, { direction: "related", target_process_id: "", note: "" }])} className="ui-btn ui-btn--secondary ui-btn--xs">
                   + Добавить связь
                 </button>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <button onClick={saveConnections} disabled={updateBase.isPending} style={saveBtn}>Сохранить</button>
+                  <button onClick={saveConnections} disabled={updateBase.isPending} className="ui-btn ui-btn--primary ui-btn--s">Сохранить</button>
                   {connSaved && <span style={savedText}><Icon name="CheckCircleSize24StyleOutline" size={14} />Сохранено</span>}
                 </div>
               </>
@@ -1147,7 +1147,7 @@ export default function EditProcessPage() {
                   placeholder="Описание изменения..."
                   style={{ ...inp, flex: 1 }}
                 />
-                <button onClick={addChangelogEntry} disabled={updateBase.isPending || !newChangeNote.trim()} style={saveBtn}>
+                <button onClick={addChangelogEntry} disabled={updateBase.isPending || !newChangeNote.trim()} className="ui-btn ui-btn--primary ui-btn--s">
                   Добавить
                 </button>
                 {changelogSaved && <span style={savedText}><Icon name="CheckCircleSize24StyleOutline" size={14} /></span>}
@@ -1298,7 +1298,7 @@ function ActivitiesSection({
                 Опциональная
               </label>
             )}
-            <button onClick={handleAddActivity} disabled={createActivity.isPending} style={saveBtn}>
+            <button onClick={handleAddActivity} disabled={createActivity.isPending} className="ui-btn ui-btn--primary ui-btn--s">
               {createActivity.isPending ? "…" : "+ Добавить"}
             </button>
           </div>
@@ -1351,8 +1351,8 @@ function ActivityRow({
       {/* Order controls */}
       {canEdit && (
         <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
-          <button onClick={() => onMove(idx, -1)} disabled={idx === 0} style={{ ...removeBtn, padding: "0 4px", display: "flex", alignItems: "center" }}><Icon name="ArrowUpSize24StyleOutline" size={14} /></button>
-          <button onClick={() => onMove(idx, 1)} disabled={idx === total - 1} style={{ ...removeBtn, padding: "0 4px", display: "flex", alignItems: "center" }}><Icon name="ArrowDownSize24StyleOutline" size={14} /></button>
+          <button onClick={() => onMove(idx, -1)} disabled={idx === 0} className="ui-iconbtn"><Icon name="ArrowUpSize24StyleOutline" size={14} /></button>
+          <button onClick={() => onMove(idx, 1)} disabled={idx === total - 1} className="ui-iconbtn"><Icon name="ArrowDownSize24StyleOutline" size={14} /></button>
         </div>
       )}
 
@@ -1403,14 +1403,14 @@ function ActivityRow({
       {/* Actions */}
       {canEdit && (
         <>
-          <button onClick={onEdit} style={{ ...removeBtn, color: "var(--brand-blue)" }}>Изм.</button>
+          <LinkButton onClick={onEdit} style={{ fontSize: "13px" }}>Изм.</LinkButton>
           {confirming ? (
             <>
-              <button onClick={async () => { try { await del.mutateAsync(); } catch (e) { alert((e as Error).message); setConfirming(false); } }} style={{ ...removeBtn, color: "var(--color-accent-negative)" }}>Удалить</button>
-              <button onClick={() => setConfirming(false)} style={removeBtn}>Отмена</button>
+              <Button size="xs" variant="negative" onClick={async () => { try { await del.mutateAsync(); } catch (e) { alert((e as Error).message); setConfirming(false); } }}>Удалить</Button>
+              <Button size="xs" variant="secondary" onClick={() => setConfirming(false)}>Отмена</Button>
             </>
           ) : (
-            <button onClick={() => setConfirming(true)} style={removeBtn}><Icon name="CrossSize16StyleOutline" size={14} /></button>
+            <IconButton size={28} danger label="Удалить" onClick={() => setConfirming(true)}><Icon name="CrossSize16StyleOutline" size={14} /></IconButton>
           )}
         </>
       )}
@@ -1452,7 +1452,7 @@ function ListEditor({
             style={{ ...inp, flex: 1 }}
           />
           {!disabled && (
-            <button onClick={() => onChange(items.filter((_, j) => j !== i))} style={removeBtn}><Icon name="CrossSize16StyleOutline" size={14} /></button>
+            <button onClick={() => onChange(items.filter((_, j) => j !== i))} className="ui-iconbtn"><Icon name="CrossSize16StyleOutline" size={14} /></button>
           )}
         </div>
       ))}
@@ -1469,7 +1469,7 @@ function ListEditor({
           />
           <button
             onClick={() => { if (draft.trim()) { onChange([...items, draft.trim()]); setDraft(""); } }}
-            style={addBtn}
+            className="ui-btn ui-btn--secondary ui-btn--xs"
           >
             +
           </button>
@@ -1548,7 +1548,7 @@ function RefSearchAdd<T extends { id: number; name: string }>({
           placeholder="Или создать новый..."
           style={{ ...inp, flex: 1 }}
         />
-        <button onClick={onCreateNew} disabled={!newName.trim()} style={addBtn}>
+        <button onClick={onCreateNew} disabled={!newName.trim()} className="ui-btn ui-btn--secondary ui-btn--xs">
           + Создать
         </button>
       </div>
@@ -1597,52 +1597,6 @@ const inp: React.CSSProperties = {
   borderRadius: "var(--radius-m)",
   outline: "none",
   boxSizing: "border-box",
-};
-
-const saveBtn: React.CSSProperties = {
-  padding: "8px 20px",
-  background: "var(--brand-blue)",
-  color: "#fff",
-  border: "none",
-  borderRadius: "var(--radius-l)",
-  fontFamily: "MTS Compact",
-  fontSize: "13px",
-  fontWeight: 500,
-  cursor: "pointer",
-};
-
-const secondaryBtn: React.CSSProperties = {
-  padding: "8px 16px",
-  background: "var(--color-background-secondary)",
-  color: "var(--color-text-primary)",
-  border: "none",
-  borderRadius: "var(--radius-l)",
-  fontFamily: "MTS Compact",
-  fontSize: "13px",
-  cursor: "pointer",
-};
-
-const addBtn: React.CSSProperties = {
-  padding: "6px 14px",
-  background: "var(--color-background-secondary)",
-  color: "var(--color-text-primary)",
-  border: "1px solid var(--color-background-lower)",
-  borderRadius: "var(--radius-m)",
-  fontFamily: "MTS Compact",
-  fontSize: "12px",
-  cursor: "pointer",
-  whiteSpace: "nowrap",
-};
-
-const removeBtn: React.CSSProperties = {
-  padding: "4px 8px",
-  background: "none",
-  border: "none",
-  color: "var(--color-text-tertiary)",
-  cursor: "pointer",
-  fontFamily: "MTS Compact",
-  fontSize: "13px",
-  flexShrink: 0,
 };
 
 const tag: React.CSSProperties = {
