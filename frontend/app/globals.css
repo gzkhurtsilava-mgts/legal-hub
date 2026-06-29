@@ -732,8 +732,8 @@ textarea:focus {
 }
 /* вариант под плотные формы со стилем поля `inp` (фон secondary, бордер lower) */
 .ui-select--inp {
-  height: auto;
-  padding: 8px 36px 8px 10px;
+  height: 38px;
+  padding: 0 12px;
   font-size: 13px;
   background: var(--color-background-secondary);
   border-color: var(--color-background-lower);

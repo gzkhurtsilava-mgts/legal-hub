@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Spinner } from "@mts-ds/granat2-react-spinner";
 import { useDomains, useDeleteDomain, type PmDomain } from "@/lib/api/processes";
+import { Icon } from "@/components/icons";
+import { Button, LinkButton, IconButton } from "@/components/ui";
 
 function DomainRow({ domain, onEdit }: { domain: PmDomain; onEdit: () => void }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -75,38 +77,35 @@ function DomainRow({ domain, onEdit }: { domain: PmDomain; onEdit: () => void })
         {domain.process_count} проц.
       </span>
 
-      <div style={{ display: "flex", gap: "6px", flexShrink: 0 }}>
-        <button onClick={onEdit} style={iconBtn} title="Редактировать">
-          ✏️
-        </button>
+      <div style={{ display: "flex", gap: "6px", flexShrink: 0, alignItems: "center" }}>
+        <IconButton size={32} onClick={onEdit} label="Редактировать">
+          <Icon name="EditSize24StyleOutline" size={16} />
+        </IconButton>
         {!confirmDelete ? (
-          <button
+          <IconButton
+            size={32}
+            danger
             onClick={() => setConfirmDelete(true)}
             disabled={domain.process_count > 0}
-            style={{
-              ...iconBtn,
-              color: domain.process_count > 0 ? "var(--color-text-tertiary)" : "var(--color-accent-negative)",
-              cursor: domain.process_count > 0 ? "not-allowed" : "pointer",
-            }}
+            label="Удалить"
             title={domain.process_count > 0 ? "Нельзя удалить: есть процессы" : "Удалить"}
           >
-            🗑
-          </button>
+            <Icon name="DeleteSize24StyleOutline" size={16} />
+          </IconButton>
         ) : (
           <>
-            <button
+            <Button
+              size="xs"
+              variant="negative"
               onClick={async () => {
                 await del.mutateAsync();
                 setConfirmDelete(false);
               }}
               disabled={del.isPending}
-              style={{ ...iconBtn, color: "var(--color-accent-negative)", fontWeight: 700 }}
             >
               {del.isPending ? "…" : "Удалить"}
-            </button>
-            <button onClick={() => setConfirmDelete(false)} style={iconBtn}>
-              Нет
-            </button>
+            </Button>
+            <Button size="xs" variant="secondary" onClick={() => setConfirmDelete(false)}>Нет</Button>
           </>
         )}
       </div>
@@ -127,13 +126,9 @@ export default function DomainsListPage() {
     <div style={{ padding: "32px 24px", maxWidth: "900px", margin: "0 auto" }}>
       {/* Breadcrumb */}
       <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "24px" }}>
-        <button onClick={() => router.push("/processes")} style={linkBtn}>
-          Карта процессов
-        </button>
+        <LinkButton onClick={() => router.push("/processes")}>Карта процессов</LinkButton>
         <span style={{ color: "var(--color-text-tertiary)" }}>›</span>
-        <button onClick={() => router.push("/processes/edit")} style={linkBtn}>
-          Редактирование
-        </button>
+        <LinkButton onClick={() => router.push("/processes/edit")}>Редактирование</LinkButton>
         <span style={{ color: "var(--color-text-tertiary)" }}>›</span>
         <span style={{ fontFamily: "MTS Compact", fontSize: "14px", color: "var(--color-text-secondary)" }}>
           Домены
@@ -155,9 +150,9 @@ export default function DomainsListPage() {
           Домены (L2)
         </h1>
         {canEdit && (
-          <button onClick={() => router.push("/processes/edit/domains/new")} style={primaryBtn}>
-            + Создать домен
-          </button>
+          <Button onClick={() => router.push("/processes/edit/domains/new")} icon={<Icon name="PlusSize24StyleOutline" size={16} />}>
+            Создать домен
+          </Button>
         )}
       </div>
 
@@ -179,9 +174,9 @@ export default function DomainsListPage() {
             Доменов пока нет
           </p>
           {canEdit && (
-            <button onClick={() => router.push("/processes/edit/domains/new")} style={primaryBtn}>
+            <Button onClick={() => router.push("/processes/edit/domains/new")}>
               Создать первый домен
-            </button>
+            </Button>
           )}
         </div>
       ) : (
@@ -202,48 +197,3 @@ export default function DomainsListPage() {
   );
 }
 
-const inp: React.CSSProperties = {
-  width: "100%",
-  padding: "7px 10px",
-  fontFamily: "MTS Compact",
-  fontSize: "13px",
-  color: "var(--color-text-primary)",
-  background: "var(--color-background-secondary)",
-  border: "1px solid var(--color-background-lower)",
-  borderRadius: "var(--radius-m)",
-  outline: "none",
-  boxSizing: "border-box",
-};
-
-const primaryBtn: React.CSSProperties = {
-  padding: "8px 18px",
-  background: "var(--brand-blue)",
-  color: "#fff",
-  border: "none",
-  borderRadius: "var(--radius-l)",
-  fontFamily: "MTS Compact",
-  fontSize: "13px",
-  fontWeight: 500,
-  cursor: "pointer",
-  whiteSpace: "nowrap",
-};
-
-const iconBtn: React.CSSProperties = {
-  padding: "4px 8px",
-  background: "none",
-  border: "none",
-  cursor: "pointer",
-  fontSize: "14px",
-  borderRadius: "var(--radius-s)",
-  color: "var(--color-text-secondary)",
-};
-
-const linkBtn: React.CSSProperties = {
-  fontFamily: "MTS Compact",
-  fontSize: "14px",
-  color: "var(--brand-blue)",
-  background: "none",
-  border: "none",
-  cursor: "pointer",
-  padding: 0,
-};

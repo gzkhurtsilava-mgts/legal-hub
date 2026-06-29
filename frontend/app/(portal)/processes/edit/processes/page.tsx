@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Spinner } from "@mts-ds/granat2-react-spinner";
 import { useProcesses, useDomains, useDeleteProcess, type PmStatus, type PmProcessType } from "@/lib/api/processes";
+import { Icon } from "@/components/icons";
+import { Button, LinkButton, IconButton, Select, Badge } from "@/components/ui";
 
 const STATUS_LABELS: Record<PmStatus, string> = {
   draft: "Черновик",
@@ -49,9 +51,9 @@ export default function ProcessesListPage() {
     <div style={{ padding: "32px 24px", maxWidth: "1000px", margin: "0 auto" }}>
       {/* Breadcrumb */}
       <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "28px" }}>
-        <button onClick={() => router.push("/processes")} style={linkBtn}>Карта процессов</button>
+        <LinkButton onClick={() => router.push("/processes")}>Карта процессов</LinkButton>
         <span style={sep}>›</span>
-        <button onClick={() => router.push("/processes/edit")} style={linkBtn}>Редактирование</button>
+        <LinkButton onClick={() => router.push("/processes/edit")}>Редактирование</LinkButton>
         <span style={sep}>›</span>
         <span style={{ fontFamily: "MTS Compact", fontSize: "14px", color: "var(--color-text-secondary)" }}>Процессы</span>
       </div>
@@ -62,9 +64,9 @@ export default function ProcessesListPage() {
           Все процессы
         </h1>
         {canEdit && (
-          <button onClick={() => router.push("/processes/edit/processes/new")} style={primaryBtn}>
-            + Добавить процесс
-          </button>
+          <Button onClick={() => router.push("/processes/edit/processes/new")} icon={<Icon name="PlusSize24StyleOutline" size={16} />}>
+            Добавить процесс
+          </Button>
         )}
       </div>
 
@@ -76,23 +78,23 @@ export default function ProcessesListPage() {
           onChange={(e) => setQ(e.target.value)}
           style={{ ...inp, width: "220px" }}
         />
-        <select value={domainFilter} onChange={(e) => setDomainFilter(e.target.value)} style={{ ...inp, width: "200px" }}>
+        <Select value={domainFilter} onChange={(e) => setDomainFilter(e.target.value)} className="ui-select--inp" style={{ width: "200px" }}>
           <option value="">Все домены</option>
           {domains?.map((d) => (
             <option key={d.id} value={d.id}>{d.name}</option>
           ))}
-        </select>
-        <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} style={{ ...inp, width: "160px" }}>
+        </Select>
+        <Select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="ui-select--inp" style={{ width: "160px" }}>
           <option value="">Все типы</option>
           <option value="workflow">Процедура</option>
           <option value="service">Услуга</option>
-        </select>
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} style={{ ...inp, width: "160px" }}>
+        </Select>
+        <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="ui-select--inp" style={{ width: "160px" }}>
           <option value="">Все статусы</option>
           <option value="draft">Черновик</option>
           <option value="as_is">As-Is</option>
           <option value="to_be">To-Be</option>
-        </select>
+        </Select>
       </div>
 
       {/* List */}
@@ -106,12 +108,12 @@ export default function ProcessesListPage() {
             {q || domainFilter || typeFilter || statusFilter ? "Ничего не найдено" : "Процессов пока нет"}
           </p>
           {canEdit && !q && !domainFilter && !typeFilter && !statusFilter && (
-            <button
+            <Button
               onClick={() => router.push("/processes/edit/processes/new")}
-              style={{ ...primaryBtn, marginTop: "12px" }}
+              style={{ marginTop: "12px" }}
             >
               Добавить первый процесс
-            </button>
+            </Button>
           )}
         </div>
       ) : (
@@ -162,21 +164,9 @@ function ProcessRow({
     <div style={rowCard}>
       <div style={{ display: "flex", alignItems: "flex-start", gap: "12px", flex: 1, minWidth: 0 }}>
         {/* Type badge */}
-        <span style={{
-          padding: "2px 8px",
-          borderRadius: "var(--radius-s)",
-          fontSize: "11px",
-          fontFamily: "MTS Compact",
-          fontWeight: 500,
-          whiteSpace: "nowrap",
-          background: process.type === "workflow" ? "#e8f4fd" : "#f0f8ee",
-          color: process.type === "workflow" ? "var(--brand-blue)" : "var(--color-accent-positive)",
-          border: `1px solid ${process.type === "workflow" ? "#b3d9f7" : "#b8e6b0"}`,
-          flexShrink: 0,
-          marginTop: "2px",
-        }}>
+        <Badge tone={process.type === "workflow" ? "brand" : "positive"} style={{ flexShrink: 0, marginTop: "2px" }}>
           {TYPE_LABELS[process.type]}
-        </span>
+        </Badge>
 
         {/* Name + meta */}
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -198,18 +188,16 @@ function ProcessRow({
         </span>
         {canEdit && (
           <>
-            <button onClick={onEdit} style={iconBtn}>Изм.</button>
-            <button
-              onClick={handleDelete}
-              disabled={del.isPending}
-              style={{ ...iconBtn, color: confirming ? "var(--color-accent-negative)" : "var(--color-text-tertiary)" }}
-            >
-              {confirming ? "Удалить?" : "✕"}
-            </button>
-            {confirming && (
-              <button onClick={() => setConfirming(false)} style={{ ...iconBtn, color: "var(--color-text-tertiary)" }}>
-                Отмена
-              </button>
+            <LinkButton onClick={onEdit} style={{ fontSize: "13px" }}>Изм.</LinkButton>
+            {!confirming ? (
+              <IconButton size={28} danger onClick={handleDelete} label="Удалить">
+                <Icon name="CrossSize16StyleOutline" size={14} />
+              </IconButton>
+            ) : (
+              <>
+                <Button size="xs" variant="negative" onClick={handleDelete} disabled={del.isPending}>Удалить?</Button>
+                <Button size="xs" variant="secondary" onClick={() => setConfirming(false)}>Отмена</Button>
+              </>
             )}
           </>
         )}
@@ -249,39 +237,6 @@ const inp: React.CSSProperties = {
   border: "1px solid var(--color-background-lower)",
   borderRadius: "var(--radius-m)",
   outline: "none",
-};
-
-const primaryBtn: React.CSSProperties = {
-  padding: "10px 24px",
-  background: "var(--brand-blue)",
-  color: "#fff",
-  border: "none",
-  borderRadius: "var(--radius-l)",
-  fontFamily: "MTS Compact",
-  fontSize: "14px",
-  fontWeight: 500,
-  cursor: "pointer",
-};
-
-const iconBtn: React.CSSProperties = {
-  padding: "4px 8px",
-  background: "none",
-  border: "none",
-  borderRadius: "var(--radius-s)",
-  fontFamily: "MTS Compact",
-  fontSize: "12px",
-  color: "var(--brand-blue)",
-  cursor: "pointer",
-};
-
-const linkBtn: React.CSSProperties = {
-  fontFamily: "MTS Compact",
-  fontSize: "14px",
-  color: "var(--brand-blue)",
-  background: "none",
-  border: "none",
-  cursor: "pointer",
-  padding: 0,
 };
 
 const sep: React.CSSProperties = { color: "var(--color-text-tertiary)" };

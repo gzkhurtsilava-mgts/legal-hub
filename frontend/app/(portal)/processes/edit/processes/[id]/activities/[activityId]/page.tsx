@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Spinner } from "@mts-ds/granat2-react-spinner";
 import { Icon } from "@/components/icons";
+import { Button, Select } from "@/components/ui";
 import {
   useProcess,
   useActivity,
@@ -60,30 +61,6 @@ const textarea: React.CSSProperties = {
   ...inp,
   minHeight: "80px",
   resize: "vertical",
-};
-
-const select: React.CSSProperties = {
-  ...inp,
-  cursor: "pointer",
-};
-
-const saveBtn: React.CSSProperties = {
-  padding: "10px 24px",
-  background: "var(--brand-blue)",
-  color: "#fff",
-  border: "none",
-  borderRadius: "var(--radius-m)",
-  fontFamily: "MTS Compact",
-  fontSize: "14px",
-  fontWeight: 500,
-  cursor: "pointer",
-};
-
-const cancelBtn: React.CSSProperties = {
-  ...saveBtn,
-  background: "transparent",
-  color: "var(--color-text-secondary)",
-  border: "1px solid var(--color-background-lower)",
 };
 
 const removeBtn: React.CSSProperties = {
@@ -246,8 +223,8 @@ export default function ActivityEditPage() {
         </div>
         {canEdit && dirty && (
           <div style={{ display: "flex", gap: "8px" }}>
-            <button onClick={() => router.push(`/processes/edit/processes/${processId}`)} style={cancelBtn}>Отмена</button>
-            <button onClick={handleSave} disabled={saving} style={saveBtn}>{saving ? "Сохранение…" : "Сохранить"}</button>
+            <Button variant="secondary" size="s" onClick={() => router.push(`/processes/edit/processes/${processId}`)}>Отмена</Button>
+            <Button size="s" onClick={handleSave} disabled={saving}>{saving ? "Сохранение…" : "Сохранить"}</Button>
           </div>
         )}
       </div>
@@ -285,12 +262,12 @@ export default function ActivityEditPage() {
           {isWorkflow && (
             <div>
               <label style={lbl}>Тип активности</label>
-              <select value={activityType} onChange={(e) => { setActivityType(e.target.value as PmActivityType | ""); setDirty(true); }} style={select}>
+              <Select value={activityType} onChange={(e) => { setActivityType(e.target.value as PmActivityType | ""); setDirty(true); }} className="ui-select--inp">
                 <option value="">— не указан —</option>
                 <option value="manual">Ручная</option>
                 <option value="system">Системная</option>
                 <option value="decision">Решение / Ветвление</option>
-              </select>
+              </Select>
             </div>
           )}
           <div>
@@ -383,10 +360,10 @@ export default function ActivityEditPage() {
       {/* Save bar */}
       {canEdit && (
         <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end", marginTop: "8px" }}>
-          <button onClick={() => router.push(`/processes/edit/processes/${processId}`)} style={{ ...cancelBtn, display: "inline-flex", alignItems: "center", gap: "6px" }}><Icon name="ArrowLeftSize24StyleOutline" size={16} />Назад к процессу</button>
-          <button onClick={handleSave} disabled={saving || !dirty} style={{ ...saveBtn, opacity: !dirty ? 0.5 : 1 }}>
+          <Button variant="secondary" onClick={() => router.push(`/processes/edit/processes/${processId}`)} icon={<Icon name="ArrowLeftSize24StyleOutline" size={16} />}>Назад к процессу</Button>
+          <Button onClick={handleSave} disabled={saving || !dirty}>
             {saving ? "Сохранение…" : "Сохранить изменения"}
-          </button>
+          </Button>
         </div>
       )}
     </div>
@@ -462,9 +439,9 @@ function SopsSection({
               placeholder="Название СОПа..."
               style={{ ...inp, flex: 1 }}
             />
-            <button onClick={handleAdd} disabled={createSop.isPending} style={saveBtn}>
-              {createSop.isPending ? "…" : "+ Добавить"}
-            </button>
+            <Button onClick={handleAdd} disabled={createSop.isPending} icon={createSop.isPending ? undefined : <Icon name="PlusSize24StyleOutline" size={16} />}>
+              {createSop.isPending ? "…" : "Добавить"}
+            </Button>
           </div>
           <p style={{ fontFamily: "MTS Compact", fontSize: "11px", color: "var(--color-text-tertiary)", marginTop: "4px" }}>
             ID: {nextSopId()}
@@ -583,13 +560,13 @@ function DataOpsEditor({
       )}
       {!readOnly && (
         <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
-          <select value={newOp} onChange={(e) => setNewOp(e.target.value as "read" | "create")} style={{ ...select, width: "120px", flex: "none" }}>
+          <Select value={newOp} onChange={(e) => setNewOp(e.target.value as "read" | "create")} className="ui-select--inp" style={{ width: "120px", flex: "none" }}>
             <option value="read">Чтение</option>
             <option value="create">Создание</option>
-          </select>
+          </Select>
           <input value={newData} onChange={(e) => setNewData(e.target.value)} placeholder="Объект / документ..." style={{ ...inp, flex: 2, minWidth: "120px" }} />
           <input value={newSource} onChange={(e) => setNewSource(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); add(); } }} placeholder="Источник / цель..." style={{ ...inp, flex: 1, minWidth: "100px" }} />
-          <button onClick={add} style={{ ...saveBtn, padding: "10px 14px", whiteSpace: "nowrap" }}>+ Добавить</button>
+          <Button onClick={add} icon={<Icon name="PlusSize24StyleOutline" size={16} />}>Добавить</Button>
         </div>
       )}
     </div>
@@ -657,7 +634,7 @@ function DecisionEditor({
               <input value={newNo} onChange={(e) => setNewNo(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); add(); } }} placeholder="Следующий шаг если Нет..." style={inp} />
             </div>
           </div>
-          <button onClick={add} style={{ ...saveBtn, marginTop: "10px", padding: "8px 16px" }}>+ Добавить ветку</button>
+          <Button onClick={add} size="s" style={{ marginTop: "10px" }} icon={<Icon name="PlusSize24StyleOutline" size={16} />}>Добавить ветку</Button>
         </div>
       )}
     </div>
@@ -698,7 +675,8 @@ function StringListEditor({
       {!readOnly && (
         <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
           <input value={newVal} onChange={(e) => setNewVal(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); add(); } }} placeholder={placeholder} style={{ ...inp, flex: 1 }} />
-          <button onClick={add} style={{ ...saveBtn, padding: "10px 14px" }}>+</button>
+          <Button onClick={add} icon={<Icon name="PlusSize24StyleOutline" size={16} />} aria-label="Добавить" />
+
         </div>
       )}
     </div>

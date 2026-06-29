@@ -12,6 +12,7 @@ import {
   type RefTable,
 } from "@/lib/api/processes";
 import { Icon } from "@/components/icons";
+import { Button, LinkButton, IconButton, Select } from "@/components/ui";
 
 // ─── Table config ─────────────────────────────────────────────────────────────
 
@@ -215,17 +216,17 @@ function RefRow({ item, config, table }: RowProps) {
                     placeholder={f.placeholder}
                   />
                 ) : f.type === "select" ? (
-                  <select
+                  <Select
                     value={(form[f.name] as string) ?? ""}
                     onChange={(e) => setForm((prev) => ({ ...prev, [f.name]: e.target.value }))}
-                    style={inp}
+                    className="ui-select--inp"
                   >
                     {f.options?.map((o) => (
                       <option key={o.value} value={o.value}>
                         {o.label}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                 ) : (
                   <input
                     type={f.type ?? "text"}
@@ -239,20 +240,21 @@ function RefRow({ item, config, table }: RowProps) {
             ))}
           </div>
           <div style={{ display: "flex", gap: "8px" }}>
-            <button onClick={handleSave} disabled={update.isPending} style={primaryBtn}>
+            <Button size="s" onClick={handleSave} disabled={update.isPending}>
               {update.isPending ? "…" : "Сохранить"}
-            </button>
-            <button
+            </Button>
+            <Button
+              size="s"
+              variant="secondary"
               onClick={() => {
                 setEditing(false);
                 config.fields.forEach((f) => {
                   form[f.name] = item[f.name] ?? "";
                 });
               }}
-              style={secondaryBtn}
             >
               Отмена
-            </button>
+            </Button>
             {update.isError && (
               <span style={{ fontFamily: "MTS Compact", fontSize: "12px", color: "var(--color-accent-negative)", alignSelf: "center" }}>
                 {(update.error as Error)?.message ?? "Ошибка сохранения"}
@@ -286,33 +288,30 @@ function RefRow({ item, config, table }: RowProps) {
               ))}
             </div>
           </div>
-          <div style={{ display: "flex", gap: "6px", flexShrink: 0 }}>
-            <button onClick={() => setEditing(true)} style={{ ...iconBtn, display: "flex", alignItems: "center" }} title="Редактировать">
+          <div style={{ display: "flex", gap: "6px", flexShrink: 0, alignItems: "center" }}>
+            <IconButton size={32} onClick={() => setEditing(true)} label="Редактировать">
               <Icon name="EditSize24StyleOutline" size={16} />
-            </button>
+            </IconButton>
             {!confirmDelete ? (
-              <button
-                onClick={() => setConfirmDelete(true)}
-                style={{ ...iconBtn, display: "flex", alignItems: "center", color: "var(--color-accent-negative)" }}
-                title="Удалить"
-              >
+              <IconButton size={32} danger onClick={() => setConfirmDelete(true)} label="Удалить">
                 <Icon name="DeleteSize24StyleOutline" size={16} />
-              </button>
+              </IconButton>
             ) : (
               <>
-                <button
+                <Button
+                  size="xs"
+                  variant="negative"
                   onClick={async () => {
                     await del.mutateAsync();
                     setConfirmDelete(false);
                   }}
                   disabled={del.isPending}
-                  style={{ ...iconBtn, color: "var(--color-accent-negative)", fontWeight: 700 }}
                 >
                   {del.isPending ? "…" : "Удалить"}
-                </button>
-                <button onClick={() => setConfirmDelete(false)} style={iconBtn}>
+                </Button>
+                <Button size="xs" variant="secondary" onClick={() => setConfirmDelete(false)}>
                   Нет
-                </button>
+                </Button>
               </>
             )}
           </div>
@@ -339,11 +338,13 @@ function CreateForm({ config, table, onDone }: CreateFormProps) {
     return init;
   });
   const create = useCreateRef<Record<string, unknown>>(table);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const required = config.fields.find((f) => f.required && !form[f.name]);
-    if (required) return;
+    if (required) { setError(`Заполните поле «${required.label}»`); return; }
+    setError("");
     const body: Record<string, unknown> = {};
     config.fields.forEach((f) => {
       const v = form[f.name];
@@ -390,20 +391,19 @@ function CreateForm({ config, table, onDone }: CreateFormProps) {
                 rows={2}
                 style={{ ...inp, resize: "vertical" }}
                 placeholder={f.placeholder}
-                required={f.required}
               />
             ) : f.type === "select" ? (
-              <select
+              <Select
                 value={(form[f.name] as string) ?? ""}
                 onChange={(e) => setForm((prev) => ({ ...prev, [f.name]: e.target.value }))}
-                style={inp}
+                className="ui-select--inp"
               >
                 {f.options?.map((o) => (
                   <option key={o.value} value={o.value}>
                     {o.label}
                   </option>
                 ))}
-              </select>
+              </Select>
             ) : (
               <input
                 type={f.type ?? "text"}
@@ -411,22 +411,21 @@ function CreateForm({ config, table, onDone }: CreateFormProps) {
                 onChange={(e) => setForm((prev) => ({ ...prev, [f.name]: e.target.value }))}
                 style={inp}
                 placeholder={f.placeholder}
-                required={f.required}
               />
             )}
           </div>
         ))}
       </div>
       <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-        <button type="submit" disabled={create.isPending} style={primaryBtn}>
+        <Button type="submit" size="s" disabled={create.isPending}>
           {create.isPending ? "Создание…" : "Создать"}
-        </button>
-        <button type="button" onClick={onDone} style={secondaryBtn}>
+        </Button>
+        <Button type="button" size="s" variant="secondary" onClick={onDone}>
           Отмена
-        </button>
-        {create.isError && (
+        </Button>
+        {(error || create.isError) && (
           <span style={{ fontFamily: "MTS Compact", fontSize: "12px", color: "var(--color-accent-negative)" }}>
-            {(create.error as Error)?.message ?? "Ошибка"}
+            {error || (create.error as Error)?.message || "Ошибка"}
           </span>
         )}
       </div>
@@ -457,9 +456,7 @@ export default function RefTablePage() {
         <p style={{ fontFamily: "MTS Compact", color: "var(--color-accent-negative)" }}>
           Неизвестный справочник: {table}
         </p>
-        <button onClick={() => router.push("/processes/edit/refs")} style={{ ...linkBtn, display: "inline-flex", alignItems: "center", gap: "6px" }}>
-          <Icon name="ArrowLeftSize24StyleOutline" size={16} />Все справочники
-        </button>
+        <LinkButton onClick={() => router.push("/processes/edit/refs")} icon={<Icon name="ArrowLeftSize24StyleOutline" size={16} />}>Все справочники</LinkButton>
       </div>
     );
   }
@@ -470,17 +467,11 @@ export default function RefTablePage() {
     <div style={{ padding: "32px 24px", maxWidth: "900px", margin: "0 auto" }}>
       {/* Breadcrumb */}
       <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "24px" }}>
-        <button onClick={() => router.push("/processes")} style={linkBtn}>
-          Карта процессов
-        </button>
+        <LinkButton onClick={() => router.push("/processes")}>Карта процессов</LinkButton>
         <span style={{ color: "var(--color-text-tertiary)" }}>›</span>
-        <button onClick={() => router.push("/processes/edit")} style={linkBtn}>
-          Редактирование
-        </button>
+        <LinkButton onClick={() => router.push("/processes/edit")}>Редактирование</LinkButton>
         <span style={{ color: "var(--color-text-tertiary)" }}>›</span>
-        <button onClick={() => router.push("/processes/edit/refs")} style={linkBtn}>
-          Справочники
-        </button>
+        <LinkButton onClick={() => router.push("/processes/edit/refs")}>Справочники</LinkButton>
         <span style={{ color: "var(--color-text-tertiary)" }}>›</span>
         <span style={{ fontFamily: "MTS Compact", fontSize: "14px", color: "var(--color-text-secondary)" }}>
           {config.label}
@@ -506,9 +497,9 @@ export default function RefTablePage() {
           </p>
         </div>
         {canEdit && (
-          <button onClick={() => setShowCreate(true)} style={primaryBtn}>
-            + Добавить
-          </button>
+          <Button onClick={() => setShowCreate(true)} icon={<Icon name="PlusSize24StyleOutline" size={16} />}>
+            Добавить
+          </Button>
         )}
       </div>
 
@@ -545,11 +536,9 @@ export default function RefTablePage() {
                 key={col.key}
                 style={{
                   fontFamily: "MTS Compact",
-                  fontSize: "11px",
+                  fontSize: "12px",
                   fontWeight: 500,
                   color: "var(--color-text-tertiary)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.04em",
                   flex: col.key === "name" ? 2 : 1,
                 }}
               >
@@ -601,46 +590,3 @@ const inp: React.CSSProperties = {
   boxSizing: "border-box",
 };
 
-const primaryBtn: React.CSSProperties = {
-  padding: "8px 18px",
-  background: "var(--brand-blue)",
-  color: "#fff",
-  border: "none",
-  borderRadius: "var(--radius-l)",
-  fontFamily: "MTS Compact",
-  fontSize: "13px",
-  fontWeight: 500,
-  cursor: "pointer",
-  whiteSpace: "nowrap",
-};
-
-const secondaryBtn: React.CSSProperties = {
-  padding: "8px 14px",
-  background: "var(--color-background-secondary)",
-  color: "var(--color-text-primary)",
-  border: "none",
-  borderRadius: "var(--radius-l)",
-  fontFamily: "MTS Compact",
-  fontSize: "13px",
-  cursor: "pointer",
-};
-
-const iconBtn: React.CSSProperties = {
-  padding: "4px 8px",
-  background: "none",
-  border: "none",
-  cursor: "pointer",
-  fontSize: "14px",
-  borderRadius: "var(--radius-s)",
-  color: "var(--color-text-secondary)",
-};
-
-const linkBtn: React.CSSProperties = {
-  fontFamily: "MTS Compact",
-  fontSize: "14px",
-  color: "var(--brand-blue)",
-  background: "none",
-  border: "none",
-  cursor: "pointer",
-  padding: 0,
-};

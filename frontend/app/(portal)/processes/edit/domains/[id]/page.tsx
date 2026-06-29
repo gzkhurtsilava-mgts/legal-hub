@@ -171,12 +171,12 @@ function DomainProcesses({ domainId, role }: { domainId: string; role?: string }
           Процессы домена
         </h2>
         {canEdit && (
-          <button
+          <Button
             onClick={() => router.push(`/processes/edit/processes/new?domain_id=${domainId}`)}
-            style={primaryBtn}
+            icon={<Icon name="PlusSize24StyleOutline" size={16} />}
           >
-            + Добавить процесс
-          </button>
+            Добавить процесс
+          </Button>
         )}
       </div>
 
@@ -234,4 +234,3 @@ function DomainProcesses({ domainId, role }: { domainId: string; role?: string }
 const card: React.CSSProperties = { background: "var(--color-background-primary)", borderRadius: "var(--radius-m)", border: "1px solid var(--color-background-lower)", padding: "16px 20px" };
 const lbl: React.CSSProperties = { display: "block", fontFamily: "MTS Compact", fontSize: "12px", fontWeight: 500, color: "var(--color-text-secondary)", marginBottom: "6px" };
 const inp: React.CSSProperties = { width: "100%", padding: "8px 10px", fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-text-primary)", background: "var(--color-background-secondary)", border: "1px solid var(--color-background-lower)", borderRadius: "var(--radius-m)", outline: "none", boxSizing: "border-box" };
-const primaryBtn: React.CSSProperties = { padding: "10px 24px", background: "var(--brand-blue)", color: "#fff", border: "none", borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "14px", fontWeight: 500, cursor: "pointer" };
