@@ -15,7 +15,7 @@ import {
   type PmMetricStatus,
 } from "@/lib/api/processes";
 import { Icon } from "@/components/icons";
-import { LinkButton } from "@/components/ui";
+import { LinkButton, Button } from "@/components/ui";
 
 // ─── Styles ────────────────────────────────────────────────────────────────────
 
@@ -173,12 +173,9 @@ export default function ProcessViewPage() {
             <span style={{ fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-text-secondary)" }}>{proc.name}</span>
           </div>
           {canEdit && (
-            <button
-              onClick={() => router.push(`/processes/edit/processes/${processId}`)}
-              style={{ padding: "6px 16px", background: "var(--color-background-secondary)", color: "var(--color-text-primary)", border: "none", borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "13px", cursor: "pointer", whiteSpace: "nowrap" }}
-            >
+            <Button variant="secondary" size="s" onClick={() => router.push(`/processes/edit/processes/${processId}`)}>
               Редактировать
-            </button>
+            </Button>
           )}
         </div>
       </div>

@@ -4,25 +4,23 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Spinner } from "@mts-ds/granat2-react-spinner";
 import { useLandscape, type PmLandscapeDomain } from "@/lib/api/processes";
+import { Button } from "@/components/ui";
 
 function DomainCard({ domain }: { domain: PmLandscapeDomain }) {
   const router = useRouter();
   return (
     <div
       onClick={() => router.push(`/processes/domains/${domain.id}`)}
+      className="ui-cardlink"
       style={{
         background: "var(--color-background-primary)",
         borderRadius: "var(--radius-m)",
         border: "1px solid var(--color-background-lower)",
         padding: "18px 20px",
-        cursor: "pointer",
         display: "flex",
         alignItems: "center",
         gap: "16px",
-        transition: "box-shadow 0.15s",
       }}
-      onMouseEnter={(e) => ((e.currentTarget as HTMLDivElement).style.boxShadow = "var(--shadow-low)")}
-      onMouseLeave={(e) => ((e.currentTarget as HTMLDivElement).style.boxShadow = "none")}
     >
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ fontFamily: "MTS Wide", fontWeight: 700, fontSize: "15px", color: "var(--color-text-primary)", margin: "0 0 4px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
@@ -76,27 +74,14 @@ export default function ProcessesLandscapePage() {
           </h1>
           {data && (
             <p style={{ fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-text-secondary)", margin: 0 }}>
-              {data.total_domains} {plural(data.total_domains, "домен", "домена", "доменов")}
+              {plural(data.total_domains, "домен", "домена", "доменов")}
               {data.total_processes > 0 && ` · ${data.total_processes} процессов и услуг`}
             </p>
           )}
         </div>
-        <button
-          onClick={() => router.push("/processes/edit")}
-          style={{
-            padding: "8px 18px",
-            background: "var(--color-background-secondary)",
-            color: "var(--color-text-primary)",
-            border: "none",
-            borderRadius: "var(--radius-l)",
-            fontFamily: "MTS Compact",
-            fontSize: "13px",
-            cursor: "pointer",
-            whiteSpace: "nowrap",
-          }}
-        >
+        <Button variant="secondary" onClick={() => router.push("/processes/edit")}>
           Редактировать
-        </button>
+        </Button>
       </div>
 
       {/* Search */}
@@ -143,12 +128,9 @@ export default function ProcessesLandscapePage() {
           <p style={{ fontFamily: "MTS Compact", fontSize: "14px", color: "var(--color-text-tertiary)", margin: "0 0 20px" }}>
             Создайте первый домен в разделе редактирования
           </p>
-          <button
-            onClick={() => router.push("/processes/edit/domains/new")}
-            style={{ padding: "10px 24px", background: "var(--brand-blue)", color: "#fff", border: "none", borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "14px", cursor: "pointer" }}
-          >
+          <Button onClick={() => router.push("/processes/edit/domains/new")}>
             Создать домен
-          </button>
+          </Button>
         </div>
       )}
 
