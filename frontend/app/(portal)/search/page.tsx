@@ -6,7 +6,17 @@ import { Spinner } from "@mts-ds/granat2-react-spinner";
 import { Icon } from "@/components/icons";
 import { Button } from "@/components/ui";
 import { useSearch, type KnowledgeItem } from "@/lib/api/knowledge";
+import { useProcesses } from "@/lib/api/processes";
 import { ItemCard } from "@/components/knowledge/ItemCard";
+import { searchApps } from "@/lib/apps";
+
+const sectionH2: React.CSSProperties = {
+  fontFamily: "MTS Wide",
+  fontWeight: 700,
+  fontSize: "16px",
+  color: "var(--color-text-primary)",
+  margin: "0 0 14px",
+};
 
 function AiAnswer({ query }: { query: string }) {
   return (
@@ -38,6 +48,10 @@ function SearchInner() {
   const { data, isLoading } = useSearch(q0);
   const results = data?.items ?? [];
 
+  const appMatches = searchApps(q0);
+  const { data: allProc } = useProcesses({ q: q0 || undefined });
+  const procMatches = q0.length >= 2 ? (allProc ?? []) : [];
+
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const query = q.trim();
@@ -65,7 +79,43 @@ function SearchInner() {
         <>
           <AiAnswer query={q0} />
 
-          <h2 style={{ fontFamily: "MTS Wide", fontWeight: 700, fontSize: "16px", color: "var(--color-text-primary)", margin: "0 0 14px" }}>
+          {appMatches.length > 0 && (
+            <section style={{ marginBottom: "28px" }}>
+              <h2 style={sectionH2}>Приложения</h2>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+                {appMatches.map((app) => (
+                  <button key={app.id} className="home-app" onClick={() => router.push(app.href)}>
+                    <Icon name={app.icon} size={18} style={{ color: app.color }} />
+                    {app.title}
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {procMatches.length > 0 && (
+            <section style={{ marginBottom: "28px" }}>
+              <h2 style={sectionH2}>Процессы · {procMatches.length}</h2>
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                {procMatches.map((p: { id: string; name: string; version: string | number }) => (
+                  <button
+                    key={p.id}
+                    className="ui-cardlink"
+                    onClick={() => router.push(`/processes/${p.id}`)}
+                    style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px 16px", background: "var(--color-background-primary)", border: "1px solid var(--color-line)", borderRadius: "var(--radius-m)", textAlign: "left", cursor: "pointer", width: "100%" }}
+                  >
+                    <Icon name="MapSize24StyleOutline" size={20} style={{ color: "var(--brand-blue)", flexShrink: 0 }} />
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      <span style={{ display: "block", fontFamily: "MTS Compact", fontWeight: 500, fontSize: "14px", color: "var(--color-text-primary)" }}>{p.name}</span>
+                      <span style={{ display: "block", fontFamily: "MTS Compact", fontSize: "12px", color: "var(--color-text-tertiary)" }}>{p.id} · v{p.version}</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+
+          <h2 style={sectionH2}>
             Результаты в базе знаний{!isLoading && results.length > 0 ? ` · ${results.length}` : ""}
           </h2>
 

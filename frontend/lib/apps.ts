@@ -94,12 +94,24 @@ export function hasTabs(role?: string): boolean {
   return role === "admin" || role === "lawyer";
 }
 
-/** Быстрый доступ на главной — фиксированный порядок. */
+/** Сервисные карточки на главной (без «Карты процессов» — она в лаунчере). */
 export const HOME_QUICK_APPS: AppEntry[] = [
-  byId("processes"),
   byId("knowledge"),
   byId("poa"),
   byId("disputes"),
   byId("news"),
   byId("documents"),
 ];
+
+/** Поиск приложений по названию (для глобального поиска).
+ *  Терпим к русским окончаниям: матчим по основе слова (без хвоста). */
+export function searchApps(query: string): AppEntry[] {
+  const q = query.trim().toLowerCase();
+  if (q.length < 2) return [];
+  const stem = q.slice(0, Math.max(4, q.length - 2));
+  return APPS.filter((a) => {
+    const title = a.title.toLowerCase();
+    if (title.includes(q)) return true;
+    return title.split(/\s+/).some((w) => w.startsWith(stem));
+  });
+}

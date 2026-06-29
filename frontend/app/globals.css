@@ -806,6 +806,48 @@
 }
 .ui-menu-item:hover { background: var(--color-background-secondary); }
 
+/* — Главная v2: крупный hero-поиск + квадратные карточки сервисов — */
+.home2-search {
+  display: flex; align-items: center; gap: 12px;
+  height: 64px; padding: 0 8px 0 24px;
+  background: var(--color-background-primary);
+  border: 1.5px solid var(--color-line);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-low);
+  transition: border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
+}
+.home2-search:focus-within { border-color: var(--brand-blue); box-shadow: 0 0 0 4px var(--color-brand-subtle); }
+.home2-search input {
+  flex: 1; min-width: 0; border: none; outline: none; background: none;
+  font-family: 'MTS Compact', sans-serif; font-size: 18px; color: var(--color-text-primary);
+}
+/* Скрытая кнопка «Найти», выезжает по наведению */
+.home2-find {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 48px; width: 48px; padding: 0; flex-shrink: 0;
+  background: var(--brand-blue); color: #fff; border: none; border-radius: var(--radius-xl);
+  cursor: pointer; overflow: hidden; white-space: nowrap;
+  font-family: 'MTS Compact', sans-serif; font-size: 15px; font-weight: 500;
+  transition: width var(--duration-medium) var(--ease-standard), padding var(--duration-medium) var(--ease-standard);
+}
+.home2-find:hover { width: 128px; padding: 0 18px; }
+.home2-find__label { max-width: 0; opacity: 0; overflow: hidden; transition: max-width var(--duration-medium) var(--ease-standard), opacity var(--duration-fast) var(--ease-standard); }
+.home2-find:hover .home2-find__label { max-width: 80px; opacity: 1; }
+
+.home2-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-top: 40px; }
+.home2-card {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+  aspect-ratio: 1 / 1; padding: 20px 14px;
+  background: var(--color-background-primary); border: 1px solid var(--color-line);
+  border-radius: var(--radius-l); cursor: pointer; text-align: center;
+  transition: border-color var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
+}
+.home2-card:hover { border-color: var(--brand-blue); transform: translateY(-3px); box-shadow: var(--shadow-middle); }
+.home2-card__icon { width: 64px; height: 64px; border-radius: var(--radius-l); display: flex; align-items: center; justify-content: center; }
+.home2-card__title { font-family: 'MTS Wide', sans-serif; font-weight: 700; font-size: 15px; color: var(--color-text-primary); line-height: 1.3; }
+@media (max-width: 920px) { .home2-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 560px) { .home2-grid { grid-template-columns: repeat(2, 1fr); } }
+
 /* — Главная: большой поиск + плитки быстрого доступа — */
 .home-search {
   display: flex; align-items: center; gap: 10px;

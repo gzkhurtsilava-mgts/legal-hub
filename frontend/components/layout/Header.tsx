@@ -1,18 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { NavLink } from "./NavLink";
 import { SearchBar } from "./SearchBar";
 import { AppLauncher } from "./AppLauncher";
 import { ThemeToggle } from "./ThemeToggle";
 import { UserMenu } from "./UserMenu";
-
-const NAV_ITEMS = [
-  { href: "/", label: "Главная" },
-  { href: "/knowledge", label: "База знаний" },
-  { href: "/services", label: "Сервисы БПО" },
-  { href: "/processes", label: "Процессы" },
-];
 
 export function Header() {
   return (
@@ -50,19 +42,8 @@ export function Header() {
           </span>
         </Link>
 
-        {/* Навигация */}
-        <nav
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "28px",
-            flex: 1,
-          }}
-        >
-          {NAV_ITEMS.map((item) => (
-            <NavLink key={item.href} href={item.href} label={item.label} />
-          ))}
-        </nav>
+        {/* Навигация перенесена в лаунчер приложений */}
+        <div style={{ flex: 1 }} />
 
         {/* Правая часть */}
         <div style={{ display: "flex", alignItems: "center", gap: "4px", flexShrink: 0 }}>
