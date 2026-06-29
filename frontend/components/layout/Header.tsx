@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { NavLink } from "./NavLink";
 import { SearchBar } from "./SearchBar";
+import { AppLauncher } from "./AppLauncher";
 import { ThemeToggle } from "./ThemeToggle";
 import { UserMenu } from "./UserMenu";
 
@@ -65,6 +66,7 @@ export function Header() {
 
         {/* Правая часть */}
         <div style={{ display: "flex", alignItems: "center", gap: "4px", flexShrink: 0 }}>
+          <AppLauncher />
           <SearchBar />
           <ThemeToggle />
           <div style={{ width: "1px", height: "24px", background: "var(--color-background-secondary)", margin: "0 8px" }} />

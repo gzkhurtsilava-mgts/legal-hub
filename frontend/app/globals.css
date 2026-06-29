@@ -806,6 +806,79 @@
 }
 .ui-menu-item:hover { background: var(--color-background-secondary); }
 
+/* — Главная: большой поиск + плитки быстрого доступа — */
+.home-search {
+  display: flex; align-items: center; gap: 10px;
+  height: 56px; padding: 0 8px 0 18px;
+  background: var(--color-background-primary);
+  border: 1.5px solid var(--color-line);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-low);
+  transition: border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
+}
+.home-search:focus-within { border-color: var(--brand-blue); box-shadow: 0 0 0 4px var(--color-brand-subtle); }
+.home-search input {
+  flex: 1; min-width: 0; border: none; outline: none; background: none;
+  font-family: 'MTS Compact', sans-serif; font-size: 16px; color: var(--color-text-primary);
+}
+.home-app {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 16px; background: var(--color-background-primary);
+  border: 1px solid var(--color-line); border-radius: var(--radius-xl);
+  cursor: pointer; font-family: 'MTS Compact', sans-serif; font-size: 14px; color: var(--color-text-primary);
+  transition: border-color var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
+}
+.home-app:hover { border-color: var(--brand-blue); background: var(--color-background-secondary); }
+
+/* — Блок ИИ-ответа в выдаче поиска (плейсхолдер) — */
+.ai-answer {
+  border: 1px solid var(--color-line);
+  border-left: 3px solid var(--brand-blue);
+  border-radius: var(--radius-m);
+  background: var(--color-brand-subtle);
+  padding: 18px 22px;
+  margin-bottom: 28px;
+}
+.ai-answer__head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.ai-answer__title { font-family: 'MTS Wide', sans-serif; font-weight: 700; font-size: 14px; color: var(--color-text-primary); }
+.ai-answer__badge {
+  font-family: 'MTS Compact', sans-serif; font-size: 11px; font-weight: 500;
+  color: var(--brand-blue); background: var(--color-background-primary);
+  border: 1px solid var(--brand-blue); border-radius: var(--radius-s); padding: 1px 8px;
+}
+.ai-answer__body { font-family: 'MTS Compact', sans-serif; font-size: 14px; line-height: 1.6; color: var(--color-text-secondary); margin: 0; }
+.ai-answer__note { font-family: 'MTS Compact', sans-serif; font-size: 12px; color: var(--color-text-tertiary); margin: 10px 0 0; }
+
+/* — Лаунчер приложений (попап-сетка в шапке) — */
+.ui-applauncher {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: var(--z-index-dropdown);
+  width: 340px;
+  padding: 16px;
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-high);
+}
+.ui-applauncher__title { font-family: 'MTS Wide', sans-serif; font-weight: 700; font-size: 14px; color: var(--color-text-primary); margin: 0 0 12px; }
+.ui-applauncher__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.ui-applauncher__tile {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 12px 6px; background: none; border: none; border-radius: var(--radius-m);
+  cursor: pointer; transition: background var(--duration-fast) var(--ease-standard);
+}
+.ui-applauncher__tile:hover { background: var(--color-background-secondary); }
+.ui-applauncher__icon {
+  width: 44px; height: 44px; border-radius: var(--radius-m);
+  background: var(--color-background-primary); border: 1px solid var(--color-line);
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+.ui-applauncher__tile:hover .ui-applauncher__icon { border-color: var(--brand-blue); }
+.ui-applauncher__label { font-family: 'MTS Compact', sans-serif; font-size: 11px; color: var(--color-text-secondary); text-align: center; line-height: 1.25; }
+
 /* ===== Текстовые поля: синяя обводка при фокусе (по дизайн-системе) =====
    Затрагивает только поля, у которых есть видимая рамка (инлайн-инпуты форм);
    у @mts-ds-полей border: none, поэтому правило их не задевает. */
