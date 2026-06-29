@@ -12,7 +12,7 @@ import {
   type RefTable,
 } from "@/lib/api/processes";
 import { Icon } from "@/components/icons";
-import { Button, LinkButton, IconButton, Select } from "@/components/ui";
+import { Button, LinkButton, IconButton, Select, DatePicker } from "@/components/ui";
 
 // ─── Table config ─────────────────────────────────────────────────────────────
 
@@ -227,9 +227,15 @@ function RefRow({ item, config, table }: RowProps) {
                       </option>
                     ))}
                   </Select>
+                ) : f.type === "date" ? (
+                  <DatePicker
+                    value={(form[f.name] as string) ?? ""}
+                    onChange={(e) => setForm((prev) => ({ ...prev, [f.name]: e.target.value }))}
+                    className="ui-select--inp"
+                  />
                 ) : (
                   <input
-                    type={f.type ?? "text"}
+                    type="text"
                     value={(form[f.name] as string) ?? ""}
                     onChange={(e) => setForm((prev) => ({ ...prev, [f.name]: e.target.value }))}
                     style={inp}
@@ -404,9 +410,15 @@ function CreateForm({ config, table, onDone }: CreateFormProps) {
                   </option>
                 ))}
               </Select>
+            ) : f.type === "date" ? (
+              <DatePicker
+                value={(form[f.name] as string) ?? ""}
+                onChange={(e) => setForm((prev) => ({ ...prev, [f.name]: e.target.value }))}
+                className="ui-select--inp"
+              />
             ) : (
               <input
-                type={f.type ?? "text"}
+                type="text"
                 value={(form[f.name] as string) ?? ""}
                 onChange={(e) => setForm((prev) => ({ ...prev, [f.name]: e.target.value }))}
                 style={inp}

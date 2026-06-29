@@ -619,6 +619,42 @@
 .ui-toolbtn.is-active { background: var(--brand-blue); color: #fff; }
 .ui-toolbtn:disabled { opacity: 0.4; cursor: default; }
 
+/* — DatePicker (кастомный календарь вместо браузерного) — */
+.ui-datepicker {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: var(--z-index-dropdown);
+  width: 280px;
+  padding: 12px;
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-middle);
+  font-family: 'MTS Compact', sans-serif;
+}
+.ui-dp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.ui-dp-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+.ui-dp-nav {
+  width: 28px; height: 28px; border: none; background: transparent;
+  border-radius: var(--radius-s); cursor: pointer; color: var(--color-icons-secondary);
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: background var(--duration-fast) var(--ease-standard);
+}
+.ui-dp-nav:hover { background: var(--color-background-secondary); color: var(--color-text-primary); }
+.ui-dp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.ui-dp-wd { display: flex; align-items: center; justify-content: center; height: 28px; font-size: 12px; color: var(--color-text-tertiary); }
+.ui-dp-day {
+  height: 32px; border: none; background: transparent; border-radius: var(--radius-s);
+  cursor: pointer; font-family: 'MTS Compact', sans-serif; font-size: 13px;
+  color: var(--color-text-primary);
+  transition: background var(--duration-fast) var(--ease-standard);
+}
+.ui-dp-day:hover { background: var(--color-background-secondary); }
+.ui-dp-day[data-today="true"] { color: var(--color-text-brand); font-weight: 700; }
+.ui-dp-day[aria-selected="true"] { background: var(--brand-blue); color: #fff; font-weight: 500; }
+.ui-dp-foot { display: flex; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--color-line); }
+
 /* — Drop-зона для файлов (пунктир + hover) — */
 .ui-dropzone {
   display: flex;

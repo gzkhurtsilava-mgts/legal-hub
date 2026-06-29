@@ -458,3 +458,130 @@ export function Checkbox({ checked, onChange, label, disabled, style }: Checkbox
     </label>
   );
 }
+
+/* ===================== DatePicker ===================== */
+
+const DP_MONTHS = [
+  "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
+  "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь",
+];
+const DP_WEEKDAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+
+function dpParse(v?: string): Date | null {
+  if (!v) return null;
+  const [y, m, d] = v.split("-").map(Number);
+  if (!y || !m || !d) return null;
+  return new Date(y, m - 1, d);
+}
+function dpToISO(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+function dpFormat(d: Date): string {
+  return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()}`;
+}
+function dpSameDay(a: Date, b: Date): boolean {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
+
+interface DatePickerProps {
+  /** ISO YYYY-MM-DD */
+  value?: string;
+  /** Совместимо с нативным input: вызывается с { target: { value } } (ISO) */
+  onChange?: (e: { target: { value: string } }) => void;
+  disabled?: boolean;
+  className?: string;
+  style?: CSSProperties;
+  placeholder?: string;
+}
+
+export function DatePicker({ value, onChange, disabled, className, style, placeholder = "дд.мм.гггг" }: DatePickerProps) {
+  const [open, setOpen] = useState(false);
+  const selected = dpParse(value);
+  const [view, setView] = useState<Date>(() => selected ?? new Date());
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function onDoc(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [open]);
+
+  const toggle = () => {
+    if (disabled) return;
+    if (!open) setView(selected ?? new Date());
+    setOpen((o) => !o);
+  };
+  const pick = (d: Date) => { onChange?.({ target: { value: dpToISO(d) } }); setOpen(false); };
+  const clear = () => { onChange?.({ target: { value: "" } }); setOpen(false); };
+
+  const year = view.getFullYear();
+  const month = view.getMonth();
+  const startWeekday = (new Date(year, month, 1).getDay() + 6) % 7; // Пн = 0
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const cells: (Date | null)[] = [];
+  for (let i = 0; i < startWeekday; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(year, month, d));
+  const today = new Date();
+
+  return (
+    <div ref={ref} className="ui-select-wrap" style={style}>
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={toggle}
+        className={cx("ui-select", open && "ui-select--open", className)}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+      >
+        <span style={{ color: selected ? "var(--color-text-primary)" : "var(--color-text-tertiary)" }}>
+          {selected ? dpFormat(selected) : placeholder}
+        </span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ flexShrink: 0, color: "var(--color-icons-secondary)" }}>
+          <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="1.8" />
+          <path d="M3 9h18M8 3v4M16 3v4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        </svg>
+      </button>
+      {open && (
+        <div className="ui-datepicker" role="dialog">
+          <div className="ui-dp-head">
+            <span className="ui-dp-title">{DP_MONTHS[month]} {year}</span>
+            <div style={{ display: "flex", gap: "2px" }}>
+              <button type="button" className="ui-dp-nav" aria-label="Предыдущий месяц" onClick={() => setView(new Date(year, month - 1, 1))}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              </button>
+              <button type="button" className="ui-dp-nav" aria-label="Следующий месяц" onClick={() => setView(new Date(year, month + 1, 1))}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              </button>
+            </div>
+          </div>
+          <div className="ui-dp-grid">
+            {DP_WEEKDAYS.map((w) => <span key={w} className="ui-dp-wd">{w}</span>)}
+            {cells.map((d, i) =>
+              d ? (
+                <button
+                  key={i}
+                  type="button"
+                  className="ui-dp-day"
+                  aria-selected={selected ? dpSameDay(d, selected) : false}
+                  data-today={dpSameDay(d, today) ? "true" : "false"}
+                  onClick={() => pick(d)}
+                >
+                  {d.getDate()}
+                </button>
+              ) : (
+                <span key={i} />
+              )
+            )}
+          </div>
+          <div className="ui-dp-foot">
+            <button type="button" className="ui-linkbtn" onClick={clear}>Очистить</button>
+            <button type="button" className="ui-linkbtn" onClick={() => pick(today)}>Сегодня</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
