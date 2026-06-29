@@ -872,6 +872,29 @@
 }
 .home-app:hover { border-color: var(--brand-blue); background: var(--color-background-secondary); }
 
+/* — Диалог с ассистентом (чат-плейсхолдер) — */
+.chat-msg { display: flex; margin-bottom: 12px; }
+.chat-msg--user { justify-content: flex-end; }
+.chat-bubble {
+  max-width: 78%; padding: 12px 16px; border-radius: var(--radius-l);
+  font-family: 'MTS Compact', sans-serif; font-size: 14px; line-height: 1.55;
+}
+.chat-bubble--user { background: var(--brand-blue); color: #fff; border-bottom-right-radius: var(--radius-s); }
+.chat-bubble--ai { background: var(--color-background-secondary); color: var(--color-text-primary); border-bottom-left-radius: var(--radius-s); }
+.chat-ai-head { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; font-family: 'MTS Compact', sans-serif; font-size: 12px; font-weight: 500; color: var(--brand-blue); }
+.chat-composer {
+  display: flex; gap: 8px; align-items: center;
+  margin-top: 20px; padding: 6px 6px 6px 18px;
+  border: 1.5px solid var(--color-line); border-radius: var(--radius-xl);
+  background: var(--color-background-primary); position: sticky; bottom: 16px;
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+.chat-composer:focus-within { border-color: var(--brand-blue); }
+.chat-composer input {
+  flex: 1; min-width: 0; border: none; outline: none; background: none;
+  font-family: 'MTS Compact', sans-serif; font-size: 15px; color: var(--color-text-primary);
+}
+
 /* — Блок ИИ-ответа в выдаче поиска (плейсхолдер) — */
 .ai-answer {
   border: 1px solid var(--color-line);
@@ -889,7 +912,8 @@
   border: 1px solid var(--brand-blue); border-radius: var(--radius-s); padding: 1px 8px;
 }
 .ai-answer__body { font-family: 'MTS Compact', sans-serif; font-size: 14px; line-height: 1.6; color: var(--color-text-secondary); margin: 0; }
-.ai-answer__note { font-family: 'MTS Compact', sans-serif; font-size: 12px; color: var(--color-text-tertiary); margin: 10px 0 0; }
+.ai-answer__actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 16px; }
+.ai-answer__note { font-family: 'MTS Compact', sans-serif; font-size: 12px; color: var(--color-text-tertiary); margin: 0; }
 
 /* — Лаунчер приложений (попап-сетка в шапке) — */
 .ui-applauncher {

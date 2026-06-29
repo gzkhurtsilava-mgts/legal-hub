@@ -19,21 +19,29 @@ const sectionH2: React.CSSProperties = {
 };
 
 function AiAnswer({ query }: { query: string }) {
+  const router = useRouter();
   return (
     <div className="ai-answer">
       <div className="ai-answer__head">
         <Icon name="AISearchSize24StyleOutline" size={20} style={{ color: "var(--brand-blue)" }} />
         <span className="ai-answer__title">Ответ ассистента</span>
-        <span className="ai-answer__badge">В разработке</span>
+        <span className="ai-answer__badge">Скоро</span>
       </div>
       <p className="ai-answer__body">
-        Здесь появится ответ ИИ-ассистента на запрос «{query}». Ассистент сможет ответить
-        на любой вопрос — по базе знаний, процессам и общим правовым темам — и приложит ссылки
-        на источники.
+        ИИ-ассистент разберёт запрос «{query}», даст развёрнутый ответ и сошлётся на материалы
+        базы знаний и процессы. Спросить можно что угодно — от «где взять шаблон договора» до
+        разъяснения правовой ситуации.
       </p>
-      <p className="ai-answer__note">
-        Функция в разработке: ИИ-агент будет подключён позже. Пока ниже — результаты по базе знаний.
-      </p>
+      <div className="ai-answer__actions">
+        <Button
+          size="s"
+          onClick={() => router.push(`/assistant?q=${encodeURIComponent(query)}`)}
+          icon={<Icon name="ChatSize24StyleOutline" size={16} />}
+        >
+          Продолжить диалог
+        </Button>
+        <span className="ai-answer__note">Ответы появятся после подключения ИИ-агента</span>
+      </div>
     </div>
   );
 }
