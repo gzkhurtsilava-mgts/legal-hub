@@ -185,7 +185,7 @@ export default function ProcessViewPage() {
         {/* Sidebar ToC */}
         <aside style={sidebarStyle}>
           {sections.map((s) => (
-            <button key={s} onClick={() => scrollTo(s)} style={tocItem} onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "var(--color-background-lower)")} onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "none")}>
+            <button key={s} onClick={() => scrollTo(s)} className="ui-hover-bg" style={tocItem}>
               {SECTION_LABELS[s] ?? s}
             </button>
           ))}
@@ -237,9 +237,8 @@ export default function ProcessViewPage() {
                   <div
                     key={act.id}
                     onClick={() => router.push(`/processes/${processId}/activities/${act.id}`)}
+                    className="ui-hover-border"
                     style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 14px", background: "var(--color-background-secondary)", borderRadius: "var(--radius-m)", cursor: "pointer", border: "1px solid transparent" }}
-                    onMouseEnter={(e) => ((e.currentTarget as HTMLDivElement).style.borderColor = "var(--brand-blue)")}
-                    onMouseLeave={(e) => ((e.currentTarget as HTMLDivElement).style.borderColor = "transparent")}
                   >
                     <span style={{ fontFamily: "MTS Wide", fontWeight: 700, fontSize: "13px", color: "var(--brand-blue)", width: "22px", flexShrink: 0 }}>{idx + 1}.</span>
                     {isWorkflow && act.activity_type && (

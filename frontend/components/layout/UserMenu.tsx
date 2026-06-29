@@ -100,10 +100,8 @@ export function UserMenu() {
               fontSize: "14px",
               color: "var(--color-text-primary)",
               textAlign: "left",
-              transition: "background 150ms",
             }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--color-background-secondary)"; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "none"; }}
+            className="ui-hover-bg"
           >
             <ExitIcon size={16} style={{ color: "var(--color-icons-secondary)" }} />
             Выйти

@@ -19,9 +19,8 @@ function ProcessCard({ proc }: { proc: PmProcessListItem }) {
   return (
     <div
       onClick={() => router.push(`/processes/${proc.id}`)}
+      className="ui-hover-border"
       style={{ padding: "12px 16px", background: "var(--color-background-secondary)", borderRadius: "var(--radius-m)", border: "1px solid var(--color-background-lower)", cursor: "pointer", marginBottom: "6px" }}
-      onMouseEnter={(e) => ((e.currentTarget as HTMLDivElement).style.borderColor = "var(--brand-blue)")}
-      onMouseLeave={(e) => ((e.currentTarget as HTMLDivElement).style.borderColor = "var(--color-background-lower)")}
     >
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "2px" }}>
         <span style={{ fontFamily: "MTS Compact", fontSize: "14px", fontWeight: 500, color: "var(--color-text-primary)", flex: 1 }}>{proc.name}</span>

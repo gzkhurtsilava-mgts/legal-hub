@@ -300,9 +300,8 @@ export default function EditItemPage() {
                       onClick={() => deleteAttachment.mutate(att.path)}
                       disabled={deleteAttachment.isPending}
                       title="Удалить вложение"
-                      style={{ background: "none", border: "none", cursor: "pointer", padding: "2px 6px", color: "var(--color-text-tertiary)", flexShrink: 0, display: "flex", alignItems: "center" }}
-                      onMouseEnter={(e) => { e.currentTarget.style.color = "var(--color-accent-negative)"; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.color = "var(--color-text-tertiary)"; }}
+                      className="ui-iconbtn ui-hover-danger"
+                      style={{ flexShrink: 0 }}
                     ><Icon name="CrossSize16StyleOutline" size={14} /></button>
                   </div>
                 ))}

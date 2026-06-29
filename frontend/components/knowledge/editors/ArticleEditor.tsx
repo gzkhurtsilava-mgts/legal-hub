@@ -329,13 +329,12 @@ export function ArticleEditor({
                   key={att.path}
                   type="button"
                   onClick={() => handleInsertFile(att)}
+                  className="ui-hover-bg"
                   style={{
                     display: "flex", alignItems: "center", gap: "8px",
                     padding: "8px 10px", background: "transparent", border: "none",
                     borderRadius: "var(--radius-s)", cursor: "pointer", textAlign: "left",
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "var(--color-background-secondary)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
                 >
                   <Icon name="DocumentSize24StyleOutline" size={15} style={{ color: "var(--color-icons-secondary)", flexShrink: 0 }} />
                   <span style={{ flex: 1, fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>

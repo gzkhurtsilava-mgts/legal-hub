@@ -252,9 +252,8 @@ export default function ActivityViewPage() {
               <div
                 key={sop.id}
                 onClick={() => router.push(`/processes/${processId}/activities/${activityId}/sops/${sop.id}`)}
+                className="ui-hover-border"
                 style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 14px", background: "var(--color-background-secondary)", borderRadius: "var(--radius-m)", cursor: "pointer", border: "1px solid transparent" }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLDivElement).style.borderColor = "var(--brand-blue)")}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLDivElement).style.borderColor = "transparent")}
               >
                 <span style={{ fontFamily: "MTS Compact", fontSize: "14px", color: "var(--color-text-primary)", flex: 1 }}>{sop.title}</span>
                 {(sop.steps ?? []).length > 0 && (

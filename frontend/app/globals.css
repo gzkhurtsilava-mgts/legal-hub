@@ -783,6 +783,14 @@
 *::-webkit-scrollbar-thumb:hover { background: var(--color-control-stroke-hover); background-clip: padding-box; }
 *::-webkit-scrollbar-corner { background: transparent; }
 
+/* — Hover-утилиты (заменяют JS onMouseEnter/Leave) — */
+.ui-hover-bg { transition: background var(--duration-fast) var(--ease-standard); }
+.ui-hover-bg:hover { background: var(--color-background-secondary) !important; }
+.ui-hover-border { transition: border-color var(--duration-fast) var(--ease-standard); }
+.ui-hover-border:hover { border-color: var(--brand-blue) !important; }
+.ui-hover-danger { transition: color var(--duration-fast) var(--ease-standard); }
+.ui-hover-danger:hover { color: var(--color-accent-negative) !important; }
+
 /* — Пункт выпадающего меню (hover-подсветка вместо JS-хака) — */
 .ui-menu-item {
   display: block;

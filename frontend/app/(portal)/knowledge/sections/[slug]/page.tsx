@@ -184,9 +184,8 @@ export default function SectionPage() {
                   <button
                     key={item.id}
                     onClick={() => router.push(`/knowledge/items/${item.id}`)}
-                    style={{ display: "block", width: "100%", textAlign: "left", padding: "10px 16px", background: "none", border: "none", cursor: "pointer", fontFamily: "MTS Compact", fontSize: "14px", color: "var(--color-text-primary)" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = "var(--color-background-secondary)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+                    className="ui-menu-item"
+                    style={{ fontSize: "14px", color: "var(--color-text-primary)" }}
                   >
                     {item.title}
                   </button>
