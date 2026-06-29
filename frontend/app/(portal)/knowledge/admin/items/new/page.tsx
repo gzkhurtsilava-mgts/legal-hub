@@ -7,6 +7,7 @@ import { useSections, useCreateKnowledgeItem, useTags } from "@/lib/api/knowledg
 import type { ItemType, Visibility, Tag } from "@/lib/api/knowledge";
 import { TagPicker } from "@/components/knowledge/TagPicker";
 import { Icon } from "@/components/icons";
+import { Button, LinkButton, Select } from "@/components/ui";
 
 const TYPE_OPTIONS: { value: ItemType; label: string; desc: string }[] = [
   { value: "article", label: "Статья", desc: "Текстовый материал с редактором" },
@@ -81,7 +82,7 @@ export default function NewItemPage() {
   return (
     <div style={{ padding: "32px 24px", maxWidth: "640px", margin: "0 auto" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "24px" }}>
-        <button onClick={() => router.push("/knowledge")} style={linkBtn}>База знаний</button>
+        <LinkButton onClick={() => router.push("/knowledge")}>База знаний</LinkButton>
         <span style={sep}>›</span>
         <span style={{ fontFamily: "MTS Compact", fontSize: "14px", color: "var(--color-text-secondary)" }}>Новый материал</span>
       </div>
@@ -118,16 +119,15 @@ export default function NewItemPage() {
         {/* Section */}
         <div>
           <label style={labelStyle}>Раздел</label>
-          <select
+          <Select
             value={sectionId}
             onChange={(e) => setSectionId(e.target.value ? Number(e.target.value) : "")}
-            style={inputStyle}
           >
             <option value="">Выберите раздел…</option>
             {sections.map((s) => (
               <option key={s.id} value={s.id}>{s.name}</option>
             ))}
-          </select>
+          </Select>
         </div>
 
         {/* Title */}
@@ -209,10 +209,14 @@ export default function NewItemPage() {
         {error && <p style={{ fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-accent-negative)" }}>{error}</p>}
 
         <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
-          <button type="button" onClick={() => router.back()} style={secondaryBtn}>Отмена</button>
-          <button type="submit" disabled={createItem.isPending} style={primaryBtn}>
-            {createItem.isPending ? "Создание…" : <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>Создать<Icon name="ArrowRightSize24StyleOutline" size={14} /></span>}
-          </button>
+          <Button type="button" variant="secondary" onClick={() => router.back()}>Отмена</Button>
+          <Button
+            type="submit"
+            disabled={createItem.isPending}
+            iconRight={createItem.isPending ? undefined : <Icon name="ArrowRightSize24StyleOutline" size={16} />}
+          >
+            {createItem.isPending ? "Создание…" : "Создать"}
+          </Button>
         </div>
       </form>
     </div>
@@ -225,7 +229,4 @@ function isValidUrl(s: string) {
 
 const labelStyle: React.CSSProperties = { fontFamily: "MTS Compact", fontSize: "14px", fontWeight: 500, color: "var(--color-text-primary)", display: "block", marginBottom: "6px" };
 const inputStyle: React.CSSProperties = { width: "100%", padding: "10px 14px", border: "1.5px solid var(--color-background-secondary)", borderRadius: "var(--radius-m)", fontFamily: "MTS Compact", fontSize: "14px", background: "var(--color-background-primary)", color: "var(--color-text-primary)", outline: "none", boxSizing: "border-box" };
-const linkBtn: React.CSSProperties = { fontFamily: "MTS Compact", fontSize: "14px", color: "var(--brand-blue)", background: "none", border: "none", cursor: "pointer", padding: 0 };
 const sep: React.CSSProperties = { color: "var(--color-text-tertiary)", fontSize: "16px" };
-const primaryBtn: React.CSSProperties = { padding: "10px 28px", background: "var(--brand-blue)", color: "#fff", border: "none", borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "14px", fontWeight: 500, cursor: "pointer" };
-const secondaryBtn: React.CSSProperties = { padding: "10px 20px", background: "var(--color-background-secondary)", color: "var(--color-text-primary)", border: "none", borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "14px", cursor: "pointer" };

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useCreateDomain } from "@/lib/api/processes";
+import { Button, LinkButton } from "@/components/ui";
 
 export default function NewDomainPage() {
   const router = useRouter();
@@ -49,11 +50,11 @@ export default function NewDomainPage() {
     <div style={{ padding: "32px 24px", maxWidth: "600px", margin: "0 auto" }}>
       {/* Breadcrumb */}
       <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "28px" }}>
-        <button onClick={() => router.push("/processes")} style={linkBtn}>Карта процессов</button>
+        <LinkButton onClick={() => router.push("/processes")}>Карта процессов</LinkButton>
         <span style={sep}>›</span>
-        <button onClick={() => router.push("/processes/edit")} style={linkBtn}>Редактирование</button>
+        <LinkButton onClick={() => router.push("/processes/edit")}>Редактирование</LinkButton>
         <span style={sep}>›</span>
-        <button onClick={() => router.push("/processes/edit/domains")} style={linkBtn}>Домены</button>
+        <LinkButton onClick={() => router.push("/processes/edit/domains")}>Домены</LinkButton>
         <span style={sep}>›</span>
         <span style={{ fontFamily: "MTS Compact", fontSize: "14px", color: "var(--color-text-secondary)" }}>Новый домен</span>
       </div>
@@ -108,12 +109,12 @@ export default function NewDomainPage() {
         )}
 
         <div style={{ display: "flex", gap: "10px" }}>
-          <button type="submit" disabled={create.isPending} style={primaryBtn}>
+          <Button type="submit" disabled={create.isPending}>
             {create.isPending ? "Создание…" : "Создать домен"}
-          </button>
-          <button type="button" onClick={() => router.push("/processes/edit/domains")} style={secondaryBtn}>
+          </Button>
+          <Button type="button" variant="secondary" onClick={() => router.push("/processes/edit/domains")}>
             Отмена
-          </button>
+          </Button>
         </div>
       </form>
     </div>
@@ -124,7 +125,4 @@ const card: React.CSSProperties = { background: "var(--color-background-primary)
 const lbl: React.CSSProperties = { display: "block", fontFamily: "MTS Compact", fontSize: "12px", fontWeight: 500, color: "var(--color-text-secondary)", marginBottom: "6px" };
 const hint: React.CSSProperties = { fontFamily: "MTS Compact", fontSize: "11px", color: "var(--color-text-tertiary)", margin: "4px 0 0" };
 const inp: React.CSSProperties = { width: "100%", padding: "8px 10px", fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-text-primary)", background: "var(--color-background-secondary)", border: "1px solid var(--color-background-lower)", borderRadius: "var(--radius-m)", outline: "none", boxSizing: "border-box" };
-const primaryBtn: React.CSSProperties = { padding: "10px 24px", background: "var(--brand-blue)", color: "#fff", border: "none", borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "14px", fontWeight: 500, cursor: "pointer" };
-const secondaryBtn: React.CSSProperties = { padding: "10px 18px", background: "var(--color-background-secondary)", color: "var(--color-text-primary)", border: "none", borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "14px", cursor: "pointer" };
-const linkBtn: React.CSSProperties = { fontFamily: "MTS Compact", fontSize: "14px", color: "var(--brand-blue)", background: "none", border: "none", cursor: "pointer", padding: 0 };
 const sep: React.CSSProperties = { color: "var(--color-text-tertiary)" };

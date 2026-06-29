@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Spinner } from "@mts-ds/granat2-react-spinner";
 import { Icon } from "@/components/icons";
+import { Button, LinkButton, Select } from "@/components/ui";
 import {
   useDomains,
   useRefList,
@@ -82,11 +83,11 @@ export default function NewProcessPage() {
     <div style={{ padding: "32px 24px", maxWidth: "680px", margin: "0 auto" }}>
       {/* Breadcrumb */}
       <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "28px" }}>
-        <button onClick={() => router.push("/processes")} style={linkBtn}>Карта процессов</button>
+        <LinkButton onClick={() => router.push("/processes")}>Карта процессов</LinkButton>
         <span style={sep}>›</span>
-        <button onClick={() => router.push("/processes/edit")} style={linkBtn}>Редактирование</button>
+        <LinkButton onClick={() => router.push("/processes/edit")}>Редактирование</LinkButton>
         <span style={sep}>›</span>
-        <button onClick={() => router.push("/processes/edit/processes")} style={linkBtn}>Процессы</button>
+        <LinkButton onClick={() => router.push("/processes/edit/processes")}>Процессы</LinkButton>
         <span style={sep}>›</span>
         <span style={{ fontFamily: "MTS Compact", fontSize: "14px", color: "var(--color-text-secondary)" }}>Новый</span>
       </div>
@@ -127,17 +128,17 @@ export default function NewProcessPage() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <div>
               <label style={lbl}>Домен <span style={req}>*</span></label>
-              <select
+              <Select
                 value={domainId}
                 onChange={(e) => { setDomainId(e.target.value); setIdManual(false); }}
                 required
-                style={inp}
+                className="ui-select--inp"
               >
                 <option value="">— выберите —</option>
                 {domains?.map((d) => (
                   <option key={d.id} value={d.id}>{d.name}</option>
                 ))}
-              </select>
+              </Select>
             </div>
             <div>
               <label style={lbl}>
@@ -189,20 +190,20 @@ export default function NewProcessPage() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <div>
               <label style={lbl}>Ответственная роль</label>
-              <select value={ownerRoleId} onChange={(e) => setOwnerRoleId(e.target.value === "" ? "" : Number(e.target.value))} style={inp}>
+              <Select value={ownerRoleId} onChange={(e) => setOwnerRoleId(e.target.value === "" ? "" : Number(e.target.value))} className="ui-select--inp">
                 <option value="">— не указана —</option>
                 {roles?.map((r) => (
                   <option key={r.id} value={r.id}>{r.name}</option>
                 ))}
-              </select>
+              </Select>
             </div>
             <div>
               <label style={lbl}>Статус</label>
-              <select value={status} onChange={(e) => setStatus(e.target.value as typeof status)} style={inp}>
+              <Select value={status} onChange={(e) => setStatus(e.target.value as typeof status)} className="ui-select--inp">
                 <option value="draft">Черновик</option>
                 <option value="as_is">As-Is (текущий)</option>
                 <option value="to_be">To-Be (целевой)</option>
-              </select>
+              </Select>
             </div>
           </div>
         </div>
@@ -214,12 +215,16 @@ export default function NewProcessPage() {
         )}
 
         <div style={{ display: "flex", gap: "10px" }}>
-          <button type="submit" disabled={createProcess.isPending} style={primaryBtn}>
-            {createProcess.isPending ? "Создание…" : <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>Создать и перейти к редактированию<Icon name="ArrowRightSize24StyleOutline" size={14} /></span>}
-          </button>
-          <button type="button" onClick={() => router.push("/processes/edit/processes")} style={secondaryBtn}>
+          <Button
+            type="submit"
+            disabled={createProcess.isPending}
+            iconRight={createProcess.isPending ? undefined : <Icon name="ArrowRightSize24StyleOutline" size={16} />}
+          >
+            {createProcess.isPending ? "Создание…" : "Создать и перейти к редактированию"}
+          </Button>
+          <Button type="button" variant="secondary" onClick={() => router.push("/processes/edit/processes")}>
             Отмена
-          </button>
+          </Button>
         </div>
       </form>
     </div>
@@ -253,27 +258,6 @@ const inp: React.CSSProperties = {
   outline: "none",
   boxSizing: "border-box",
 };
-const primaryBtn: React.CSSProperties = {
-  padding: "10px 24px",
-  background: "var(--brand-blue)",
-  color: "#fff",
-  border: "none",
-  borderRadius: "var(--radius-l)",
-  fontFamily: "MTS Compact",
-  fontSize: "14px",
-  fontWeight: 500,
-  cursor: "pointer",
-};
-const secondaryBtn: React.CSSProperties = {
-  padding: "10px 18px",
-  background: "var(--color-background-secondary)",
-  color: "var(--color-text-primary)",
-  border: "none",
-  borderRadius: "var(--radius-l)",
-  fontFamily: "MTS Compact",
-  fontSize: "14px",
-  cursor: "pointer",
-};
 const iconBtn: React.CSSProperties = {
   padding: "4px 8px",
   background: "none",
@@ -282,14 +266,5 @@ const iconBtn: React.CSSProperties = {
   fontSize: "14px",
   cursor: "pointer",
   color: "var(--brand-blue)",
-};
-const linkBtn: React.CSSProperties = {
-  fontFamily: "MTS Compact",
-  fontSize: "14px",
-  color: "var(--brand-blue)",
-  background: "none",
-  border: "none",
-  cursor: "pointer",
-  padding: 0,
 };
 const sep: React.CSSProperties = { color: "var(--color-text-tertiary)" };
