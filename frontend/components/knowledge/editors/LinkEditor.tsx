@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Button } from "@/components/ui";
 
 interface Props {
   initialUrl: string;
@@ -51,23 +52,9 @@ export function LinkEditor({ initialUrl, onSave, isSaving }: Props) {
       </div>
 
       <div>
-        <button
-          onClick={handleSave}
-          disabled={isSaving || !isValid}
-          style={{
-            padding: "9px 24px",
-            background: isValid ? "var(--brand-blue)" : "var(--color-background-lower)",
-            color: isValid ? "#fff" : "var(--color-text-tertiary)",
-            border: "none",
-            borderRadius: "var(--radius-l)",
-            fontFamily: "MTS Compact",
-            fontSize: "13px",
-            fontWeight: 500,
-            cursor: isValid ? "pointer" : "default",
-          }}
-        >
+        <Button size="s" onClick={handleSave} disabled={isSaving || !isValid}>
           {isSaving ? "Сохранение…" : "Сохранить"}
-        </button>
+        </Button>
       </div>
     </div>
   );

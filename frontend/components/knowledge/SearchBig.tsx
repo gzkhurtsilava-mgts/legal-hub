@@ -102,7 +102,7 @@ export function SearchBig({ initialValue = "" }: { initialValue?: string }) {
 
           {(suggestions?.sections ?? []).map((s) => (
             <button key={`s-${s.id}`} onClick={() => navigate(`/knowledge/sections/${s.slug}`)}
-              style={_rowStyle}>
+              className="ui-hover-bg" style={_rowStyle}>
               <span style={_labelStyle}>Раздел</span>
               <p style={_titleStyle}>{s.name}</p>
             </button>
@@ -110,7 +110,7 @@ export function SearchBig({ initialValue = "" }: { initialValue?: string }) {
 
           {(suggestions?.items ?? []).map((item) => (
             <button key={`i-${item.id}`} onClick={() => navigate(`/knowledge/items/${item.id}`)}
-              style={_rowStyle}>
+              className="ui-hover-bg" style={_rowStyle}>
               <span style={_labelStyle}>{TYPE_LABELS[item.item_type] ?? item.item_type}</span>
               <p style={_titleStyle}>{item.title}</p>
             </button>
@@ -119,6 +119,7 @@ export function SearchBig({ initialValue = "" }: { initialValue?: string }) {
           {hasResults && (
             <button
               onClick={() => navigate(`/knowledge?q=${encodeURIComponent(q.trim())}`)}
+              className="ui-hover-bg"
               style={{
                 display: "block", width: "100%", textAlign: "center",
                 padding: "12px 20px", background: "none", border: "none", cursor: "pointer",

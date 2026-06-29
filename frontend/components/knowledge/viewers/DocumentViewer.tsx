@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { ButtonIcon } from "@mts-ds/granat2-react-button";
 import type { KnowledgeItem, DocumentVersion, Section } from "@/lib/api/knowledge";
 import { EditIcon, InfoIcon, DownloadIcon, CrossIcon, Icon } from "@/components/icons";
+import { LinkButton } from "@/components/ui";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -91,9 +92,9 @@ function PreviewContent({ active, token }: { active: DocumentVersion; token: str
           style={{ maxWidth: "100%", borderRadius: "var(--radius-m)", boxShadow: "var(--shadow-low)" }}
         />
         <div style={{ display: "flex", alignItems: "center", gap: "16px", marginTop: "16px" }}>
-          <button onClick={() => setSlide((s) => Math.max(0, s - 1))} disabled={slide === 0} style={slideBtn} aria-label="Предыдущий слайд"><Icon name="ArrowLeftSize24StyleOutline" size={18} /></button>
+          <button onClick={() => setSlide((s) => Math.max(0, s - 1))} disabled={slide === 0} className="ui-iconbtn" aria-label="Предыдущий слайд"><Icon name="ArrowLeftSize24StyleOutline" size={18} /></button>
           <span style={{ fontFamily: "MTS Compact", fontSize: "14px", color: "var(--color-text-secondary)" }}>{slide + 1} / {paths.length}</span>
-          <button onClick={() => setSlide((s) => Math.min(paths.length - 1, s + 1))} disabled={slide === paths.length - 1} style={slideBtn} aria-label="Следующий слайд"><Icon name="ArrowRightSize24StyleOutline" size={18} /></button>
+          <button onClick={() => setSlide((s) => Math.min(paths.length - 1, s + 1))} disabled={slide === paths.length - 1} className="ui-iconbtn" aria-label="Следующий слайд"><Icon name="ArrowRightSize24StyleOutline" size={18} /></button>
         </div>
         <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginTop: "12px", justifyContent: "center" }}>
           {paths.map((_, i) => (
@@ -261,9 +262,9 @@ export function DocumentViewerPage({ item, versions, section, isEditor, itemId }
       <div style={{ maxWidth: "1000px", margin: "0 auto", width: "100%", marginBottom: "20px" }}>
         {/* Breadcrumb */}
         <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "10px" }}>
-          <button onClick={() => router.push("/knowledge")} style={crumbBtn}>База знаний</button>
+          <LinkButton onClick={() => router.push("/knowledge")}>База знаний</LinkButton>
           <span style={crumbSep}>›</span>
-          <button onClick={() => router.push(sectionHref)} style={crumbBtn}>{section?.name ?? "Раздел"}</button>
+          <LinkButton onClick={() => router.push(sectionHref)}>{section?.name ?? "Раздел"}</LinkButton>
           <span style={crumbSep}>›</span>
           <span style={{ fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-text-tertiary)" }}>Документ</span>
         </div>
@@ -340,10 +341,6 @@ export function DocumentViewerPage({ item, versions, section, isEditor, itemId }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
-const crumbBtn: React.CSSProperties = {
-  fontFamily: "MTS Compact", fontSize: "13px", color: "var(--brand-blue)",
-  background: "none", border: "none", cursor: "pointer", padding: 0,
-};
 const crumbSep: React.CSSProperties = { color: "var(--color-text-tertiary)", fontSize: "14px" };
 
 const sectionTitle: React.CSSProperties = {
@@ -360,8 +357,3 @@ const downloadLink: React.CSSProperties = {
   textDecoration: "none", cursor: "pointer",
 };
 
-const slideBtn: React.CSSProperties = {
-  padding: "6px 16px", border: "1.5px solid var(--color-background-secondary)",
-  borderRadius: "var(--radius-l)", background: "transparent",
-  fontFamily: "MTS Compact", fontSize: "16px", cursor: "pointer",
-};

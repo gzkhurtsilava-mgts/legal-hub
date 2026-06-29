@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { Spinner } from "@mts-ds/granat2-react-spinner";
 import { useFavorites } from "@/lib/api/knowledge";
 import { ItemCard } from "@/components/knowledge/ItemCard";
+import { Icon } from "@/components/icons";
+import { Button, LinkButton } from "@/components/ui";
 
 export default function FavoritesPage() {
   const router = useRouter();
@@ -12,12 +14,7 @@ export default function FavoritesPage() {
   return (
     <div style={{ padding: "32px 24px", maxWidth: "1100px", margin: "0 auto" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "24px" }}>
-        <button
-          onClick={() => router.push("/knowledge")}
-          style={{ fontFamily: "MTS Compact", fontSize: "14px", color: "var(--brand-blue)", background: "none", border: "none", cursor: "pointer", padding: 0 }}
-        >
-          База знаний
-        </button>
+        <LinkButton onClick={() => router.push("/knowledge")}>База знаний</LinkButton>
         <span style={{ color: "var(--color-text-tertiary)" }}>›</span>
         <span style={{ fontFamily: "MTS Compact", fontSize: "14px", color: "var(--color-text-secondary)" }}>
           Избранное
@@ -25,7 +22,7 @@ export default function FavoritesPage() {
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "28px" }}>
-        <span style={{ fontSize: "22px" }}>⭐</span>
+        <Icon name="StarSize24StyleFill" size={24} style={{ color: "#FFB800" }} />
         <h1 style={{ fontFamily: "MTS Wide", fontWeight: 700, fontSize: "24px", color: "var(--color-text-primary)", margin: 0 }}>
           Избранное
         </h1>
@@ -48,12 +45,9 @@ export default function FavoritesPage() {
           <p style={{ fontFamily: "MTS Compact", fontSize: "15px", color: "var(--color-text-secondary)", marginBottom: "24px" }}>
             Добавляйте материалы в избранное — они появятся здесь
           </p>
-          <button
-            onClick={() => router.push("/knowledge")}
-            style={{ padding: "10px 24px", background: "var(--brand-blue)", color: "#fff", border: "none", borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "14px", fontWeight: 500, cursor: "pointer" }}
-          >
+          <Button onClick={() => router.push("/knowledge")}>
             Перейти в базу знаний
-          </button>
+          </Button>
         </div>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "16px" }}>

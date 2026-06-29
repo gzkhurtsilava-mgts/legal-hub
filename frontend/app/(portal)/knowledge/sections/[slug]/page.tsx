@@ -168,12 +168,9 @@ export default function SectionPage() {
                 </button>
               )}
               {searchInput && !activeSearch && (
-                <button
-                  onClick={() => handleSearchSubmit(searchInput)}
-                  style={{ padding: "4px 14px", background: "var(--brand-blue)", color: "#fff", border: "none", borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "13px", cursor: "pointer", flexShrink: 0 }}
-                >
+                <Button size="xs" onClick={() => handleSearchSubmit(searchInput)} style={{ flexShrink: 0 }}>
                   Найти
-                </button>
+                </Button>
               )}
             </div>
 
@@ -192,7 +189,8 @@ export default function SectionPage() {
                 ))}
                 <button
                   onClick={() => handleSearchSubmit(searchInput)}
-                  style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 16px", background: "none", border: "none", borderTop: "1px solid var(--color-background-lower)", cursor: "pointer", fontFamily: "MTS Compact", fontSize: "13px", color: "var(--brand-blue)" }}
+                  className="ui-menu-item"
+                  style={{ borderTop: "1px solid var(--color-background-lower)", color: "var(--brand-blue)" }}
                 >
                   <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>Показать все результаты для «{searchInput}»<Icon name="ArrowRightSize24StyleOutline" size={14} /></span>
                 </button>
@@ -206,9 +204,7 @@ export default function SectionPage() {
               <span style={{ fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-text-secondary)" }}>
                 Результаты по запросу: <b>«{activeSearch}»</b>
               </span>
-              <button onClick={clearSearch} style={{ fontFamily: "MTS Compact", fontSize: "13px", color: "var(--brand-blue)", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-                × Сбросить
-              </button>
+              <LinkButton onClick={clearSearch} icon={<Icon name="CrossSize16StyleOutline" size={14} />}>Сбросить</LinkButton>
             </div>
           )}
 

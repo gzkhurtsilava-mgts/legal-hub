@@ -12,7 +12,7 @@ import {
   type PmSopFaq,
 } from "@/lib/api/processes";
 import { Icon } from "@/components/icons";
-import { LinkButton } from "@/components/ui";
+import { LinkButton, Button } from "@/components/ui";
 
 // ─── Styles ────────────────────────────────────────────────────────────────────
 
@@ -104,12 +104,9 @@ export default function SopViewPage() {
             <span style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--color-text-tertiary)" }}>{sop.id}</span>
           </div>
           {canEdit && (
-            <button
-              onClick={() => router.push(`/processes/edit/processes/${processId}/activities/${activityId}/sops/${sopId}`)}
-              style={{ padding: "6px 16px", background: "var(--color-background-secondary)", color: "var(--color-text-primary)", border: "none", borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "13px", cursor: "pointer", whiteSpace: "nowrap" }}
-            >
+            <Button variant="secondary" size="s" onClick={() => router.push(`/processes/edit/processes/${processId}/activities/${activityId}/sops/${sopId}`)}>
               Редактировать
-            </button>
+            </Button>
           )}
         </div>
       </div>
