@@ -672,6 +672,21 @@
 }
 .ui-dropzone:hover { background: var(--color-brand-subtle); border-color: var(--brand-blue); }
 
+/* — Пункт боковой навигации/оглавления (hover-подсветка) — */
+.ui-navlink {
+  display: block;
+  font-family: 'MTS Compact', sans-serif;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: var(--radius-s);
+  line-height: 1.4;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+.ui-navlink:hover { background: var(--color-background-secondary); color: var(--color-text-primary); }
+
 /* — Кликабельная карточка (hover: подъём + тень) — */
 .ui-cardlink {
   cursor: pointer;

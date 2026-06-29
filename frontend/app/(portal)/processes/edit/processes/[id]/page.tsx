@@ -389,7 +389,7 @@ export default function EditProcessPage() {
             Разделы
           </p>
           {sections.map((s) => (
-            <a key={s} href={`#section-${s}`} style={navLink}>
+            <a key={s} href={`#section-${s}`} className="ui-navlink">
               {SECTION_LABELS[s]}
             </a>
           ))}
@@ -1565,16 +1565,6 @@ const sectionCard: React.CSSProperties = {
   padding: "20px 24px",
   marginBottom: "16px",
   scrollMarginTop: "80px",
-};
-
-const navLink: React.CSSProperties = {
-  display: "block",
-  fontFamily: "MTS Compact",
-  fontSize: "12px",
-  color: "var(--color-text-secondary)",
-  textDecoration: "none",
-  padding: "4px 0",
-  lineHeight: 1.4,
 };
 
 const lbl: React.CSSProperties = {
