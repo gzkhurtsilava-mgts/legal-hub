@@ -2,10 +2,9 @@
 // Состояния (:hover/:focus/:active) заданы CSS-классами в globals.css (.ui-*).
 // Все цвета — через токены дизайн-системы, поэтому light/dark переключаются сами.
 
-import { Fragment } from "react";
+import { Fragment, Children, isValidElement, useState, useRef, useEffect } from "react";
 import type {
   ButtonHTMLAttributes,
-  SelectHTMLAttributes,
   ReactNode,
   CSSProperties,
 } from "react";
@@ -118,22 +117,131 @@ export interface SelectOption {
   label: string;
 }
 
-interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
+interface SelectProps {
   options?: SelectOption[];
+  value?: string | number;
+  /** Совместимо с нативным select: вызывается с { target: { value } } */
+  onChange?: (e: { target: { value: string } }) => void;
+  disabled?: boolean;
+  required?: boolean;
+  className?: string;
+  style?: CSSProperties;
+  placeholder?: string;
+  /** Можно передавать <option>…</option> детьми вместо options */
+  children?: ReactNode;
 }
 
-export function Select({ options, className, children, style, ...rest }: SelectProps) {
+/** Превращает текстовое содержимое узла в строку (для лейблов <option>). */
+function nodeToText(node: ReactNode): string {
+  if (node == null || node === false || node === true) return "";
+  if (typeof node === "string" || typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(nodeToText).join("");
+  if (isValidElement(node)) return nodeToText((node.props as { children?: ReactNode }).children);
+  return "";
+}
+
+/** Собирает плоский список опций из <option> детей (включая .map() и условия). */
+function flattenSelectOptions(children: ReactNode): SelectOption[] {
+  const out: SelectOption[] = [];
+  Children.forEach(children, (child) => {
+    if (!isValidElement(child)) return;
+    if (child.type === "option") {
+      const props = child.props as { value?: string | number; children?: ReactNode };
+      out.push({ value: props.value ?? "", label: nodeToText(props.children) });
+    } else {
+      const props = child.props as { children?: ReactNode };
+      if (props.children) out.push(...flattenSelectOptions(props.children));
+    }
+  });
+  return out;
+}
+
+export function Select({
+  options,
+  value,
+  onChange,
+  disabled,
+  className,
+  style,
+  placeholder = "Выберите",
+  children,
+}: SelectProps) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const opts = options ?? flattenSelectOptions(children);
+  const cur = String(value ?? "");
+  const selected = opts.find((o) => String(o.value) === cur);
+
+  useEffect(() => {
+    if (!open) return;
+    function onDoc(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [open]);
+
+  const pick = (v: string | number) => {
+    setOpen(false);
+    onChange?.({ target: { value: String(v) } });
+  };
+
   return (
-    <div className="ui-select-wrap" style={style}>
-      <select className={cx("ui-select", className)} {...rest}>
-        {options
-          ? options.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))
-          : children}
-      </select>
+    <div ref={ref} className="ui-select-wrap" style={style}>
+      <button
+        type="button"
+        disabled={disabled}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => !disabled && setOpen((o) => !o)}
+        className={cx("ui-select", open && "ui-select--open", className)}
+      >
+        <span
+          style={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            color: selected && selected.value !== "" ? "var(--color-text-primary)" : "var(--color-text-tertiary)",
+          }}
+        >
+          {selected ? selected.label : placeholder}
+        </span>
+        <svg
+          width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"
+          style={{
+            flexShrink: 0,
+            color: "var(--color-icons-secondary)",
+            transform: open ? "rotate(180deg)" : "none",
+            transition: "transform var(--duration-fast) var(--ease-standard)",
+          }}
+        >
+          <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+      {open && (
+        <div className="ui-select-panel" role="listbox">
+          {opts.map((o) => {
+            const sel = String(o.value) === cur;
+            return (
+              <div
+                key={String(o.value)}
+                role="option"
+                aria-selected={sel}
+                className="ui-select-opt"
+                onClick={() => pick(o.value)}
+              >
+                <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{o.label}</span>
+                {sel && (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ flexShrink: 0, color: "var(--color-brand)" }}>
+                    <path d="M5 12l5 5L20 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

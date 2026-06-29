@@ -632,8 +632,13 @@
 .ui-select-wrap { position: relative; display: inline-flex; width: 100%; }
 .ui-select {
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  text-align: left;
   height: var(--control-m);
-  padding: 0 36px 0 12px;
+  padding: 0 12px;
   font-family: 'MTS Compact', sans-serif;
   font-size: 14px;
   color: var(--color-text-primary);
@@ -641,15 +646,48 @@
   border: 1px solid var(--color-control-stroke);
   border-radius: var(--radius-m);
   cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
   outline: none;
   transition: border-color var(--duration-fast) var(--ease-standard);
 }
+.ui-select--open { border-color: var(--brand-blue); }
 .ui-select:hover:not(:disabled) { border-color: var(--color-control-stroke-hover); }
 .ui-select:focus { border-color: var(--brand-blue); }
 .ui-select:disabled { opacity: 0.6; cursor: not-allowed; }
 .ui-select--compact { height: var(--control-s); font-size: 13px; }
+
+/* — Кастомная панель опций (заменяет браузерный список) — */
+.ui-select-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: var(--z-index-dropdown);
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 4px;
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-middle);
+}
+.ui-select-opt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+  font-family: 'MTS Compact', sans-serif;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+.ui-select-opt:hover { background: var(--color-background-secondary); }
+.ui-select-opt[aria-selected="true"] {
+  background: var(--color-brand-subtle);
+  color: var(--color-text-brand);
+}
 /* вариант под плотные формы со стилем поля `inp` (фон secondary, бордер lower) */
 .ui-select--inp {
   height: auto;
@@ -657,17 +695,4 @@
   font-size: 13px;
   background: var(--color-background-secondary);
   border-color: var(--color-background-lower);
-}
-.ui-select-wrap::after {
-  content: "";
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  width: 10px;
-  height: 10px;
-  margin-top: -5px;
-  pointer-events: none;
-  background-color: var(--color-icons-secondary);
-  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M6 9l6 6 6-6' stroke='black' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>") center / contain no-repeat;
-  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M6 9l6 6 6-6' stroke='black' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>") center / contain no-repeat;
 }
