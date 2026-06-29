@@ -10,6 +10,7 @@ import type { DocumentVersion } from "@/lib/api/knowledge";
 import { apiFetchForm } from "@/lib/api/client";
 import { ConfirmModal } from "./ConfirmModal";
 import { Icon } from "@/components/icons";
+import { Button } from "@/components/ui";
 
 function formatBytes(b: number) {
   if (b < 1048576) return `${(b / 1024).toFixed(0)} КБ`;
@@ -157,9 +158,9 @@ function VersionRow({
               </div>
             </div>
             <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-              <button onClick={handleSaveMeta} disabled={updateMeta.isPending || !label.trim()} style={{ ...primaryBtn, fontSize: "13px", padding: "7px 18px" }}>
+              <Button size="s" onClick={handleSaveMeta} disabled={updateMeta.isPending || !label.trim()}>
                 {updateMeta.isPending ? "…" : "Сохранить"}
-              </button>
+              </Button>
               {saved && <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-accent-positive)" }}><Icon name="CheckCircleSize24StyleOutline" size={15} />Сохранено</span>}
             </div>
 
@@ -333,13 +334,13 @@ export function VersionUpload({ itemId, token }: { itemId: number; token?: strin
 
         {error && <p style={{ fontFamily: "MTS Compact", fontSize: "12px", color: "var(--color-accent-negative)", margin: 0 }}>{error}</p>}
 
-        <button
+        <Button
           onClick={handleUpload}
           disabled={!canUpload}
-          style={{ ...primaryBtn, alignSelf: "flex-start", opacity: canUpload ? 1 : 0.5, cursor: canUpload ? "pointer" : "default" }}
+          style={{ alignSelf: "flex-start" }}
         >
           {uploading ? "Загрузка…" : "Загрузить редакцию"}
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -351,7 +352,6 @@ const smallBtn: React.CSSProperties = { padding: "4px 10px", border: "1px solid 
 const deleteBtn: React.CSSProperties = { padding: "2px 8px", border: "none", borderRadius: "var(--radius-s)", background: "transparent", color: "var(--color-text-tertiary)", cursor: "pointer", fontSize: "14px" };
 const editLabel: React.CSSProperties = { display: "block", fontFamily: "MTS Compact", fontSize: "12px", fontWeight: 500, color: "var(--color-text-secondary)", marginBottom: "4px" };
 const editInput: React.CSSProperties = { width: "100%", padding: "7px 10px", border: "1.5px solid var(--color-background-secondary)", borderRadius: "var(--radius-m)", fontFamily: "MTS Compact", fontSize: "13px", background: "var(--color-background-secondary)", color: "var(--color-text-primary)", outline: "none", boxSizing: "border-box" };
-const primaryBtn: React.CSSProperties = { padding: "8px 20px", background: "var(--brand-blue)", color: "#fff", border: "none", borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "14px", fontWeight: 500, cursor: "pointer" };
 const sectionLabel: React.CSSProperties = { fontFamily: "MTS Wide", fontWeight: 700, fontSize: "11px", color: "var(--color-text-tertiary)", textTransform: "uppercase", letterSpacing: "0.06em", margin: "0 0 8px" };
 const fileRow: React.CSSProperties = { display: "flex", alignItems: "center", gap: "10px", padding: "8px 12px", background: "var(--color-background-secondary)", borderRadius: "var(--radius-m)" };
 const fileAction: React.CSSProperties = { fontFamily: "MTS Compact", fontSize: "12px", color: "var(--brand-blue)", textDecoration: "none", background: "none", border: "none", cursor: "pointer", padding: 0, whiteSpace: "nowrap" };

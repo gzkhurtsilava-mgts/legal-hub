@@ -767,6 +767,37 @@
 }
 .ui-select-panel::-webkit-scrollbar-thumb:hover { background: var(--color-control-stroke-hover); }
 
+/* — Тематический скроллбар по всему приложению (вместо браузерного дефолтного) — */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-control-stroke) transparent;
+}
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: var(--color-control-stroke);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover { background: var(--color-control-stroke-hover); background-clip: padding-box; }
+*::-webkit-scrollbar-corner { background: transparent; }
+
+/* — Пункт выпадающего меню (hover-подсветка вместо JS-хака) — */
+.ui-menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  font-family: 'MTS Compact', sans-serif;
+  font-size: 13px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-standard);
+}
+.ui-menu-item:hover { background: var(--color-background-secondary); }
+
 /* ===== Текстовые поля: синяя обводка при фокусе (по дизайн-системе) =====
    Затрагивает только поля, у которых есть видимая рамка (инлайн-инпуты форм);
    у @mts-ds-полей border: none, поэтому правило их не задевает. */

@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Spinner } from "@mts-ds/granat2-react-spinner";
 import { Icon } from "@/components/icons";
-import { Button, Select } from "@/components/ui";
+import { Button, Select, LinkButton, IconButton } from "@/components/ui";
 import {
   useProcess,
   useActivity,
@@ -61,17 +61,6 @@ const textarea: React.CSSProperties = {
   ...inp,
   minHeight: "80px",
   resize: "vertical",
-};
-
-const removeBtn: React.CSSProperties = {
-  padding: "4px 8px",
-  background: "transparent",
-  color: "var(--color-text-tertiary)",
-  border: "none",
-  borderRadius: "var(--radius-s)",
-  fontFamily: "MTS Compact",
-  fontSize: "12px",
-  cursor: "pointer",
 };
 
 const tagBadge: React.CSSProperties = {
@@ -185,13 +174,9 @@ export default function ActivityEditPage() {
     <div style={page}>
       {/* Breadcrumb */}
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
-        <button onClick={() => router.push("/processes/edit/processes")} style={removeBtn}>
-          Процессы
-        </button>
+        <LinkButton onClick={() => router.push("/processes/edit/processes")}>Процессы</LinkButton>
         <span style={{ color: "var(--color-text-tertiary)", fontSize: "12px" }}>/</span>
-        <button onClick={() => router.push(`/processes/edit/processes/${processId}`)} style={removeBtn}>
-          {proc.name}
-        </button>
+        <LinkButton onClick={() => router.push(`/processes/edit/processes/${processId}`)}>{proc.name}</LinkButton>
         <span style={{ color: "var(--color-text-tertiary)", fontSize: "12px" }}>/</span>
         <span style={{ fontFamily: "MTS Compact", fontSize: "12px", color: "var(--color-text-secondary)" }}>
           Активность {act.id}
@@ -489,14 +474,14 @@ function SopRow({
       <span style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--color-text-tertiary)" }}>{sop.id}</span>
       {canEdit && (
         <>
-          <button onClick={onEdit} style={{ ...removeBtn, color: "var(--brand-blue)" }}>Изм.</button>
+          <LinkButton onClick={onEdit} style={{ fontSize: "13px" }}>Изм.</LinkButton>
           {confirming ? (
             <>
-              <button onClick={async () => { try { await del.mutateAsync(); } catch (e) { alert((e as Error).message); setConfirming(false); } }} style={{ ...removeBtn, color: "var(--color-accent-negative)" }}>Удалить</button>
-              <button onClick={() => setConfirming(false)} style={removeBtn}>Отмена</button>
+              <Button size="xs" variant="negative" onClick={async () => { try { await del.mutateAsync(); } catch (e) { alert((e as Error).message); setConfirming(false); } }}>Удалить</Button>
+              <Button size="xs" variant="secondary" onClick={() => setConfirming(false)}>Отмена</Button>
             </>
           ) : (
-            <button onClick={() => setConfirming(true)} style={removeBtn}><Icon name="CrossSize16StyleOutline" size={14} /></button>
+            <IconButton size={28} danger label="Удалить" onClick={() => setConfirming(true)}><Icon name="CrossSize16StyleOutline" size={14} /></IconButton>
           )}
         </>
       )}
@@ -551,7 +536,7 @@ function DataOpsEditor({
                   <span style={{ fontFamily: "MTS Compact", fontSize: "11px", color: "var(--color-text-tertiary)" }}>{item.source_target}</span>
                 )}
                 {!readOnly && (
-                  <button onClick={() => remove(i)} style={{ ...removeBtn, padding: "0 4px" }}><Icon name="CrossSize16StyleOutline" size={14} /></button>
+                  <button onClick={() => remove(i)} className="ui-iconbtn"><Icon name="CrossSize16StyleOutline" size={14} /></button>
                 )}
               </div>
             );
@@ -614,7 +599,7 @@ function DecisionEditor({
             </p>
           </div>
           {!readOnly && (
-            <button onClick={() => remove(i)} style={{ ...removeBtn, position: "absolute", top: "8px", right: "8px" }}><Icon name="CrossSize16StyleOutline" size={14} /></button>
+            <button onClick={() => remove(i)} className="ui-iconbtn" style={{ position: "absolute", top: "8px", right: "8px" }}><Icon name="CrossSize16StyleOutline" size={14} /></button>
           )}
         </div>
       ))}
@@ -669,7 +654,7 @@ function StringListEditor({
       {items.map((item, i) => (
         <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "6px 10px", background: "var(--color-background-secondary)", borderRadius: "var(--radius-s)", marginBottom: "4px" }}>
           <span style={{ fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-text-primary)", flex: 1 }}>{item}</span>
-          {!readOnly && <button onClick={() => remove(i)} style={removeBtn}><Icon name="CrossSize16StyleOutline" size={14} /></button>}
+          {!readOnly && <button onClick={() => remove(i)} className="ui-iconbtn"><Icon name="CrossSize16StyleOutline" size={14} /></button>}
         </div>
       ))}
       {!readOnly && (

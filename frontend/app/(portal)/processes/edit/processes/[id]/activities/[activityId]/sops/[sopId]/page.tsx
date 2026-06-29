@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Spinner } from "@mts-ds/granat2-react-spinner";
 import { Icon } from "@/components/icons";
+import { Button, LinkButton, IconButton } from "@/components/ui";
 import {
   useActivity,
   useSop,
@@ -56,36 +57,6 @@ const textarea: React.CSSProperties = {
   ...inp,
   minHeight: "70px",
   resize: "vertical",
-};
-
-const saveBtn: React.CSSProperties = {
-  padding: "10px 24px",
-  background: "var(--brand-blue)",
-  color: "#fff",
-  border: "none",
-  borderRadius: "var(--radius-m)",
-  fontFamily: "MTS Compact",
-  fontSize: "14px",
-  fontWeight: 500,
-  cursor: "pointer",
-};
-
-const cancelBtn: React.CSSProperties = {
-  ...saveBtn,
-  background: "transparent",
-  color: "var(--color-text-secondary)",
-  border: "1px solid var(--color-background-lower)",
-};
-
-const removeBtn: React.CSSProperties = {
-  padding: "4px 8px",
-  background: "transparent",
-  color: "var(--color-text-tertiary)",
-  border: "none",
-  borderRadius: "var(--radius-s)",
-  fontFamily: "MTS Compact",
-  fontSize: "12px",
-  cursor: "pointer",
 };
 
 const sectionTitle: React.CSSProperties = {
@@ -179,13 +150,13 @@ export default function SopEditPage() {
     <div style={page}>
       {/* Breadcrumb */}
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px", flexWrap: "wrap" }}>
-        <button onClick={() => router.push("/processes/edit/processes")} style={removeBtn}>Процессы</button>
+        <LinkButton onClick={() => router.push("/processes/edit/processes")}>Процессы</LinkButton>
         <span style={{ color: "var(--color-text-tertiary)", fontSize: "12px" }}>/</span>
-        <button onClick={() => router.push(`/processes/edit/processes/${processId}`)} style={removeBtn}>Процесс</button>
+        <LinkButton onClick={() => router.push(`/processes/edit/processes/${processId}`)}>Процесс</LinkButton>
         <span style={{ color: "var(--color-text-tertiary)", fontSize: "12px" }}>/</span>
-        <button onClick={() => router.push(`/processes/edit/processes/${processId}/activities/${activityId}`)} style={removeBtn}>
+        <LinkButton onClick={() => router.push(`/processes/edit/processes/${processId}/activities/${activityId}`)}>
           {act?.name ?? activityId}
-        </button>
+        </LinkButton>
         <span style={{ color: "var(--color-text-tertiary)", fontSize: "12px" }}>/</span>
         <span style={{ fontFamily: "MTS Compact", fontSize: "12px", color: "var(--color-text-secondary)" }}>
           СОП {sopId}
@@ -200,8 +171,8 @@ export default function SopEditPage() {
         </div>
         {canEdit && dirty && (
           <div style={{ display: "flex", gap: "8px" }}>
-            <button onClick={() => router.push(`/processes/edit/processes/${processId}/activities/${activityId}`)} style={cancelBtn}>Отмена</button>
-            <button onClick={handleSave} disabled={saving} style={saveBtn}>{saving ? "Сохранение…" : "Сохранить"}</button>
+            <Button variant="secondary" size="s" onClick={() => router.push(`/processes/edit/processes/${processId}/activities/${activityId}`)}>Отмена</Button>
+            <Button size="s" onClick={handleSave} disabled={saving}>{saving ? "Сохранение…" : "Сохранить"}</Button>
           </div>
         )}
       </div>
@@ -278,12 +249,12 @@ export default function SopEditPage() {
       {/* Save bar */}
       {canEdit && (
         <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end", marginTop: "8px" }}>
-          <button onClick={() => router.push(`/processes/edit/processes/${processId}/activities/${activityId}`)} style={{ ...cancelBtn, display: "inline-flex", alignItems: "center", gap: "6px" }}>
-            <Icon name="ArrowLeftSize24StyleOutline" size={16} />Назад к активности
-          </button>
-          <button onClick={handleSave} disabled={saving || !dirty} style={{ ...saveBtn, opacity: !dirty ? 0.5 : 1 }}>
+          <Button variant="secondary" onClick={() => router.push(`/processes/edit/processes/${processId}/activities/${activityId}`)} icon={<Icon name="ArrowLeftSize24StyleOutline" size={16} />}>
+            Назад к активности
+          </Button>
+          <Button onClick={handleSave} disabled={saving || !dirty}>
             {saving ? "Сохранение…" : "Сохранить изменения"}
-          </button>
+          </Button>
         </div>
       )}
     </div>
@@ -348,7 +319,7 @@ function StepsEditor({
             placeholder="Название нового шага..."
             style={{ ...inp, flex: 1 }}
           />
-          <button onClick={addStep} style={{ ...saveBtn, padding: "10px 14px" }}>+ Шаг</button>
+          <Button onClick={addStep} icon={<Icon name="PlusSize24StyleOutline" size={16} />}>Шаг</Button>
         </div>
       )}
     </div>
@@ -381,14 +352,14 @@ function StepItem({
         <span style={{ fontFamily: "MTS Compact", fontSize: "14px", color: "var(--color-text-primary)", flex: 1, fontWeight: 500 }}>
           {step.title}
         </span>
-        {!readOnly && <button onClick={onRemove} style={removeBtn}><Icon name="CrossSize16StyleOutline" size={14} /></button>}
+        {!readOnly && <button onClick={onRemove} className="ui-iconbtn"><Icon name="CrossSize16StyleOutline" size={14} /></button>}
       </div>
 
       {(step.substeps ?? []).map((sub, subIdx) => (
         <div key={subIdx} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 0 4px 28px" }}>
           <span style={{ color: "var(--color-text-tertiary)", fontSize: "12px" }}>•</span>
           <span style={{ fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-text-secondary)", flex: 1 }}>{sub}</span>
-          {!readOnly && <button onClick={() => onRemoveSubstep(subIdx)} style={removeBtn}><Icon name="CrossSize16StyleOutline" size={14} /></button>}
+          {!readOnly && <button onClick={() => onRemoveSubstep(subIdx)} className="ui-iconbtn"><Icon name="CrossSize16StyleOutline" size={14} /></button>}
         </div>
       ))}
 
@@ -401,7 +372,7 @@ function StepItem({
             placeholder="Подшаг..."
             style={{ ...inp, fontSize: "12px", padding: "6px 10px", flex: 1 }}
           />
-          <button onClick={() => { onAddSubstep(newSub); setNewSub(""); }} style={{ ...saveBtn, padding: "6px 10px", fontSize: "12px" }}>+</button>
+          <Button size="s" onClick={() => { onAddSubstep(newSub); setNewSub(""); }} icon={<Icon name="PlusSize24StyleOutline" size={16} />} aria-label="Добавить подшаг" />
         </div>
       )}
     </div>
@@ -437,7 +408,7 @@ function FaqEditor({
         <div key={i} style={{ marginBottom: "10px", padding: "12px", background: "var(--color-background-secondary)", borderRadius: "var(--radius-m)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <p style={{ fontFamily: "MTS Compact", fontSize: "13px", fontWeight: 500, color: "var(--color-text-primary)", margin: "0 0 4px" }}>Q: {item.question}</p>
-            {!readOnly && <button onClick={() => remove(i)} style={removeBtn}><Icon name="CrossSize16StyleOutline" size={14} /></button>}
+            {!readOnly && <button onClick={() => remove(i)} className="ui-iconbtn"><Icon name="CrossSize16StyleOutline" size={14} /></button>}
           </div>
           <p style={{ fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-text-secondary)", margin: 0 }}>A: {item.answer || "—"}</p>
         </div>
@@ -452,7 +423,7 @@ function FaqEditor({
             <label style={lbl}>Ответ</label>
             <textarea value={newA} onChange={(e) => setNewA(e.target.value)} placeholder="Ответ..." style={textarea} />
           </div>
-          <button onClick={add} style={{ ...saveBtn, padding: "8px 16px" }}>+ Добавить FAQ</button>
+          <Button onClick={add} icon={<Icon name="PlusSize24StyleOutline" size={16} />}>Добавить FAQ</Button>
         </div>
       )}
     </div>
@@ -488,14 +459,14 @@ function DocsEditor({
         <div key={i} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "8px 12px", background: "var(--color-background-secondary)", borderRadius: "var(--radius-m)", marginBottom: "4px" }}>
           <span style={{ fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-text-primary)", flex: 1 }}>{item.title}</span>
           <span style={{ fontFamily: "MTS Compact", fontSize: "12px", color: "var(--color-text-tertiary)" }}>{item.ref}</span>
-          {!readOnly && <button onClick={() => remove(i)} style={removeBtn}><Icon name="CrossSize16StyleOutline" size={14} /></button>}
+          {!readOnly && <button onClick={() => remove(i)} className="ui-iconbtn"><Icon name="CrossSize16StyleOutline" size={14} /></button>}
         </div>
       ))}
       {!readOnly && (
         <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
           <input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder="Название документа..." style={{ ...inp, flex: 2 }} />
           <input value={newRef} onChange={(e) => setNewRef(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); add(); } }} placeholder="Ссылка / артикул..." style={{ ...inp, flex: 1 }} />
-          <button onClick={add} style={{ ...saveBtn, padding: "10px 14px", whiteSpace: "nowrap" }}>+ Добавить</button>
+          <Button onClick={add} icon={<Icon name="PlusSize24StyleOutline" size={16} />}>Добавить</Button>
         </div>
       )}
     </div>
@@ -530,13 +501,13 @@ function StringListEditor({
       {items.map((item, i) => (
         <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "6px 10px", background: "var(--color-background-secondary)", borderRadius: "var(--radius-s)", marginBottom: "4px" }}>
           <span style={{ fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-text-primary)", flex: 1 }}>{item}</span>
-          {!readOnly && <button onClick={() => remove(i)} style={removeBtn}><Icon name="CrossSize16StyleOutline" size={14} /></button>}
+          {!readOnly && <button onClick={() => remove(i)} className="ui-iconbtn"><Icon name="CrossSize16StyleOutline" size={14} /></button>}
         </div>
       ))}
       {!readOnly && (
         <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
           <input value={newVal} onChange={(e) => setNewVal(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); add(); } }} placeholder={placeholder} style={{ ...inp, flex: 1 }} />
-          <button onClick={add} style={{ ...saveBtn, padding: "10px 14px" }}>+</button>
+          <Button onClick={add} icon={<Icon name="PlusSize24StyleOutline" size={16} />} aria-label="Добавить" />
         </div>
       )}
     </div>

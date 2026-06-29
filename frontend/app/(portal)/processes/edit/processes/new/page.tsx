@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Spinner } from "@mts-ds/granat2-react-spinner";
 import { Icon } from "@/components/icons";
-import { Button, LinkButton, Select } from "@/components/ui";
+import { Button, LinkButton, Select, IconButton } from "@/components/ui";
 import {
   useDomains,
   useRefList,
@@ -156,14 +156,15 @@ export default function NewProcessPage() {
                   style={{ ...inp, fontFamily: "monospace", flex: 1 }}
                 />
                 {idManual && (
-                  <button
+                  <IconButton
                     type="button"
+                    size={36}
                     onClick={() => { setIdManual(false); if (nextId) setProcessId(nextId.suggested_id); }}
-                    style={{ ...iconBtn, background: "var(--color-background-secondary)", border: "1px solid var(--color-background-lower)", borderRadius: "var(--radius-m)", padding: "0 8px" }}
                     title="Сбросить к автоматическому"
+                    label="Сбросить к автоматическому"
                   >
                     <Icon name="UpdateSize24StyleOutline" size={16} />
-                  </button>
+                  </IconButton>
                 )}
               </div>
               <p style={{ fontFamily: "MTS Compact", fontSize: "11px", color: "var(--color-text-tertiary)", marginTop: "4px", marginBottom: 0 }}>
@@ -253,14 +254,5 @@ const inp: React.CSSProperties = {
   borderRadius: "var(--radius-m)",
   outline: "none",
   boxSizing: "border-box",
-};
-const iconBtn: React.CSSProperties = {
-  padding: "4px 8px",
-  background: "none",
-  border: "none",
-  fontFamily: "MTS Compact",
-  fontSize: "14px",
-  cursor: "pointer",
-  color: "var(--brand-blue)",
 };
 const sep: React.CSSProperties = { color: "var(--color-text-tertiary)" };

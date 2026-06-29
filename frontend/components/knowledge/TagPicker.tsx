@@ -122,15 +122,8 @@ export function TagPicker({ selectedTags, availableTags, onAdd, onRemove, disabl
                 <button
                   key={tag.id}
                   onClick={() => { onAdd(tag.id); setOpen(false); setFilter(""); }}
-                  style={{
-                    display: "block", width: "100%", textAlign: "left",
-                    padding: "8px 12px",
-                    fontFamily: "MTS Compact", fontSize: "13px",
-                    color: tag.color ?? "var(--brand-blue)",
-                    background: "none", border: "none", cursor: "pointer",
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "var(--color-background-secondary)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+                  className="ui-menu-item"
+                  style={{ color: tag.color ?? "var(--brand-blue)" }}
                 >
                   {tag.name}
                 </button>

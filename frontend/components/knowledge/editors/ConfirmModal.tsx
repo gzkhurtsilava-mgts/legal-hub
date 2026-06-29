@@ -1,5 +1,7 @@
 "use client";
 
+import { Button } from "@/components/ui";
+
 interface ConfirmModalProps {
   title: string;
   message: string;
@@ -26,26 +28,10 @@ export function ConfirmModal({ title, message, confirmLabel = "Удалить", 
           {message}
         </p>
         <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
-          <button onClick={onCancel} style={cancelBtn}>Отмена</button>
-          <button onClick={onConfirm} style={danger ? dangerBtn : confirmBtn}>{confirmLabel}</button>
+          <Button variant="secondary" onClick={onCancel}>Отмена</Button>
+          <Button variant={danger ? "negative" : "primary"} onClick={onConfirm}>{confirmLabel}</Button>
         </div>
       </div>
     </div>
   );
 }
-
-const cancelBtn: React.CSSProperties = {
-  padding: "8px 20px", background: "var(--color-background-secondary)", border: "none",
-  borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "13px",
-  color: "var(--color-text-primary)", cursor: "pointer",
-};
-const dangerBtn: React.CSSProperties = {
-  padding: "8px 20px", background: "var(--color-accent-negative)", border: "none",
-  borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "13px",
-  color: "#fff", fontWeight: 500, cursor: "pointer",
-};
-const confirmBtn: React.CSSProperties = {
-  padding: "8px 20px", background: "var(--brand-blue)", border: "none",
-  borderRadius: "var(--radius-l)", fontFamily: "MTS Compact", fontSize: "13px",
-  color: "#fff", fontWeight: 500, cursor: "pointer",
-};
