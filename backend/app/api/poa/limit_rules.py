@@ -4,13 +4,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.deps import UserContext, require_role
-from app.models.poa import LimitRule, OrgLevel
+from app.models.poa import AuditAction, LimitRule, OrgLevel
 from app.models.user import UserRole
 from app.schemas.poa import LimitRuleCreate, LimitRuleResponse, LimitRuleUpdate
+from app.services.poa.audit import snapshot, write_audit
 
 router = APIRouter(prefix="/limit-rules", tags=["poa-limit-rules"])
 
 _LAWYER = Depends(require_role(UserRole.admin, UserRole.lawyer))
+
+_LIMIT_FIELDS = [
+    "scope_class", "org_level_id", "exception_kind", "amount", "currency", "deal_direction",
+]
 
 
 async def _get_or_404(db: AsyncSession, rule_id: int) -> LimitRule:
@@ -76,7 +81,7 @@ async def list_limit_rules(
 async def create_limit_rule(
     body: LimitRuleCreate,
     db: AsyncSession = Depends(get_db),
-    _: UserContext = _LAWYER,
+    user: UserContext = _LAWYER,
 ) -> LimitRule:
     await _ensure_level_exists(db, body.org_level_id)
     await _ensure_no_duplicate(
@@ -90,6 +95,10 @@ async def create_limit_rule(
     db.add(obj)
     await db.flush()
     await db.refresh(obj)
+    await write_audit(
+        db, entity_type="limit_rule", entity_id=obj.id,
+        action=AuditAction.create, user_id=user.id, after=snapshot(obj, _LIMIT_FIELDS),
+    )
     return obj
 
 
@@ -107,12 +116,13 @@ async def update_limit_rule(
     rule_id: int,
     body: LimitRuleUpdate,
     db: AsyncSession = Depends(get_db),
-    _: UserContext = _LAWYER,
+    user: UserContext = _LAWYER,
 ) -> LimitRule:
     obj = await _get_or_404(db, rule_id)
     data = body.model_dump(exclude_unset=True)
     if "org_level_id" in data:
         await _ensure_level_exists(db, data["org_level_id"])
+    before = snapshot(obj, _LIMIT_FIELDS)
     # Проверяем дубликат по целевым значениям ДО мутации: иначе autoflush перед
     # SELECT'ом уронит IntegrityError вместо аккуратного 409.
     await _ensure_no_duplicate(
@@ -127,6 +137,11 @@ async def update_limit_rule(
         setattr(obj, key, val)
     await db.flush()
     await db.refresh(obj)
+    await write_audit(
+        db, entity_type="limit_rule", entity_id=obj.id,
+        action=AuditAction.update, user_id=user.id,
+        before=before, after=snapshot(obj, _LIMIT_FIELDS),
+    )
     return obj
 
 
@@ -134,7 +149,11 @@ async def update_limit_rule(
 async def delete_limit_rule(
     rule_id: int,
     db: AsyncSession = Depends(get_db),
-    _: UserContext = _LAWYER,
+    user: UserContext = _LAWYER,
 ) -> None:
     obj = await _get_or_404(db, rule_id)
+    await write_audit(
+        db, entity_type="limit_rule", entity_id=obj.id,
+        action=AuditAction.delete, user_id=user.id, before=snapshot(obj, _LIMIT_FIELDS),
+    )
     await db.delete(obj)

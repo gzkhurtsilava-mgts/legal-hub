@@ -4,14 +4,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.deps import UserContext, require_role
-from app.models.poa import Authority, AuthorityCategory, AuthorityGrant
+from app.models.poa import AuditAction, Authority, AuthorityCategory, AuthorityGrant
 from app.models.poa import poa_certificate_authorities as cert_auth
 from app.models.user import UserRole
 from app.schemas.poa import AuthorityCreate, AuthorityResponse, AuthorityUpdate
+from app.services.poa.audit import snapshot, write_audit
 
 router = APIRouter(prefix="/authorities", tags=["poa-authorities"])
 
 _LAWYER = Depends(require_role(UserRole.admin, UserRole.lawyer))
+
+_AUTH_FIELDS = [
+    "code", "category_id", "name_short", "authority_kind", "deal_direction",
+    "limit_class", "is_universal", "limit_applies", "is_no_limit", "status", "version",
+]
 
 
 async def _get_or_404(db: AsyncSession, authority_id: int) -> Authority:
@@ -63,6 +69,10 @@ async def create_authority(
     db.add(obj)
     await db.flush()
     await db.refresh(obj)
+    await write_audit(
+        db, entity_type="authority", entity_id=obj.id,
+        action=AuditAction.create, user_id=user.id, after=snapshot(obj, _AUTH_FIELDS),
+    )
     return obj
 
 
@@ -88,11 +98,17 @@ async def update_authority(
         await _ensure_code_free(db, data["code"], exclude_id=authority_id)
     if "category_id" in data:
         await _ensure_category_exists(db, data["category_id"])
+    before = snapshot(obj, _AUTH_FIELDS)
     for key, val in data.items():
         setattr(obj, key, val)
     obj.updated_by = user.email
     await db.flush()
     await db.refresh(obj)
+    await write_audit(
+        db, entity_type="authority", entity_id=obj.id,
+        action=AuditAction.update, user_id=user.id,
+        before=before, after=snapshot(obj, _AUTH_FIELDS),
+    )
     return obj
 
 
@@ -100,7 +116,7 @@ async def update_authority(
 async def delete_authority(
     authority_id: int,
     db: AsyncSession = Depends(get_db),
-    _: UserContext = _LAWYER,
+    user: UserContext = _LAWYER,
 ) -> None:
     obj = await _get_or_404(db, authority_id)
     grant_count = (
@@ -127,4 +143,8 @@ async def delete_authority(
             status_code=409,
             detail=f"Невозможно удалить: полномочие включено в {cert_count} доверенностей",
         )
+    await write_audit(
+        db, entity_type="authority", entity_id=obj.id,
+        action=AuditAction.delete, user_id=user.id, before=snapshot(obj, _AUTH_FIELDS),
+    )
     await db.delete(obj)

@@ -65,8 +65,23 @@ async def client(db_session) -> AsyncClient:
     app.dependency_overrides.clear()
 
 
-def _login_as(role: UserRole, user_id: int = 1):
-    """Помощник: переопределяет текущего пользователя ролью для RBAC-тестов."""
+async def _login_as(db_session, role: UserRole, user_id: int = 1):
+    """Переопределяет текущего пользователя ролью и создаёт реальную запись User.
+
+    Запись нужна, чтобы FK аудита (poa_audit.user_id → users.id) выполнялся.
+    """
+    from app.models.user import User
+
+    db_session.add(
+        User(
+            id=user_id,
+            email=f"{role.value}@test.ru",
+            full_name=role.value,
+            hashed_password="x",
+            role=role,
+        )
+    )
+    await db_session.flush()
 
     async def _override():
         return UserContext(
@@ -77,14 +92,14 @@ def _login_as(role: UserRole, user_id: int = 1):
 
 
 @pytest_asyncio.fixture
-def as_lawyer():
-    _login_as(UserRole.lawyer)
+async def as_lawyer(db_session):
+    await _login_as(db_session, UserRole.lawyer)
     yield
     app.dependency_overrides.pop(get_current_user, None)
 
 
 @pytest_asyncio.fixture
-def as_employee():
-    _login_as(UserRole.employee)
+async def as_employee(db_session):
+    await _login_as(db_session, UserRole.employee)
     yield
     app.dependency_overrides.pop(get_current_user, None)

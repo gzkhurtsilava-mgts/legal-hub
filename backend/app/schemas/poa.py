@@ -16,8 +16,12 @@ from app.models.poa import (
     AuthorityKind,
     AuthorityStatus,
     DealDirection,
+    GrantDerivation,
+    LevelSource,
     LimitClass,
     RegionTier,
+    RequestStatus,
+    ResolvedDerivation,
     ScopeClass,
     ScopeType,
 )
@@ -196,5 +200,136 @@ class LimitRuleResponse(_OrmBase):
     amount: Decimal
     currency: str
     deal_direction: DealDirection
+    created_at: datetime
+    updated_at: datetime
+
+
+# ─── Matrix: авторские ячейки (AuthorityGrant) ────────────────────────────────
+
+
+class MatrixCellUpsert(BaseModel):
+    """Upsert ячейки матрицы выдачи. org_scope_id=None — «все скоупы»."""
+    authority_id: int
+    org_scope_id: int | None = None
+    org_level_id: int
+    granted: bool = True
+    limit_override: Decimal | None = None
+    no_limit: bool = False
+    sub_delegation_only: bool = False
+
+
+class AuthorityGrantResponse(_OrmBase):
+    id: int
+    authority_id: int
+    org_scope_id: int | None
+    org_level_id: int
+    granted: bool
+    limit_override: Decimal | None
+    no_limit: bool
+    sub_delegation_only: bool
+    derivation: GrantDerivation
+    created_at: datetime
+    updated_at: datetime
+
+
+class RegenerateResponse(BaseModel):
+    resolved_count: int
+
+
+# ─── Resolved grants (материализация) ─────────────────────────────────────────
+
+
+class ResolvedGrantResponse(_OrmBase):
+    id: int
+    org_scope_id: int | None
+    org_level_id: int
+    authority_id: int
+    granted: bool
+    effective_limit: Decimal | None
+    no_limit: bool
+    unlimited: bool
+    currency: str | None
+    derivation: ResolvedDerivation
+    source_grant_id: int | None
+    generated_at: datetime
+
+
+# ─── Employees ────────────────────────────────────────────────────────────────
+
+
+class EmployeeCreate(BaseModel):
+    fio: str
+    position: str | None = None
+    company: str
+    org_scope_id: int | None = None
+    org_level_id: int | None = None
+    level_source: LevelSource = LevelSource.manual
+    tab_number: str | None = None
+
+
+class EmployeeUpdate(BaseModel):
+    fio: str | None = None
+    position: str | None = None
+    company: str | None = None
+    org_scope_id: int | None = None
+    org_level_id: int | None = None
+    level_source: LevelSource | None = None
+    tab_number: str | None = None
+
+
+class EmployeeResponse(_OrmBase):
+    id: int
+    fio: str
+    position: str | None
+    company: str
+    org_scope_id: int | None
+    org_level_id: int | None
+    level_source: LevelSource
+    tab_number: str | None
+    created_at: datetime
+    updated_at: datetime
+
+
+# ─── Resolve (эффективные полномочия сотрудника) ──────────────────────────────
+
+
+class ResolvedAuthorityOut(BaseModel):
+    authority_id: int | None
+    code: str | None
+    name_short: str | None
+    granted: bool
+    effective_limit: Decimal | None
+    no_limit: bool
+    unlimited: bool
+    currency: str | None
+    derivation: ResolvedDerivation
+    proposed_text: str | None = None
+
+
+class ResolveResponse(BaseModel):
+    employee_id: int
+    org_scope_id: int | None
+    org_level_id: int | None
+    authorities: list[ResolvedAuthorityOut]
+
+
+# ─── Authority requests (заявки на полномочие сверх дефолта) ──────────────────
+
+
+class AuthorityRequestCreate(BaseModel):
+    employee_id: int
+    authority_id: int | None = None
+    proposed_text: str | None = None
+    justification: str | None = None
+
+
+class AuthorityRequestResponse(_OrmBase):
+    id: int
+    employee_id: int
+    authority_id: int | None
+    proposed_text: str | None
+    justification: str | None
+    status: RequestStatus
+    approver: str | None
     created_at: datetime
     updated_at: datetime
