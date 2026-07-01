@@ -11,6 +11,7 @@ from sqlalchemy import (
     String,
     Text,
     func,
+    text,
 )
 
 from sqlalchemy.dialects.postgresql import JSONB
@@ -236,12 +237,12 @@ class PmProcess(Base):
     )
     last_updated: Mapped[date | None] = mapped_column(Date)
     next_review: Mapped[date | None] = mapped_column(Date)
-    sirporc: Mapped[dict | None] = mapped_column(JSONB, server_default="'{}'::jsonb")
+    sirporc: Mapped[dict | None] = mapped_column(JSONB, server_default=text("'{}'::jsonb"))
     bu_mode: Mapped[PmBuMode] = mapped_column(
         Enum(PmBuMode, name="pm_bu_mode", create_type=False), nullable=False, default=PmBuMode.all_clients
     )
-    connections: Mapped[list | None] = mapped_column(JSONB, server_default="'[]'::jsonb")
-    changelog: Mapped[list | None] = mapped_column(JSONB, server_default="'[]'::jsonb")
+    connections: Mapped[list | None] = mapped_column(JSONB, server_default=text("'[]'::jsonb"))
+    changelog: Mapped[list | None] = mapped_column(JSONB, server_default=text("'[]'::jsonb"))
     # Workflow-specific
     sla_days: Mapped[int | None] = mapped_column(Integer)
     pain_points: Mapped[list | None] = mapped_column(JSONB)
@@ -278,12 +279,12 @@ class PmSop(Base):
     audience_role_id: Mapped[int | None] = mapped_column(
         Integer, ForeignKey("pm_roles.id", ondelete="SET NULL")
     )
-    preconditions: Mapped[list | None] = mapped_column(JSONB, server_default="'[]'::jsonb")
-    steps: Mapped[list | None] = mapped_column(JSONB, server_default="'[]'::jsonb")
-    checklist: Mapped[list | None] = mapped_column(JSONB, server_default="'[]'::jsonb")
-    faq: Mapped[list | None] = mapped_column(JSONB, server_default="'[]'::jsonb")
-    related_docs: Mapped[list | None] = mapped_column(JSONB, server_default="'[]'::jsonb")
-    changelog: Mapped[list | None] = mapped_column(JSONB, server_default="'[]'::jsonb")
+    preconditions: Mapped[list | None] = mapped_column(JSONB, server_default=text("'[]'::jsonb"))
+    steps: Mapped[list | None] = mapped_column(JSONB, server_default=text("'[]'::jsonb"))
+    checklist: Mapped[list | None] = mapped_column(JSONB, server_default=text("'[]'::jsonb"))
+    faq: Mapped[list | None] = mapped_column(JSONB, server_default=text("'[]'::jsonb"))
+    related_docs: Mapped[list | None] = mapped_column(JSONB, server_default=text("'[]'::jsonb"))
+    changelog: Mapped[list | None] = mapped_column(JSONB, server_default=text("'[]'::jsonb"))
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False

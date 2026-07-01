@@ -7,6 +7,7 @@ from app.api import auth
 from app.api import files
 from app.api import knowledge
 from app.api.processes import router as processes_router
+from app.api.poa import router as poa_router
 
 app = FastAPI(
     title="Legal Hub API",
@@ -32,6 +33,7 @@ app.include_router(auth.router, prefix="/api")
 app.include_router(files.router)
 app.include_router(knowledge.router, prefix="/api")
 app.include_router(processes_router, prefix="/api")
+app.include_router(poa_router, prefix="/api")
 
 
 @app.on_event("startup")
