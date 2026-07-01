@@ -1,5 +1,14 @@
 import { Node, mergeAttributes } from "@tiptap/core";
 import type { MutableRefObject } from "react";
+import iconData from "@/lib/icons/icon-data";
+
+const icons = iconData as Record<string, { viewBox: string; body: string }>;
+
+function svgIcon(name: string, size: number, style?: string): string {
+  const d = icons[name];
+  if (!d) return "";
+  return `<svg width="${size}" height="${size}" viewBox="${d.viewBox}" fill="none"${style ? ` style="${style}"` : ""}>${d.body}</svg>`;
+}
 
 export interface FileEmbedAttrs {
   filename: string;
@@ -98,8 +107,8 @@ export const FileEmbedExtension = Node.create<FileEmbedOptions>({
       dom.style.cursor = editable ? "default" : "pointer";
 
       const iconEl = document.createElement("span");
-      iconEl.textContent = "📎";
-      iconEl.style.cssText = "font-size: 18px; flex-shrink: 0;";
+      iconEl.style.cssText = "flex-shrink: 0; display: flex; align-items: center; color: var(--color-text-secondary);";
+      iconEl.innerHTML = svgIcon("DocumentSize24StyleOutline", 18);
 
       const nameEl = document.createElement("span");
       nameEl.textContent = filename || "—";
@@ -118,8 +127,8 @@ export const FileEmbedExtension = Node.create<FileEmbedOptions>({
       if (editable) {
         const delBtn = document.createElement("button");
         delBtn.type = "button";
-        delBtn.textContent = "✕";
         delBtn.title = "Удалить вложение из текста";
+        delBtn.innerHTML = svgIcon("CrossSize16StyleOutline", 12, "pointer-events:none;display:block");
         delBtn.style.cssText =
           "background: none; border: none; cursor: pointer; padding: 2px 6px; font-size: 12px; color: var(--color-text-tertiary); border-radius: var(--radius-s); flex-shrink: 0; line-height: 1;";
 
@@ -148,8 +157,8 @@ export const FileEmbedExtension = Node.create<FileEmbedOptions>({
         });
       } else {
         const dlEl = document.createElement("span");
-        dlEl.textContent = "⬇";
-        dlEl.style.cssText = "font-size: 14px; color: var(--brand-blue); flex-shrink: 0;";
+        dlEl.style.cssText = "flex-shrink: 0; display: flex; align-items: center; color: var(--brand-blue);";
+        dlEl.innerHTML = svgIcon("DownloadSize24StyleOutline", 16, "color:inherit");
         dom.appendChild(dlEl);
 
         dom.addEventListener("click", () => {

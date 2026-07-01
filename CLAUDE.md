@@ -153,9 +153,34 @@ npm install @mts-ds/anything
 
 ### Docker Images
 - Local dev: public Docker Hub images are OK
-- Corp deployment: use `harbor.mgts.ru/dockerhub/` prefix
-  - Example: `FROM harbor.mgts.ru/dockerhub/node:20.18.0-alpine`
+- Corp deployment: Harbor mirror — image names differ, handled by `docker-compose.corp.yml`
 - Never use `latest` tags — always pin exact versions
+
+### Corp Docker deployment — CRITICAL
+**Two separate docker-compose files — do NOT merge them, do NOT add REGISTRY_PREFIX to docker-compose.yml.**
+
+Corp machine uses Harbor (internal mirror of Docker Hub). Public image names fail because
+the corp proxy requires auth for Docker Hub — auth prompt appears and must be closed.
+
+**Corp-specific files (all already exist in the repo):**
+- `docker-compose.corp.yml` — overrides image names and Dockerfile paths for Harbor
+- `backend/Dockerfile.corp` — uses `harbor.mgts.ru/library/python:...`
+- `frontend/frontend.corp.Dockerfile` — uses `harbor.mgts.ru/dockerhub/node:...`
+
+**Run on corp machine (always):**
+```powershell
+docker compose -f docker-compose.yml -f docker-compose.corp.yml up -d --build
+```
+
+**If only backend needs restart (no rebuild, code syncs via bind mount):**
+```powershell
+docker restart legal-hub-backend
+```
+Do NOT use `docker compose up -d backend` without the corp override — it will try to pull
+postgres/redis from Docker Hub and prompt for proxy auth.
+
+**Corp postgres image:** `harbor.mgts.ru/dockerhub/library/postgres:16.4`
+**Corp redis image:** `harbor.mgts.ru/it/rnd/llm-eval/redis:7.2.13-alpine` (different path AND version from dev!)
 
 ### Corporate Proxy
 ```
@@ -210,7 +235,37 @@ Scalability to 2000 users is secondary (max 20–50 concurrent users).
 
 ---
 
-## DESIGN SYSTEM
+## МГТС DESIGN SYSTEM (AUTHORITATIVE)
+
+**The full design system is in `.claude/skills/mgts-design/`.** Read it at the start of any UI task. Do not guess at component APIs — check the `.d.ts` and `.prompt.md` files there.
+
+### Core rules — apply in EVERY session automatically
+
+1. **Brand color:** `#008ae0` (МГТС blue). Never use MTS red. Use `--brand-blue` / `--color-brand` CSS vars.
+2. **Tokens:** use CSS custom properties from `tokens/`. Never hardcode hex (except `--brand-blue` source value).
+3. **Language:** all UI copy in Russian. Sentence case. No emoji. Dates `DD.MM.YYYY`. Document numbers «№ 2024-118».
+4. **Fonts:** `'MTS Wide'` headings H1–H2 · `'MTS Compact'` UI text · `'MTS Sans'` long-form · `'MTS Text'` captions. **MUST include the space** in family names.
+5. **Radii (strict grid):** `--radius-s` 8px · `--radius-m` 12px · `--radius-l` 32px · `--radius-xl` 80px. No off-grid values.
+6. **Icons:** `<Icon name="SearchSize24StyleOutline" size={24} />` — full name list in `.claude/skills/mgts-design/assets/icons/Icon.d.ts`.
+7. **Statuses via Badge tones:** positive (green) · warning (yellow) · negative (orange) · brand (blue).
+8. **Dark theme:** `.dark` class on `<html>`. Brand blue is the same in both themes.
+9. **No gradients, no decorative color, no emoji, no ALL-CAPS in UI.**
+
+### Component index (49 components)
+See `.claude/skills/mgts-design/components/<group>/`:
+- **brand:** Logo
+- **core:** Button, ButtonPrice, IconButton, Link, Chip, SegmentedControl, Spinner
+- **forms:** TextField, Textarea, Select, Checkbox, Radio, Switch, Slider, RangeSlider, Stepper, SearchInput, CodeInput, Autocomplete, FileUpload, InlineEdit, FormChip
+- **data-display:** Card, Badge, Tag, Avatar, Divider, Counter, ListItem, TextList
+- **feedback:** Tooltip, Toast, Snackbar, Modal, Banner, StickyBanner, CookieBanner, ProgressBar, Skeleton
+- **navigation:** Tabs, SidebarNav, Breadcrumbs, Pagination, Collapsible, Steps, Menu, ActionBar
+
+### @mts-ds vs design system
+This project uses `@mts-ds` npm packages (in `frontend/vendor/@mts-ds/`). The `.claude/skills/mgts-design/` files define the **visual spec and component contracts** — use them as the authoritative reference for how things should look and behave. When writing code for this project, map the design system's intent to the actual `@mts-ds` package APIs (documented below).
+
+---
+
+## DESIGN SYSTEM (legacy @mts-ds API reference)
 
 ### Priority rule
 `@mts-ds` components first → custom Tailwind components → **NEVER mix their styles**.
@@ -431,6 +486,7 @@ DELETE /api/{module}/{id}
 
 Implementation plans live in `docs/plans/`. Read the relevant plan before starting a milestone.
 - `docs/plans/knowledge-module.md` — module `knowledge` (база знаний), M0–M6, ~8.5 weeks
+- `docs/plans/doverennosti.md` — module «Доверенности» (доверенности), M0 done
 
 ---
 

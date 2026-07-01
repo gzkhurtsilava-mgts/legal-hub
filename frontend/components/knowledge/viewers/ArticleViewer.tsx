@@ -21,6 +21,7 @@ import { Subscript } from "@tiptap/extension-subscript";
 import { Typography } from "@tiptap/extension-typography";
 import type { AttachmentMeta } from "@/lib/api/knowledge";
 import { FileEmbedExtension } from "@/components/knowledge/editors/FileEmbedExtension";
+import { Icon } from "@/components/icons";
 
 interface TocItem { id: string; level: number; textContent: string; }
 
@@ -187,7 +188,7 @@ export function ArticleViewer({
                     color: "var(--color-text-primary)",
                   }}
                 >
-                  <span style={{ fontSize: "18px" }}>📎</span>
+                  <Icon name="DocumentSize24StyleOutline" size={18} style={{ color: "var(--color-text-secondary)", flexShrink: 0 }} />
                   <span style={{ flex: 1, fontFamily: "MTS Compact", fontSize: "14px" }}>{att.filename}</span>
                   <span style={{ fontFamily: "MTS Compact", fontSize: "12px", color: "var(--color-text-tertiary)" }}>
                     {formatBytes(att.size)}

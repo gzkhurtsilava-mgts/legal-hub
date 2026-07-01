@@ -1,3 +1,5 @@
+export { Icon } from "./Icon";
+export type { IconName } from "./Icon";
 export { SearchIcon } from "./SearchIcon";
 export { CrossIcon } from "./CrossIcon";
 export { NightModeIcon } from "./NightModeIcon";

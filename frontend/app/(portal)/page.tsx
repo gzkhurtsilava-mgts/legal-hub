@@ -40,22 +40,28 @@ export default function HomePage() {
           autoFocus
         />
         <button type="submit" className="home2-find" aria-label="Найти">
-          <span className="home2-find__label">Найти</span>
           <Icon name="ArrowRightSize24StyleOutline" size={22} />
         </button>
       </form>
 
-      {/* Сервисы — большие квадратные карточки */}
+      {/* Сервисы — квадратные карточки с 3D-иллюстрациями */}
       <div className="home2-grid">
         {HOME_QUICK_APPS.map((app) => (
           <button key={app.id} className="home2-card" onClick={() => router.push(app.href)}>
-            <span
-              className="home2-card__icon"
-              style={{ background: `color-mix(in srgb, ${app.color} 14%, var(--color-background-primary))` }}
-            >
-              <Icon name={app.icon} size={34} style={{ color: app.color }} />
+            {app.image ? (
+              <img src={app.image} alt="" className="home2-card__img" />
+            ) : (
+              <span
+                className="home2-card__icon"
+                style={{ background: `color-mix(in srgb, ${app.color} 12%, var(--color-background-primary))` }}
+              >
+                <Icon name={app.icon} size={28} style={{ color: app.color }} />
+              </span>
+            )}
+            <span className="home2-card__body">
+              <span className="home2-card__title">{app.title}</span>
+              {app.caption && <span className="home2-card__desc">{app.caption}</span>}
             </span>
-            <span className="home2-card__title">{app.title}</span>
           </button>
         ))}
       </div>

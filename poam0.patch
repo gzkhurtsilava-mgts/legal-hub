@@ -1,0 +1,1368 @@
+From 8bf5cffce0fb2a0fb7e6d00df2d5d1ae90881cf3 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 1 Jul 2026 11:16:11 +0000
+Subject: [PATCH] poa M0: base-of-authorities + registry models, migration,
+ test infra
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Модуль «Доверенности», фундамент фазы 1:
+- models/poa.py — 14 таблиц (каталог полномочий, матрица выдачи, лимиты,
+  орг-скоупы/уровни, сотрудники, заявки, resolved_grants; реестр + выдача
+  оригинала; аудит)
+- Alembic-миграция a7b1c2d3e4f5 (enum-типы через PgEnum)
+- poa_sub_delegation_coeff (передоверие 60%) в Settings
+- tests/conftest.py — async тест-инфраструктура + RBAC-хелперы
+- tests/poa/test_models.py — 9 метаданные-тестов
+- docs/plans/doverennosti.md — план (M0 done, M1 next)
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01SKHsVppHkgs8nhws6My4wd
+---
+ .../alembic/versions/a7b1c2d3e4f5_poa_m0.py   | 336 ++++++++++++
+ backend/app/core/config.py                    |   3 +
+ backend/app/models/__init__.py                |  42 +-
+ backend/app/models/poa.py                     | 518 ++++++++++++++++++
+ backend/tests/__init__.py                     |   0
+ backend/tests/conftest.py                     |  90 +++
+ backend/tests/poa/__init__.py                 |   0
+ backend/tests/poa/test_models.py              |  88 +++
+ docs/plans/README.md                          |   1 +
+ docs/plans/doverennosti.md                    | 169 ++++++
+ 10 files changed, 1234 insertions(+), 13 deletions(-)
+ create mode 100644 backend/alembic/versions/a7b1c2d3e4f5_poa_m0.py
+ create mode 100644 backend/app/models/poa.py
+ create mode 100644 backend/tests/__init__.py
+ create mode 100644 backend/tests/conftest.py
+ create mode 100644 backend/tests/poa/__init__.py
+ create mode 100644 backend/tests/poa/test_models.py
+ create mode 100644 docs/plans/doverennosti.md
+
+diff --git a/backend/alembic/versions/a7b1c2d3e4f5_poa_m0.py b/backend/alembic/versions/a7b1c2d3e4f5_poa_m0.py
+new file mode 100644
+index 0000000..b1db69e
+--- /dev/null
++++ b/backend/alembic/versions/a7b1c2d3e4f5_poa_m0.py
+@@ -0,0 +1,336 @@
++"""doverennosti (poa) module M0: base of authorities + registry tables
++
++Revision ID: a7b1c2d3e4f5
++Revises: b3c4d5e6f7a8
++Create Date: 2026-07-01
++"""
++
++import sqlalchemy as sa
++from sqlalchemy.dialects.postgresql import ENUM as PgEnum
++from sqlalchemy.dialects.postgresql import JSONB
++
++from alembic import op
++
++revision = "a7b1c2d3e4f5"
++down_revision = "b3c4d5e6f7a8"
++branch_labels = None
++depends_on = None
++
++# PgEnum вместо sa.Enum — чтобы независимо управлять create_type (см. пояснение
++# в a2b3c4d5e6f7_processes_m0.py). Каждый именованный тип создаётся ровно один раз
++# (create_type=True на первом использовании; create_type=False на последующих).
++
++_authority_kind = PgEnum("deal", "representation", "action", name="poa_authority_kind")
++
++_deal_direction = PgEnum("expense", "income", "na", name="poa_deal_direction")
++_deal_direction_ref = PgEnum(
++    "expense", "income", "na", name="poa_deal_direction", create_type=False
++)
++
++_authority_status = PgEnum("draft", "active", "archived", name="poa_authority_status")
++
++_limit_class = PgEnum(
++    "general", "finance", "procurement", "infrastructure", name="poa_limit_class"
++)
++_limit_class_ref = PgEnum(
++    "general", "finance", "procurement", "infrastructure",
++    name="poa_limit_class", create_type=False,
++)
++
++_scope_type = PgEnum("metablock", "block", "department", name="poa_scope_type")
++_region_tier = PgEnum("tier1", "tier2", name="poa_region_tier")
++_scope_class = PgEnum("kc", "region_tier1", "region_tier2", name="poa_scope_class")
++
++_grant_derivation = PgEnum(
++    "base_rule", "cascade", "manual_exception", name="poa_grant_derivation"
++)
++_resolved_derivation = PgEnum(
++    "base_rule", "cascade", "universal", "sub_delegation", "manual_exception",
++    name="poa_resolved_derivation",
++)
++
++_request_status = PgEnum("pending", "approved", "rejected", name="poa_request_status")
++_level_source = PgEnum("manual", "derived", "hr", name="poa_level_source")
++
++_certificate_type = PgEnum("paper", "notarial", "mchd", name="poa_certificate_type")
++_certificate_status = PgEnum("active", "revoked", "expired", name="poa_certificate_status")
++_issue_method = PgEnum("in_person", "ring_mail", "postal", name="poa_issue_method")
++_audit_action = PgEnum(
++    "create", "update", "delete", "generate", "approve", "reject", name="poa_audit_action"
++)
++
++_ALL_ENUM_NAMES = [
++    "poa_authority_kind", "poa_deal_direction", "poa_authority_status", "poa_limit_class",
++    "poa_scope_type", "poa_region_tier", "poa_scope_class", "poa_grant_derivation",
++    "poa_resolved_derivation", "poa_request_status", "poa_level_source",
++    "poa_certificate_type", "poa_certificate_status", "poa_issue_method", "poa_audit_action",
++]
++
++
++def _ts(name="created_at"):
++    return sa.Column(name, sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False)
++
++
++def upgrade() -> None:
++    # ── Деревья и уровни (без внешних FK, кроме self-ref) ───────────────────
++    op.create_table(
++        "poa_authority_categories",
++        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
++        sa.Column("parent_id", sa.Integer(), nullable=True),
++        sa.Column("level", sa.Integer(), nullable=False),
++        sa.Column("name", sa.String(500), nullable=False),
++        sa.Column("sort_order", sa.Integer(), server_default="0", nullable=False),
++        sa.ForeignKeyConstraint(["parent_id"], ["poa_authority_categories.id"], ondelete="RESTRICT"),
++        sa.PrimaryKeyConstraint("id"),
++    )
++
++    op.create_table(
++        "poa_org_scopes",
++        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
++        sa.Column("parent_id", sa.Integer(), nullable=True),
++        sa.Column("scope_type", _scope_type, nullable=False),
++        sa.Column("name", sa.String(500), nullable=False),
++        sa.Column("company", sa.String(100), nullable=False),
++        sa.Column("is_corporate_center", sa.Boolean(), server_default="false", nullable=False),
++        sa.Column("region_tier", _region_tier, nullable=True),
++        _ts(),
++        sa.ForeignKeyConstraint(["parent_id"], ["poa_org_scopes.id"], ondelete="RESTRICT"),
++        sa.PrimaryKeyConstraint("id"),
++    )
++
++    op.create_table(
++        "poa_org_levels",
++        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
++        sa.Column("code", sa.String(20), nullable=False),
++        sa.Column("rank", sa.Integer(), nullable=False),
++        sa.Column("can_conclude_deals_default", sa.Boolean(), server_default="true", nullable=False),
++        sa.PrimaryKeyConstraint("id"),
++        sa.UniqueConstraint("code"),
++        sa.UniqueConstraint("rank"),
++    )
++
++    # ── Каталог полномочий ──────────────────────────────────────────────────
++    op.create_table(
++        "poa_authorities",
++        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
++        sa.Column("code", sa.String(50), nullable=False),
++        sa.Column("category_id", sa.Integer(), nullable=False),
++        sa.Column("name_short", sa.String(500), nullable=False),
++        sa.Column("text_full", sa.Text(), nullable=False),
++        sa.Column("authority_kind", _authority_kind, nullable=False),
++        sa.Column("deal_direction", _deal_direction, server_default="na", nullable=False),
++        sa.Column("limit_class", _limit_class, nullable=True),
++        sa.Column("is_universal", sa.Boolean(), server_default="false", nullable=False),
++        sa.Column("limit_applies", sa.Boolean(), server_default="false", nullable=False),
++        sa.Column("is_no_limit", sa.Boolean(), server_default="false", nullable=False),
++        sa.Column("legal_basis", sa.Text(), nullable=True),
++        sa.Column("status", _authority_status, server_default="draft", nullable=False),
++        sa.Column("version", sa.Integer(), server_default="1", nullable=False),
++        sa.Column("valid_from", sa.Date(), nullable=True),
++        sa.Column("valid_to", sa.Date(), nullable=True),
++        sa.Column("updated_by", sa.String(255), nullable=True),
++        _ts(),
++        _ts("updated_at"),
++        sa.ForeignKeyConstraint(["category_id"], ["poa_authority_categories.id"], ondelete="RESTRICT"),
++        sa.PrimaryKeyConstraint("id"),
++        sa.UniqueConstraint("code"),
++    )
++
++    # ── Матрица выдачи (авторские правила) ──────────────────────────────────
++    op.create_table(
++        "poa_authority_grants",
++        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
++        sa.Column("authority_id", sa.Integer(), nullable=False),
++        sa.Column("org_scope_id", sa.Integer(), nullable=True),
++        sa.Column("org_level_id", sa.Integer(), nullable=False),
++        sa.Column("granted", sa.Boolean(), server_default="true", nullable=False),
++        sa.Column("limit_override", sa.Numeric(18, 2), nullable=True),
++        sa.Column("no_limit", sa.Boolean(), server_default="false", nullable=False),
++        sa.Column("sub_delegation_only", sa.Boolean(), server_default="false", nullable=False),
++        sa.Column("derivation", _grant_derivation, server_default="base_rule", nullable=False),
++        _ts(),
++        _ts("updated_at"),
++        sa.ForeignKeyConstraint(["authority_id"], ["poa_authorities.id"], ondelete="CASCADE"),
++        sa.ForeignKeyConstraint(["org_scope_id"], ["poa_org_scopes.id"], ondelete="CASCADE"),
++        sa.ForeignKeyConstraint(["org_level_id"], ["poa_org_levels.id"], ondelete="CASCADE"),
++        sa.PrimaryKeyConstraint("id"),
++        sa.UniqueConstraint("authority_id", "org_scope_id", "org_level_id", name="uq_poa_grant_cell"),
++    )
++
++    # ── Блок лимитов ────────────────────────────────────────────────────────
++    op.create_table(
++        "poa_limit_rules",
++        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
++        sa.Column("scope_class", _scope_class, nullable=False),
++        sa.Column("org_level_id", sa.Integer(), nullable=False),
++        sa.Column("exception_kind", _limit_class_ref, nullable=False),
++        sa.Column("amount", sa.Numeric(18, 2), nullable=False),
++        sa.Column("currency", sa.String(3), server_default="RUB", nullable=False),
++        sa.Column("deal_direction", _deal_direction_ref, server_default="expense", nullable=False),
++        _ts(),
++        _ts("updated_at"),
++        sa.ForeignKeyConstraint(["org_level_id"], ["poa_org_levels.id"], ondelete="CASCADE"),
++        sa.PrimaryKeyConstraint("id"),
++        sa.UniqueConstraint(
++            "scope_class", "org_level_id", "exception_kind", "deal_direction",
++            name="uq_poa_limit_rule",
++        ),
++    )
++
++    # ── Сотрудники и деривация уровня ───────────────────────────────────────
++    op.create_table(
++        "poa_employees",
++        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
++        sa.Column("fio", sa.String(500), nullable=False),
++        sa.Column("position", sa.String(500), nullable=True),
++        sa.Column("company", sa.String(100), nullable=False),
++        sa.Column("org_scope_id", sa.Integer(), nullable=True),
++        sa.Column("org_level_id", sa.Integer(), nullable=True),
++        sa.Column("level_source", _level_source, server_default="manual", nullable=False),
++        sa.Column("tab_number", sa.String(50), nullable=True),
++        _ts(),
++        _ts("updated_at"),
++        sa.ForeignKeyConstraint(["org_scope_id"], ["poa_org_scopes.id"], ondelete="SET NULL"),
++        sa.ForeignKeyConstraint(["org_level_id"], ["poa_org_levels.id"], ondelete="SET NULL"),
++        sa.PrimaryKeyConstraint("id"),
++    )
++
++    op.create_table(
++        "poa_position_level_rules",
++        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
++        sa.Column("position_pattern", sa.String(500), nullable=False),
++        sa.Column("org_level_id", sa.Integer(), nullable=False),
++        sa.Column("priority", sa.Integer(), server_default="0", nullable=False),
++        sa.ForeignKeyConstraint(["org_level_id"], ["poa_org_levels.id"], ondelete="CASCADE"),
++        sa.PrimaryKeyConstraint("id"),
++    )
++
++    # ── Заявки на полномочия ────────────────────────────────────────────────
++    op.create_table(
++        "poa_authority_requests",
++        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
++        sa.Column("employee_id", sa.Integer(), nullable=False),
++        sa.Column("authority_id", sa.Integer(), nullable=True),
++        sa.Column("proposed_text", sa.Text(), nullable=True),
++        sa.Column("justification", sa.Text(), nullable=True),
++        sa.Column("status", _request_status, server_default="pending", nullable=False),
++        sa.Column("approver", sa.String(255), nullable=True),
++        _ts(),
++        _ts("updated_at"),
++        sa.ForeignKeyConstraint(["employee_id"], ["poa_employees.id"], ondelete="CASCADE"),
++        sa.ForeignKeyConstraint(["authority_id"], ["poa_authorities.id"], ondelete="SET NULL"),
++        sa.PrimaryKeyConstraint("id"),
++    )
++
++    # ── Материализация резолвинга ───────────────────────────────────────────
++    op.create_table(
++        "poa_resolved_grants",
++        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
++        sa.Column("org_scope_id", sa.Integer(), nullable=True),
++        sa.Column("org_level_id", sa.Integer(), nullable=False),
++        sa.Column("authority_id", sa.Integer(), nullable=False),
++        sa.Column("granted", sa.Boolean(), server_default="true", nullable=False),
++        sa.Column("effective_limit", sa.Numeric(18, 2), nullable=True),
++        sa.Column("no_limit", sa.Boolean(), server_default="false", nullable=False),
++        sa.Column("unlimited", sa.Boolean(), server_default="false", nullable=False),
++        sa.Column("currency", sa.String(3), nullable=True),
++        sa.Column("derivation", _resolved_derivation, nullable=False),
++        sa.Column("source_grant_id", sa.Integer(), nullable=True),
++        _ts("generated_at"),
++        sa.ForeignKeyConstraint(["org_scope_id"], ["poa_org_scopes.id"], ondelete="CASCADE"),
++        sa.ForeignKeyConstraint(["org_level_id"], ["poa_org_levels.id"], ondelete="CASCADE"),
++        sa.ForeignKeyConstraint(["authority_id"], ["poa_authorities.id"], ondelete="CASCADE"),
++        sa.ForeignKeyConstraint(["source_grant_id"], ["poa_authority_grants.id"], ondelete="SET NULL"),
++        sa.PrimaryKeyConstraint("id"),
++    )
++    op.create_index(
++        "ix_poa_resolved_scope_level", "poa_resolved_grants", ["org_scope_id", "org_level_id"]
++    )
++
++    # ── Реестр доверенностей ────────────────────────────────────────────────
++    op.create_table(
++        "poa_certificates",
++        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
++        sa.Column("number", sa.String(100), nullable=False),
++        sa.Column("grantor_company", sa.String(200), nullable=False),
++        sa.Column("grantee_employee_id", sa.Integer(), nullable=True),
++        sa.Column("grantee_fio", sa.String(500), nullable=False),
++        sa.Column("grantee_position", sa.String(500), nullable=True),
++        sa.Column("grantee_tab_number", sa.String(50), nullable=True),
++        sa.Column("cert_type", _certificate_type, nullable=False),
++        sa.Column("issued_date", sa.Date(), nullable=False),
++        sa.Column("valid_to", sa.Date(), nullable=True),
++        sa.Column("limits", JSONB(), nullable=True),
++        sa.Column("signer", sa.String(500), nullable=True),
++        sa.Column("registration_data", sa.String(500), nullable=True),
++        sa.Column("scan_path", sa.String(1000), nullable=True),
++        sa.Column("basis_request_id", sa.Integer(), nullable=True),
++        sa.Column("status", _certificate_status, server_default="active", nullable=False),
++        _ts(),
++        _ts("updated_at"),
++        sa.ForeignKeyConstraint(["grantee_employee_id"], ["poa_employees.id"], ondelete="SET NULL"),
++        sa.ForeignKeyConstraint(["basis_request_id"], ["poa_authority_requests.id"], ondelete="SET NULL"),
++        sa.PrimaryKeyConstraint("id"),
++        sa.UniqueConstraint("number"),
++    )
++
++    op.create_table(
++        "poa_certificate_authorities",
++        sa.Column("certificate_id", sa.Integer(), nullable=False),
++        sa.Column("authority_id", sa.Integer(), nullable=False),
++        sa.ForeignKeyConstraint(["certificate_id"], ["poa_certificates.id"], ondelete="CASCADE"),
++        sa.ForeignKeyConstraint(["authority_id"], ["poa_authorities.id"], ondelete="RESTRICT"),
++        sa.PrimaryKeyConstraint("certificate_id", "authority_id"),
++    )
++
++    op.create_table(
++        "poa_original_issues",
++        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
++        sa.Column("certificate_id", sa.Integer(), nullable=False),
++        sa.Column("recipient_fio", sa.String(500), nullable=False),
++        sa.Column("issued_date", sa.Date(), nullable=False),
++        sa.Column("method", _issue_method, nullable=False),
++        sa.Column("confirmed", sa.Boolean(), server_default="false", nullable=False),
++        sa.Column("confirmation_note", sa.String(500), nullable=True),
++        _ts(),
++        sa.ForeignKeyConstraint(["certificate_id"], ["poa_certificates.id"], ondelete="CASCADE"),
++        sa.PrimaryKeyConstraint("id"),
++    )
++
++    # ── Аудит ───────────────────────────────────────────────────────────────
++    op.create_table(
++        "poa_audit",
++        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
++        sa.Column("entity_type", sa.String(50), nullable=False),
++        sa.Column("entity_id", sa.Integer(), nullable=True),
++        sa.Column("action", _audit_action, nullable=False),
++        sa.Column("diff", JSONB(), nullable=True),
++        sa.Column("user_id", sa.Integer(), nullable=True),
++        _ts("at"),
++        sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="SET NULL"),
++        sa.PrimaryKeyConstraint("id"),
++    )
++    op.create_index("ix_poa_audit_entity", "poa_audit", ["entity_type", "entity_id"])
++
++
++def downgrade() -> None:
++    op.drop_index("ix_poa_audit_entity", table_name="poa_audit")
++    op.drop_table("poa_audit")
++    op.drop_table("poa_original_issues")
++    op.drop_table("poa_certificate_authorities")
++    op.drop_table("poa_certificates")
++    op.drop_index("ix_poa_resolved_scope_level", table_name="poa_resolved_grants")
++    op.drop_table("poa_resolved_grants")
++    op.drop_table("poa_authority_requests")
++    op.drop_table("poa_position_level_rules")
++    op.drop_table("poa_employees")
++    op.drop_table("poa_limit_rules")
++    op.drop_table("poa_authority_grants")
++    op.drop_table("poa_authorities")
++    op.drop_table("poa_org_levels")
++    op.drop_table("poa_org_scopes")
++    op.drop_table("poa_authority_categories")
++
++    bind = op.get_bind()
++    for name in _ALL_ENUM_NAMES:
++        PgEnum(name=name).drop(bind, checkfirst=True)
+diff --git a/backend/app/core/config.py b/backend/app/core/config.py
+index 57a93ad..f0c330b 100644
+--- a/backend/app/core/config.py
++++ b/backend/app/core/config.py
+@@ -25,5 +25,8 @@ class Settings(BaseSettings):
+     # File storage (Docker volume /media)
+     media_root: str = "/media"
+ 
++    # Доверенности: коэффициент передоверия (доля лимита руководителя)
++    poa_sub_delegation_coeff: float = 0.60
++
+ 
+ settings = Settings()
+diff --git a/backend/app/models/__init__.py b/backend/app/models/__init__.py
+index 4fd4dcd..8b33426 100644
+--- a/backend/app/models/__init__.py
++++ b/backend/app/models/__init__.py
+@@ -1,4 +1,3 @@
+-from app.models.user import User  # noqa: F401
+ from app.models.knowledge import (  # noqa: F401
+     KnowledgeItem,
+     Section,
+@@ -7,23 +6,40 @@ from app.models.knowledge import (  # noqa: F401
+     knowledge_item_tags,
+     section_lawyers,
+ )
++from app.models.poa import (  # noqa: F401
++    Authority,
++    AuthorityCategory,
++    AuthorityGrant,
++    AuthorityRequest,
++    Employee,
++    LimitRule,
++    OrgLevel,
++    OrgScope,
++    PoaAudit,
++    PoaCertificate,
++    PoaOriginalIssue,
++    PositionLevelRule,
++    ResolvedGrant,
++    poa_certificate_authorities,
++)
+ from app.models.processes import (  # noqa: F401
+-    PmRole,
+-    PmSystem,
+-    PmRegulation,
+-    PmPolicy,
+-    PmRisk,
+-    PmDocType,
++    PmActivity,
++    PmAutomationCandidate,
+     PmBusinessUnit,
++    PmDocType,
+     PmDomain,
++    PmPolicy,
+     PmProcess,
+-    PmActivity,
+-    PmSop,
+     PmProcessBusinessUnit,
+-    PmProcessSystem,
++    PmProcessMetric,
++    PmProcessRaci,
+     PmProcessRegulation,
+     PmProcessRisk,
+-    PmProcessRaci,
+-    PmProcessMetric,
+-    PmAutomationCandidate,
++    PmProcessSystem,
++    PmRegulation,
++    PmRisk,
++    PmRole,
++    PmSop,
++    PmSystem,
+ )
++from app.models.user import User  # noqa: F401
+diff --git a/backend/app/models/poa.py b/backend/app/models/poa.py
+new file mode 100644
+index 0000000..55040c6
+--- /dev/null
++++ b/backend/app/models/poa.py
+@@ -0,0 +1,518 @@
++"""Модуль «Доверенности» — модели данных.
++
++Фундамент: единая база полномочий (Модуль 1) + реестр выданных доверенностей
++(Модуль 2). Стиль повторяет app/models/knowledge.py (Column-декларации,
++именованные enum-типы, timestamps через func.now()).
++
++Именование enum-типов: префикс poa_ во избежание коллизий с другими модулями.
++"""
++
++import enum
++
++from sqlalchemy import (
++    Boolean,
++    Column,
++    Date,
++    DateTime,
++    Enum,
++    ForeignKey,
++    Integer,
++    Numeric,
++    String,
++    Table,
++    Text,
++    UniqueConstraint,
++)
++from sqlalchemy.dialects.postgresql import JSONB
++from sqlalchemy.orm import relationship
++from sqlalchemy.sql import func
++
++from app.core.database import Base
++
++# ─── Enums ────────────────────────────────────────────────────────────────────
++
++class AuthorityKind(str, enum.Enum):
++    deal = "deal"                     # сделки / подписание
++    representation = "representation"  # иные виды представительства
++    action = "action"                 # универсальные действия
++
++
++class DealDirection(str, enum.Enum):
++    expense = "expense"  # расходная — подпадает под финансовые лимиты
++    income = "income"    # доходная — любые суммы, лимит не применяется
++    na = "na"            # неприменимо
++
++
++class AuthorityStatus(str, enum.Enum):
++    draft = "draft"
++    active = "active"
++    archived = "archived"
++
++
++class LimitClass(str, enum.Enum):
++    """Класс лимита. Связывает authority с правилом limit_rule (exception_kind)."""
++    general = "general"
++    finance = "finance"
++    procurement = "procurement"
++    infrastructure = "infrastructure"
++
++
++class ScopeType(str, enum.Enum):
++    metablock = "metablock"
++    block = "block"
++    department = "department"
++
++
++class RegionTier(str, enum.Enum):
++    tier1 = "tier1"  # Москва + крупные регионы
++    tier2 = "tier2"  # остальные
++
++
++class ScopeClass(str, enum.Enum):
++    """Класс скоупа для матча лимитов: КЦ или региональный tier."""
++    kc = "kc"
++    region_tier1 = "region_tier1"
++    region_tier2 = "region_tier2"
++
++
++class GrantDerivation(str, enum.Enum):
++    """Происхождение авторской ячейки матрицы (для аудита)."""
++    base_rule = "base_rule"
++    cascade = "cascade"
++    manual_exception = "manual_exception"
++
++
++class ResolvedDerivation(str, enum.Enum):
++    """Происхождение материализованной строки resolved_grant."""
++    base_rule = "base_rule"
++    cascade = "cascade"
++    universal = "universal"
++    sub_delegation = "sub_delegation"
++    manual_exception = "manual_exception"
++
++
++class RequestStatus(str, enum.Enum):
++    pending = "pending"
++    approved = "approved"
++    rejected = "rejected"
++
++
++class LevelSource(str, enum.Enum):
++    """Источник уровня сотрудника (гибрид: ручной ввод → позже деривация/HR)."""
++    manual = "manual"
++    derived = "derived"
++    hr = "hr"
++
++
++class CertificateType(str, enum.Enum):
++    paper = "paper"        # бумажная
++    notarial = "notarial"  # нотариальная
++    mchd = "mchd"          # машиночитаемая доверенность
++
++
++class CertificateStatus(str, enum.Enum):
++    active = "active"
++    revoked = "revoked"
++    expired = "expired"
++
++
++class IssueMethod(str, enum.Enum):
++    in_person = "in_person"  # лично
++    ring_mail = "ring_mail"  # кольцевая почта
++    postal = "postal"        # Почта России
++
++
++class AuditAction(str, enum.Enum):
++    create = "create"
++    update = "update"
++    delete = "delete"
++    generate = "generate"  # регенерация resolved_grant
++    approve = "approve"
++    reject = "reject"
++
++
++def _enum(py_enum, name):
++    """Именованный enum-тип с дефолтными настройками проекта."""
++    return Enum(py_enum, name=name)
++
++
++# ─── Association tables ───────────────────────────────────────────────────────
++
++# Перечень полномочий доверенности — FK-ссылки на каталог, НЕ текст.
++# Даёт срез «кто имеет полномочие X сейчас» и авто-инвалидацию при отзыве.
++poa_certificate_authorities = Table(
++    "poa_certificate_authorities",
++    Base.metadata,
++    Column(
++        "certificate_id",
++        Integer,
++        ForeignKey("poa_certificates.id", ondelete="CASCADE"),
++        primary_key=True,
++    ),
++    Column(
++        "authority_id",
++        Integer,
++        ForeignKey("poa_authorities.id", ondelete="RESTRICT"),
++        primary_key=True,
++    ),
++)
++
++
++# ─── Модуль 1: База полномочий ────────────────────────────────────────────────
++
++class AuthorityCategory(Base):
++    """Дерево категорий полномочий (H1–H5 в матрице), self-ref."""
++    __tablename__ = "poa_authority_categories"
++
++    id = Column(Integer, primary_key=True, autoincrement=True)
++    parent_id = Column(
++        Integer, ForeignKey("poa_authority_categories.id", ondelete="RESTRICT"), nullable=True
++    )
++    level = Column(Integer, nullable=False)  # 1..5
++    name = Column(String(500), nullable=False)
++    sort_order = Column(Integer, nullable=False, default=0, server_default="0")
++
++    parent = relationship("AuthorityCategory", remote_side=[id], backref="children")
++    authorities = relationship("Authority", back_populates="category")
++
++
++class Authority(Base):
++    """Каталог полномочий: дедуплицированная формулировка, по одному разу."""
++    __tablename__ = "poa_authorities"
++
++    id = Column(Integer, primary_key=True, autoincrement=True)
++    code = Column(String(50), nullable=False, unique=True)  # напр. POA-DEAL-013
++    category_id = Column(
++        Integer, ForeignKey("poa_authority_categories.id", ondelete="RESTRICT"), nullable=False
++    )
++    name_short = Column(String(500), nullable=False)  # лейбл для UI
++    text_full = Column(Text, nullable=False)          # формулировка для тела доверенности
++    authority_kind = Column(_enum(AuthorityKind, "poa_authority_kind"), nullable=False)
++    deal_direction = Column(
++        _enum(DealDirection, "poa_deal_direction"),
++        nullable=False,
++        default=DealDirection.na,
++        server_default=DealDirection.na.value,
++    )
++    # Класс лимита — ключ матча с limit_rule.exception_kind (только для expense).
++    limit_class = Column(_enum(LimitClass, "poa_limit_class"), nullable=True)
++    is_universal = Column(Boolean, nullable=False, default=False, server_default="false")
++    limit_applies = Column(Boolean, nullable=False, default=False, server_default="false")
++    is_no_limit = Column(Boolean, nullable=False, default=False, server_default="false")
++    legal_basis = Column(Text, nullable=True)
++    status = Column(
++        _enum(AuthorityStatus, "poa_authority_status"),
++        nullable=False,
++        default=AuthorityStatus.draft,
++        server_default=AuthorityStatus.draft.value,
++    )
++    version = Column(Integer, nullable=False, default=1, server_default="1")
++    valid_from = Column(Date, nullable=True)
++    valid_to = Column(Date, nullable=True)
++    updated_by = Column(String(255), nullable=True)
++    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
++    updated_at = Column(
++        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
++    )
++
++    category = relationship("AuthorityCategory", back_populates="authorities")
++    grants = relationship(
++        "AuthorityGrant", back_populates="authority", cascade="all, delete-orphan"
++    )
++
++
++class OrgScope(Base):
++    """Организационная привязка (метаблок → блок → департамент). Компания — атрибут."""
++    __tablename__ = "poa_org_scopes"
++
++    id = Column(Integer, primary_key=True, autoincrement=True)
++    parent_id = Column(
++        Integer, ForeignKey("poa_org_scopes.id", ondelete="RESTRICT"), nullable=True
++    )
++    scope_type = Column(_enum(ScopeType, "poa_scope_type"), nullable=False)
++    name = Column(String(500), nullable=False)
++    company = Column(String(100), nullable=False)  # МГТС / ДЗО-N — решение №3
++    is_corporate_center = Column(Boolean, nullable=False, default=False, server_default="false")
++    region_tier = Column(_enum(RegionTier, "poa_region_tier"), nullable=True)
++    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
++
++    parent = relationship("OrgScope", remote_side=[id], backref="children")
++
++
++class OrgLevel(Base):
++    """Уровни полномочий CEO-1..CEO-5."""
++    __tablename__ = "poa_org_levels"
++
++    id = Column(Integer, primary_key=True, autoincrement=True)
++    code = Column(String(20), nullable=False, unique=True)  # CEO-1..CEO-5
++    rank = Column(Integer, nullable=False, unique=True)     # 1..5
++    # false для CEO-4/-5 — сделки только через передоверие
++    can_conclude_deals_default = Column(
++        Boolean, nullable=False, default=True, server_default="true"
++    )
++
++
++class AuthorityGrant(Base):
++    """Матрица выдачи (авторские правила): ячейка = полномочие × скоуп × уровень."""
++    __tablename__ = "poa_authority_grants"
++    __table_args__ = (
++        UniqueConstraint(
++            "authority_id", "org_scope_id", "org_level_id", name="uq_poa_grant_cell"
++        ),
++    )
++
++    id = Column(Integer, primary_key=True, autoincrement=True)
++    authority_id = Column(
++        Integer, ForeignKey("poa_authorities.id", ondelete="CASCADE"), nullable=False
++    )
++    # null = универсальное / все скоупы
++    org_scope_id = Column(
++        Integer, ForeignKey("poa_org_scopes.id", ondelete="CASCADE"), nullable=True
++    )
++    org_level_id = Column(
++        Integer, ForeignKey("poa_org_levels.id", ondelete="CASCADE"), nullable=False
++    )
++    granted = Column(Boolean, nullable=False, default=True, server_default="true")
++    # Обычно null (лимит из общего блока limit_rule); заполняется как исключение.
++    limit_override = Column(Numeric(18, 2), nullable=True)
++    no_limit = Column(Boolean, nullable=False, default=False, server_default="false")  # зелёное
++    sub_delegation_only = Column(Boolean, nullable=False, default=False, server_default="false")
++    derivation = Column(
++        _enum(GrantDerivation, "poa_grant_derivation"),
++        nullable=False,
++        default=GrantDerivation.base_rule,
++        server_default=GrantDerivation.base_rule.value,
++    )
++    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
++    updated_at = Column(
++        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
++    )
++
++    authority = relationship("Authority", back_populates="grants")
++    org_scope = relationship("OrgScope")
++    org_level = relationship("OrgLevel")
++
++
++class LimitRule(Base):
++    """Финансовые лимиты отдельным блоком (Матрица 2.0: правило формулируется 1 раз)."""
++    __tablename__ = "poa_limit_rules"
++    __table_args__ = (
++        UniqueConstraint(
++            "scope_class", "org_level_id", "exception_kind", "deal_direction",
++            name="uq_poa_limit_rule",
++        ),
++    )
++
++    id = Column(Integer, primary_key=True, autoincrement=True)
++    scope_class = Column(_enum(ScopeClass, "poa_scope_class"), nullable=False)
++    org_level_id = Column(
++        Integer, ForeignKey("poa_org_levels.id", ondelete="CASCADE"), nullable=False
++    )
++    exception_kind = Column(_enum(LimitClass, "poa_limit_class"), nullable=False)
++    amount = Column(Numeric(18, 2), nullable=False)
++    currency = Column(String(3), nullable=False, default="RUB", server_default="RUB")
++    # Лимиты применяются только к расходным сделкам.
++    deal_direction = Column(
++        _enum(DealDirection, "poa_deal_direction"),
++        nullable=False,
++        default=DealDirection.expense,
++        server_default=DealDirection.expense.value,
++    )
++    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
++    updated_at = Column(
++        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
++    )
++
++    org_level = relationship("OrgLevel")
++
++
++class Employee(Base):
++    """Сотрудники (для автовыдачи «по уровню» и связи с заявками/реестром)."""
++    __tablename__ = "poa_employees"
++
++    id = Column(Integer, primary_key=True, autoincrement=True)
++    fio = Column(String(500), nullable=False)
++    position = Column(String(500), nullable=True)
++    company = Column(String(100), nullable=False)  # МГТС / ДЗО-N
++    org_scope_id = Column(
++        Integer, ForeignKey("poa_org_scopes.id", ondelete="SET NULL"), nullable=True
++    )
++    # Гибрид: уровень может быть не задан, пока не введён вручную / не выведен из HR.
++    org_level_id = Column(
++        Integer, ForeignKey("poa_org_levels.id", ondelete="SET NULL"), nullable=True
++    )
++    level_source = Column(
++        _enum(LevelSource, "poa_level_source"),
++        nullable=False,
++        default=LevelSource.manual,
++        server_default=LevelSource.manual.value,
++    )
++    tab_number = Column(String(50), nullable=True)
++    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
++    updated_at = Column(
++        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
++    )
++
++    org_scope = relationship("OrgScope")
++    org_level = relationship("OrgLevel")
++
++
++class PositionLevelRule(Base):
++    """Правила деривации CEO-N из должности (заготовка под будущий HR-фид).
++
++    В фазе 1 не используется логикой — только схема; уровень вводится вручную.
++    """
++    __tablename__ = "poa_position_level_rules"
++
++    id = Column(Integer, primary_key=True, autoincrement=True)
++    position_pattern = Column(String(500), nullable=False)
++    org_level_id = Column(
++        Integer, ForeignKey("poa_org_levels.id", ondelete="CASCADE"), nullable=False
++    )
++    priority = Column(Integer, nullable=False, default=0, server_default="0")
++
++    org_level = relationship("OrgLevel")
++
++
++class AuthorityRequest(Base):
++    """Заявка на уникальное полномочие сверх дефолта по уровню."""
++    __tablename__ = "poa_authority_requests"
++
++    id = Column(Integer, primary_key=True, autoincrement=True)
++    employee_id = Column(
++        Integer, ForeignKey("poa_employees.id", ondelete="CASCADE"), nullable=False
++    )
++    # Либо ссылка на каталог...
++    authority_id = Column(
++        Integer, ForeignKey("poa_authorities.id", ondelete="SET NULL"), nullable=True
++    )
++    # ...либо предложение нового полномочия (free-text).
++    proposed_text = Column(Text, nullable=True)
++    justification = Column(Text, nullable=True)
++    status = Column(
++        _enum(RequestStatus, "poa_request_status"),
++        nullable=False,
++        default=RequestStatus.pending,
++        server_default=RequestStatus.pending.value,
++    )
++    approver = Column(String(255), nullable=True)
++    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
++    updated_at = Column(
++        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
++    )
++
++    employee = relationship("Employee")
++    authority = relationship("Authority")
++
++
++class ResolvedGrant(Base):
++    """Материализация: плоские аудируемые строки, сгенерированные из авторских правил.
++
++    Регенерируется целиком движком резолвинга при изменении авторских данных.
++    """
++    __tablename__ = "poa_resolved_grants"
++
++    id = Column(Integer, primary_key=True, autoincrement=True)
++    org_scope_id = Column(
++        Integer, ForeignKey("poa_org_scopes.id", ondelete="CASCADE"), nullable=True
++    )
++    org_level_id = Column(
++        Integer, ForeignKey("poa_org_levels.id", ondelete="CASCADE"), nullable=False
++    )
++    authority_id = Column(
++        Integer, ForeignKey("poa_authorities.id", ondelete="CASCADE"), nullable=False
++    )
++    granted = Column(Boolean, nullable=False, default=True, server_default="true")
++    effective_limit = Column(Numeric(18, 2), nullable=True)
++    no_limit = Column(Boolean, nullable=False, default=False, server_default="false")
++    unlimited = Column(Boolean, nullable=False, default=False, server_default="false")
++    currency = Column(String(3), nullable=True)
++    derivation = Column(_enum(ResolvedDerivation, "poa_resolved_derivation"), nullable=False)
++    source_grant_id = Column(
++        Integer, ForeignKey("poa_authority_grants.id", ondelete="SET NULL"), nullable=True
++    )
++    generated_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
++
++    authority = relationship("Authority")
++    org_scope = relationship("OrgScope")
++    org_level = relationship("OrgLevel")
++
++
++# ─── Модуль 2: Реестр выданных доверенностей ──────────────────────────────────
++
++class PoaCertificate(Base):
++    """Запись реестра. Заменяет электронный реестр Service Desk + бумажный журнал."""
++    __tablename__ = "poa_certificates"
++
++    id = Column(Integer, primary_key=True, autoincrement=True)
++    number = Column(String(100), nullable=False, unique=True)
++    grantor_company = Column(String(200), nullable=False)  # доверитель
++    # Поверенный: FK на employee + денормализованный снимок на момент выдачи.
++    grantee_employee_id = Column(
++        Integer, ForeignKey("poa_employees.id", ondelete="SET NULL"), nullable=True
++    )
++    grantee_fio = Column(String(500), nullable=False)
++    grantee_position = Column(String(500), nullable=True)
++    grantee_tab_number = Column(String(50), nullable=True)
++    cert_type = Column(_enum(CertificateType, "poa_certificate_type"), nullable=False)
++    issued_date = Column(Date, nullable=False)
++    valid_to = Column(Date, nullable=True)
++    limits = Column(JSONB, nullable=True)  # снимок лимитов на момент выдачи
++    signer = Column(String(500), nullable=True)          # подписант
++    registration_data = Column(String(500), nullable=True)
++    scan_path = Column(String(1000), nullable=True)      # скан
++    # Основание: заявка на полномочие или процесс оформления (Модуль 6, позже).
++    basis_request_id = Column(
++        Integer, ForeignKey("poa_authority_requests.id", ondelete="SET NULL"), nullable=True
++    )
++    status = Column(
++        _enum(CertificateStatus, "poa_certificate_status"),
++        nullable=False,
++        default=CertificateStatus.active,
++        server_default=CertificateStatus.active.value,
++    )
++    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
++    updated_at = Column(
++        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
++    )
++
++    grantee_employee = relationship("Employee")
++    basis_request = relationship("AuthorityRequest")
++    authorities = relationship("Authority", secondary=poa_certificate_authorities)
++    original_issues = relationship(
++        "PoaOriginalIssue", back_populates="certificate", cascade="all, delete-orphan"
++    )
++
++
++class PoaOriginalIssue(Base):
++    """Под-запись «выдача оригинала» — заменяет бумажный журнал (физическая выдача)."""
++    __tablename__ = "poa_original_issues"
++
++    id = Column(Integer, primary_key=True, autoincrement=True)
++    certificate_id = Column(
++        Integer, ForeignKey("poa_certificates.id", ondelete="CASCADE"), nullable=False
++    )
++    recipient_fio = Column(String(500), nullable=False)  # получатель (расшифровка)
++    issued_date = Column(Date, nullable=False)
++    method = Column(_enum(IssueMethod, "poa_issue_method"), nullable=False)
++    confirmed = Column(Boolean, nullable=False, default=False, server_default="false")
++    confirmation_note = Column(String(500), nullable=True)
++    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
++
++    certificate = relationship("PoaCertificate", back_populates="original_issues")
++
++
++# ─── Аудит (юридически значимый артефакт) ─────────────────────────────────────
++
++class PoaAudit(Base):
++    """История изменений матрицы/каталога/лимитов/заявок: кто/когда/что."""
++    __tablename__ = "poa_audit"
++
++    id = Column(Integer, primary_key=True, autoincrement=True)
++    # authority | authority_grant | limit_rule | authority_request | ...
++    entity_type = Column(String(50), nullable=False)
++    entity_id = Column(Integer, nullable=True)
++    action = Column(_enum(AuditAction, "poa_audit_action"), nullable=False)
++    diff = Column(JSONB, nullable=True)  # {"before": {...}, "after": {...}}
++    user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
++    at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+diff --git a/backend/tests/__init__.py b/backend/tests/__init__.py
+new file mode 100644
+index 0000000..e69de29
+diff --git a/backend/tests/conftest.py b/backend/tests/conftest.py
+new file mode 100644
+index 0000000..137eb79
+--- /dev/null
++++ b/backend/tests/conftest.py
+@@ -0,0 +1,90 @@
++"""Общие фикстуры pytest для бэкенда Legal Hub.
++
++DB-фикстуры требуют доступного PostgreSQL (в Docker или локально). Адрес берётся
++из TEST_DATABASE_URL, по умолчанию — отдельная БД legalhub_test. Тесты, которым БД
++не нужна (например, проверки метаданных моделей), не используют эти фикстуры и
++проходят без поднятого PostgreSQL.
++"""
++
++import os
++
++import pytest_asyncio
++from httpx import ASGITransport, AsyncClient
++from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
++
++import app.models  # noqa: F401 — регистрируем все модели в Base.metadata
++from app.core.database import Base, get_db
++from app.core.deps import UserContext, get_current_user
++from app.main import app
++from app.models.user import UserRole
++
++TEST_DATABASE_URL = os.getenv(
++    "TEST_DATABASE_URL",
++    "postgresql+asyncpg://legalhub:legalhub_dev@localhost:5432/legalhub_test",
++)
++
++
++@pytest_asyncio.fixture
++async def engine():
++    """Движок тестовой БД: создаёт схему из метаданных перед тестом, сносит после."""
++    eng = create_async_engine(TEST_DATABASE_URL)
++    async with eng.begin() as conn:
++        await conn.run_sync(Base.metadata.create_all)
++    yield eng
++    async with eng.begin() as conn:
++        await conn.run_sync(Base.metadata.drop_all)
++    await eng.dispose()
++
++
++@pytest_asyncio.fixture
++async def db_session(engine) -> AsyncSession:
++    """Сессия в транзакции, откатываемой после теста (изоляция)."""
++    conn = await engine.connect()
++    trans = await conn.begin()
++    session_factory = async_sessionmaker(bind=conn, expire_on_commit=False, class_=AsyncSession)
++    session = session_factory()
++    try:
++        yield session
++    finally:
++        await session.close()
++        await trans.rollback()
++        await conn.close()
++
++
++@pytest_asyncio.fixture
++async def client(db_session) -> AsyncClient:
++    """HTTP-клиент к приложению; get_db переопределён на тестовую сессию (без commit)."""
++
++    async def _override_get_db():
++        yield db_session
++
++    app.dependency_overrides[get_db] = _override_get_db
++    transport = ASGITransport(app=app)
++    async with AsyncClient(transport=transport, base_url="http://test") as ac:
++        yield ac
++    app.dependency_overrides.clear()
++
++
++def _login_as(role: UserRole, user_id: int = 1):
++    """Помощник: переопределяет текущего пользователя ролью для RBAC-тестов."""
++
++    async def _override():
++        return UserContext(
++            id=user_id, email=f"{role.value}@test.ru", full_name=role.value, role=role
++        )
++
++    app.dependency_overrides[get_current_user] = _override
++
++
++@pytest_asyncio.fixture
++def as_lawyer():
++    _login_as(UserRole.lawyer)
++    yield
++    app.dependency_overrides.pop(get_current_user, None)
++
++
++@pytest_asyncio.fixture
++def as_employee():
++    _login_as(UserRole.employee)
++    yield
++    app.dependency_overrides.pop(get_current_user, None)
+diff --git a/backend/tests/poa/__init__.py b/backend/tests/poa/__init__.py
+new file mode 100644
+index 0000000..e69de29
+diff --git a/backend/tests/poa/test_models.py b/backend/tests/poa/test_models.py
+new file mode 100644
+index 0000000..6bc4b4f
+--- /dev/null
++++ b/backend/tests/poa/test_models.py
+@@ -0,0 +1,88 @@
++"""M0: проверки схемы моделей «Доверенности» на уровне метаданных.
++
++Эти тесты не требуют БД — они валидируют, что модель собрана корректно
++(таблицы, ключевые колонки, enum-значения, ограничения уникальности).
++DB-зависимые проверки CRUD появятся в M1.
++"""
++
++import app.models  # noqa: F401
++from app.core.database import Base
++from app.models import poa
++
++META = Base.metadata.tables
++
++POA_TABLES = {
++    "poa_authority_categories",
++    "poa_authorities",
++    "poa_org_scopes",
++    "poa_org_levels",
++    "poa_authority_grants",
++    "poa_limit_rules",
++    "poa_employees",
++    "poa_position_level_rules",
++    "poa_authority_requests",
++    "poa_resolved_grants",
++    "poa_certificates",
++    "poa_certificate_authorities",
++    "poa_original_issues",
++    "poa_audit",
++}
++
++
++def test_all_poa_tables_registered():
++    present = {n for n in META if n.startswith("poa_")}
++    assert present == POA_TABLES
++
++
++def test_authority_core_columns():
++    cols = META["poa_authorities"].columns.keys()
++    for c in (
++        "code", "category_id", "name_short", "text_full", "authority_kind",
++        "deal_direction", "limit_class", "is_universal", "limit_applies",
++        "is_no_limit", "status", "version",
++    ):
++        assert c in cols
++
++
++def test_authority_code_unique():
++    assert META["poa_authorities"].columns["code"].unique is True
++
++
++def test_grant_cell_unique_constraint():
++    uqs = {c.name for c in META["poa_authority_grants"].constraints if c.name}
++    assert "uq_poa_grant_cell" in uqs
++
++
++def test_limit_rule_unique_constraint():
++    uqs = {c.name for c in META["poa_limit_rules"].constraints if c.name}
++    assert "uq_poa_limit_rule" in uqs
++
++
++def test_certificate_authorities_are_fk_not_text():
++    # Перечень полномочий доверенности — association-таблица с FK на каталог.
++    m2m = META["poa_certificate_authorities"]
++    assert "authority_id" in m2m.columns
++    assert "certificate_id" in m2m.columns
++
++
++def test_enum_value_domains():
++    assert [e.value for e in poa.DealDirection] == ["expense", "income", "na"]
++    assert [e.value for e in poa.ScopeClass] == ["kc", "region_tier1", "region_tier2"]
++    assert [e.value for e in poa.LevelSource] == ["manual", "derived", "hr"]
++    assert [e.value for e in poa.CertificateType] == ["paper", "notarial", "mchd"]
++    assert [e.value for e in poa.IssueMethod] == ["in_person", "ring_mail", "postal"]
++    # LimitClass должен совпадать по домену с exception_kind в limit_rule.
++    assert [e.value for e in poa.LimitClass] == [
++        "general", "finance", "procurement", "infrastructure"
++    ]
++
++
++def test_ceo_levels_have_deal_flag():
++    # CEO-4/-5 по умолчанию не заключают сделки — флаг присутствует в модели.
++    assert "can_conclude_deals_default" in META["poa_org_levels"].columns
++
++
++def test_employee_level_nullable_hybrid():
++    # Гибрид: уровень может быть не задан, пока не введён вручную/из HR.
++    assert META["poa_employees"].columns["org_level_id"].nullable is True
++    assert "level_source" in META["poa_employees"].columns
+diff --git a/docs/plans/README.md b/docs/plans/README.md
+index d982a31..a9981b1 100644
+--- a/docs/plans/README.md
++++ b/docs/plans/README.md
+@@ -8,6 +8,7 @@ Implementation plans for legal-hub features. Each plan is a living document —
+ |---|---|---|
+ | [knowledge-module.md](knowledge-module.md) | 🟡 In progress (Preparation done) | M0–M6 |
+ | [processes-module.md](processes-module.md) | 🟡 M0 done, M1 next | M0–M3 |
++| [doverennosti.md](doverennosti.md) | 🟡 M0 done, M1 next | M0–M4 (Phase 1) |
+ 
+ ## Format
+ 
+diff --git a/docs/plans/doverennosti.md b/docs/plans/doverennosti.md
+new file mode 100644
+index 0000000..720fd0d
+--- /dev/null
++++ b/docs/plans/doverennosti.md
+@@ -0,0 +1,169 @@
++# Doverennosti (Powers of Attorney) module
++
++> Status: 🟡 **M0 done** (models + migration + test infra), M1 next.
++> This plan mirrors the format of `knowledge-module.md` / `processes-module.md`.
++
++---
++
++## Context
++
++Модуль **«Доверенности»** внутри портала Legal Hub — одновременно рабочее место юриста
++(единый центр управления доверенностями) и самообслуживание для ~2000 сотрудников МГТС и ДЗО.
++Не greenfield: строится по конвенциям модулей `knowledge` и `processes`.
++
++Проблема: матрица полномочий, реестр и журнал выданных доверенностей сегодня ведутся
++разрозненно (Service Desk + бумажный журнал + Boss Referent); нет единого источника правды,
++нет автовыдачи полномочий по уровню, ручная генерация ломает стили.
++
++**Архитектурный принцип:** одна база полномочий (single source of truth) и пять способов её
++потребления (навигатор, конструктор, реестр, личный кабинет, workflow оформления). Порядок
++ценности: база + реестр → навигатор + конструктор → личный кабинет → полный workflow.
++
++Заглушка уже есть: `frontend/app/(portal)/services/poa/page.tsx` (ComingSoon) + запись в
++`frontend/lib/apps.ts` (`id: "poa"`).
++
++---
++
++## Agreed decisions
++
++| # | Вопрос | Решение | Следствие |
++|---|--------|---------|-----------|
++| 1 | Источник уровня (CEO-1..5) | **Гибрид.** HR даёт должность+ФИО, но не вычисляет CEO-N. Пока интеграции нет — ручной ввод; позже деривация из должности + HR | `employee.org_level_id` nullable + `level_source(manual\|derived\|hr)`; таблица-заготовка `poa_position_level_rules` |
++| 2 | Источник правды матрицы | **Нативная админка в PostgreSQL** (не YAML-в-git) | Юрист правит матрицу в вебе; версионирование/аудит — таблицами |
++| 3 | Компании (МГТС + 5 ДЗО) | **Одна матрица, компания — атрибут** орг-скоупа/сотрудника | Единый движок резолвинга, без 6× дублирования |
++| 4 | Резолвинг | **Материализация с генерацией**: авторские правила → плоские аудируемые строки | Таблица `poa_resolved_grants` поверх авторской `poa_authority_grants`; `derivation` на каждой строке |
++| 5 | Дизайн-система | Скилл `.claude/skills/mgts-design/` в репозитории **отсутствует** (CLAUDE.md устарел). Дизайн — в `frontend/vendor/@mts-ds/` + `frontend/components/ui/` + токены `globals.css` | Вёрстка через `components/ui/` (Button/Select/Badge/DatePicker/…) и `@mts-ds/*`; Table/Modal — кастом |
++| 6 | Движок workflow (Модуль 6) | Отложено; Camunda vs FSM — при планировании фазы 4 | В фазе 1 — только сущность-каркас + точки интеграции |
++
++Глобальный параметр передоверия: **60%** → `settings.poa_sub_delegation_coeff` (не хардкод).
++
++---
++
++## Architecture
++
++### Data model — Module 1 (`backend/app/models/poa.py`)
++
++Сущности (реализованы в M0): `AuthorityCategory` (дерево H1–H5), `Authority` (каталог),
++`OrgScope` (self-ref, `company`, `region_tier`), `OrgLevel` (CEO-1..5, `rank`,
++`can_conclude_deals_default`), `AuthorityGrant` (авторские ячейки), `LimitRule` (блок лимитов),
++`Employee`, `PositionLevelRule`, `AuthorityRequest`, `ResolvedGrant` (материализация).
++
++Уточнения к исходной схеме PRD (реализованы):
++- `Authority.limit_class` — ключ матча с `LimitRule.exception_kind` (общий enum `poa_limit_class`).
++- `OrgScope.company` — компания как атрибут (решение №3).
++- `Employee.org_level_id` nullable + `level_source` (решение №1).
++- `poa_position_level_rules` — заготовка под деривацию CEO-N (в фазе 1 без логики).
++- `poa_resolved_grants` — материализация (решение №4), индекс `(org_scope_id, org_level_id)`.
++
++### Data model — Module 2 (Registry)
++
++`PoaCertificate` (перечень полномочий — FK на `Authority` через `poa_certificate_authorities`,
++**не текст**), `PoaOriginalIssue` (под-запись «выдача оригинала»: получатель/дата/способ/
++подтверждение). Статусы `active|revoked|expired` с авто-`expired` по `valid_to`.
++
++### Audit — `PoaAudit`
++
++Отдельная таблица (не JSONB-changelog): `(entity_type, entity_id, action, diff JSONB, user_id, at)`.
++Пишется на изменения `authority` / `authority_grant` / `limit_rule` / `authority_request`.
++
++### Resolving engine — `backend/app/services/poa/resolver.py` (M2)
++
++**(A) Генерация `resolved_grant`** из авторских правил (триггер: изменение
++`authority`/`authority_grant`/`limit_rule`/`org_level`/`category`; синхронно, при росте — arq):
++universal → каскад на все scope×level; авторские ячейки (base_rule); каскад вверх (rank меньше —
++cascade); `sub_delegation_only` / CEO-4,-5 → derivation=sub_delegation.
++
++**(B) `resolve(employee)`** = строки `resolved_grant` по scope+level сотрудника + одобренные
++`authority_request` (manual_exception).
++
++**`compute_limit` precedence:** income/`limit_applies=false` → без лимита → `no_limit` (зелёное) →
++`limit_override` → матч `limit_rule` по `(scope_class, level, exception_kind=authority.limit_class,
++expense)`; если derivation=sub_delegation → × `poa_sub_delegation_coeff` (0.60).
++Все ветки трассируемы через `derivation`.
++
++### RBAC — `backend/app/core/deps.py`
++
++- **Юрист** = `require_role(UserRole.admin, UserRole.lawyer)`: матрица/каталог/лимиты/аппрув/реестр.
++- **Пользователь** = `UserRole.employee`: свой срез (`resolve`), навигатор, заявка, «мои доверенности».
++
++### API surface (`backend/app/api/poa/` — пакет суб-роутеров, как `api/processes/`)
++
++Каталог/деревья (`/poa/authorities`, `/categories`, `/org-scopes`, `/org-levels`); матрица/лимиты
++(`/poa/matrix`, `PUT /poa/matrix/cell`, `/limit-rules`, `POST /poa/matrix/regenerate`); резолвинг/
++заявки (`GET /poa/resolve/{employee_id}`, `/employees`, `/authority-requests[/{id}/approve|reject]`);
++реестр (`/poa/registry`, `/{id}/original-issue`, `/{id}/revoke`, `/registry/search`); аудит/экспорт.
++
++### Frontend (`app/(portal)/services/poa/**`, `components/poa/**`, `lib/api/poa.ts`)
++
++API-слой по образцу `lib/api/knowledge.ts` (`apiFetch` + React Query). Страницы: `registry/`,
++`registry/[id]/`, `my/`, `admin/matrix/`, `admin/authorities/`, `admin/limits/`, `admin/requests/`.
++Компонент `MatrixGrid` (жёлтое=выдано / зелёное=без лимита / серое=недоступно). Примитивы —
++`components/ui/` + `@mts-ds/*`. Формы — react-hook-form + zod. Только токены (`--brand-blue`).
++
++---
++
++## Milestones
++
++### Phase 1 — Foundation (Modules 1 + 2)
++
++| M | Веха | Содержимое | Критерий приёмки |
++|---|------|-----------|------------------|
++| **M0** ✅ | Тест-инфра + модели | `tests/conftest.py`; `models/poa.py` (14 таблиц); миграция `a7b1c2d3e4f5_poa_m0`; `poa_sub_delegation_coeff` | миграция применяется/откатывается; метаданные-тесты зелёные |
++| **M1** | Каталог + деревья + CRUD | `schemas/poa.py`, `api/poa/` CRUD + RBAC | юрист ведёт каталог/категории/скоупы/лимиты; 200 для юриста, 403 для employee |
++| **M2** | Движок + матрица | `services/poa/resolver.py` (генерация + resolve + compute_limit); эндпоинты матрицы/resolve; аудит | резолвинг корректно выдаёт полномочия+лимиты (universal, каскад, income=∞, no_limit, передоверие ×0.60, tier1/2/kc, override, CEO-4/-5); правка ячейки → пересчёт |
++| **M3** | Реестр + выдача оригинала | `PoaCertificate` (FK), `PoaOriginalIssue`, авто-`expired`, поиск; фронт реестра | реестр заменяет журнал (вкл. выдачу оригинала); срез «кто имеет X»; авто-инвалидация при revoke |
++| **M4** | Админка матрицы (фронт) | `MatrixGrid` с цвет-кодом, редакторы, очередь заявок, аудит-лог | юрист ведёт матрицу визуально; изменения в аудите |
++
++**Критерий приёмки Фазы 1:** юрист ведёт матрицу; резолвинг корректно выдаёт полномочия по
++уровню; реестр заменяет бумажный журнал. Автономная ценность достигнута.
++
++### Phase 2 — Self-service (обзор)
++Модуль 4 (Навигатор: 3 вопроса → 35 сценариев + 5 ДЗО, правила в общем конфиге для веба и LLM,
++выход = преднастроенный вход в workflow) + Модуль 3 (Конструктор: `docxtpl` + LibreOffice/
++JodConverter → docx/PDF/МЧД). **M0 фазы 2:** установить docxtpl + Office→PDF конвертер
++(`harbor.mgts.ru/dockerhub/eugenmayer/jodconverter`).
++
++### Phase 3 — Мои доверенности (обзор)
++Модуль 5: тонкий view поверх реестра + статусов заявок.
++
++### Phase 4 — Сервис оформления (каркас, отдельный план)
++Модуль 6: заявка на оформление со статусами; точки входа из навигатора; запись в реестр;
++заглушки согласования/подписи; передоверие (60%) — first-class проверка. Camunda vs FSM — TBD.
++
++---
++
++## Critical files
++
++**Backend (M0, done):** `app/models/poa.py`, `app/models/__init__.py` (регистрация),
++`app/core/config.py` (`poa_sub_delegation_coeff`), `alembic/versions/a7b1c2d3e4f5_poa_m0.py`,
++`tests/conftest.py`, `tests/poa/test_models.py`.
++**Backend (M1+):** `app/schemas/poa.py`, `app/api/poa/{__init__,catalog,matrix,registry,requests,
++audit}.py`, `app/services/poa/resolver.py`, `app/main.py` (регистрация роутера), `tests/poa/*`.
++**Frontend (M4+):** `lib/api/poa.ts`, `app/(portal)/services/poa/**`, `components/poa/**`.
++**Reference:** `app/models/knowledge.py`, `app/api/processes/__init__.py`, `app/core/deps.py`,
++`alembic/versions/a2b3c4d5e6f7_processes_m0.py`; `frontend/components/ui/index.tsx`.
++
++---
++
++## Verification
++
++**M0 (done, offline — БД в этой среде нет):**
++- Модели импортируются, мапперы конфигурируются (14 poa-таблиц).
++- Миграция импортируется; `alembic heads` = единственный head `a7b1c2d3e4f5`.
++- Паритет миграция↔модели: все таблицы и колонки совпадают.
++- `pytest tests/poa/test_models.py` — 9 passed; `ruff check app/ tests/` — clean.
++- **Требует БД (в Docker):** `alembic upgrade head` применяется и `downgrade` откатывается;
++  `TEST_DATABASE_URL` для DB-фикстур conftest.
++
++**M1+ (pytest):** CRUD 200/403 по ролям; движок — по тесту на каждое правило PRD 3.2;
++регенерация resolved_grant; реестр (FK, revoke-срез, авто-expired); аудит.
++
++**Запуск:** `docker compose up`; `cd backend && pytest`; фронт — вручную.
++
++---
++
++## Out of scope (Phase 1)
++- Содержание матрицы (конкретные полномочия/лимиты) — вводят юристы вручную.
++- Полный workflow (Модуль 6) — только каркас.
++- Деривация CEO-N из должности + HR-интеграция — только схема-заготовка.
++- Camunda vs FSM — фаза 4.
+-- 
+2.43.0
+

@@ -9,6 +9,11 @@ export interface AppEntry {
   href: string;
   /** Имя иконки из набора <Icon name=... /> */
   icon: string;
+  /** Путь к 3D-иллюстрации на прозрачном фоне (public/cards/*.png).
+   *  Если задан — на карточке главной показывается картинка вместо иконки. */
+  image?: string;
+  /** Короткое описание под заголовком карточки на главной (2–3 слова). */
+  caption?: string;
   /** Акцентный цвет плитки (CSS-переменная) */
   color: string;
   /** В каких вкладках лаунчера показывать (Бизнес / Право) */
@@ -21,6 +26,8 @@ export const APPS: AppEntry[] = [
     title: "База знаний",
     href: "/knowledge",
     icon: "OpenBookSize24StyleOutline",
+    image: "/cards/knowledge.png",
+    caption: "Регламенты и практика",
     color: "var(--color-accent-warning)",
     tabs: ["business", "law"],
   },
@@ -34,9 +41,11 @@ export const APPS: AppEntry[] = [
   },
   {
     id: "poa",
-    title: "Навигатор доверенностей",
+    title: "Доверенности",
     href: "/services/poa",
     icon: "FolderSize24StyleOutline",
+    image: "/cards/poa.png",
+    caption: "Оформление и проверка",
     color: "var(--brand-blue)",
     tabs: ["business", "law"],
   },
@@ -45,6 +54,8 @@ export const APPS: AppEntry[] = [
     title: "Статус спора",
     href: "/services/disputes",
     icon: "GavelSize24StyleOutline",
+    image: "/cards/disputes.png",
+    caption: "Статус судебного дела",
     color: "var(--color-accent-positive)",
     tabs: ["business"],
   },
@@ -53,6 +64,8 @@ export const APPS: AppEntry[] = [
     title: "Конструктор документов",
     href: "/services/documents",
     icon: "EditSize24StyleOutline",
+    image: "/cards/documents.png",
+    caption: "Сборка по шаблону",
     color: "var(--color-accent-negative)",
     tabs: ["business"],
   },
@@ -61,6 +74,8 @@ export const APPS: AppEntry[] = [
     title: "Правовые новости",
     href: "/news",
     icon: "NewsSize24StyleOutline",
+    image: "/cards/news.png",
+    caption: "Изменения в праве",
     color: "var(--color-accent-negative)",
     tabs: ["business"],
   },
