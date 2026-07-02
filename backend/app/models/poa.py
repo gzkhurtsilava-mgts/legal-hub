@@ -49,30 +49,18 @@ class AuthorityStatus(str, enum.Enum):
     archived = "archived"
 
 
-class LimitClass(str, enum.Enum):
-    """Класс лимита. Связывает authority с правилом limit_rule (exception_kind)."""
-    general = "general"
-    finance = "finance"
-    procurement = "procurement"
-    infrastructure = "infrastructure"
-
-
 class ScopeType(str, enum.Enum):
     metablock = "metablock"
     block = "block"
     department = "department"
+    division = "division"  # отдел
+    unit = "unit"          # иная структурная единица
 
 
-class RegionTier(str, enum.Enum):
-    tier1 = "tier1"  # Москва + крупные регионы
-    tier2 = "tier2"  # остальные
-
-
-class ScopeClass(str, enum.Enum):
-    """Класс скоупа для матча лимитов: КЦ или региональный tier."""
-    kc = "kc"
-    region_tier1 = "region_tier1"
-    region_tier2 = "region_tier2"
+class OrgSource(str, enum.Enum):
+    """Источник узла оргструктуры (гибрид: ручной ввод → позже импорт из HRGate)."""
+    manual = "manual"
+    hrgate = "hrgate"
 
 
 class GrantDerivation(str, enum.Enum):
@@ -193,8 +181,6 @@ class Authority(Base):
         default=DealDirection.na,
         server_default=DealDirection.na.value,
     )
-    # Класс лимита — ключ матча с limit_rule.exception_kind (только для expense).
-    limit_class = Column(_enum(LimitClass, "poa_limit_class"), nullable=True)
     is_universal = Column(Boolean, nullable=False, default=False, server_default="false")
     limit_applies = Column(Boolean, nullable=False, default=False, server_default="false")
     is_no_limit = Column(Boolean, nullable=False, default=False, server_default="false")
@@ -221,7 +207,11 @@ class Authority(Base):
 
 
 class OrgScope(Base):
-    """Организационная привязка (метаблок → блок → департамент). Компания — атрибут."""
+    """Узел оргструктуры (метаблок → блок → департамент → отдел → …). Дерево.
+
+    Полномочия вешаются на узел и наследуются вниз по дереву. Компания — атрибут.
+    source/external_id — задел под будущий импорт иерархии из HRGate.
+    """
     __tablename__ = "poa_org_scopes"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -230,47 +220,49 @@ class OrgScope(Base):
     )
     scope_type = Column(_enum(ScopeType, "poa_scope_type"), nullable=False)
     name = Column(String(500), nullable=False)
-    company = Column(String(100), nullable=False)  # МГТС / ДЗО-N — решение №3
-    is_corporate_center = Column(Boolean, nullable=False, default=False, server_default="false")
-    region_tier = Column(_enum(RegionTier, "poa_region_tier"), nullable=True)
+    company = Column(String(100), nullable=False)  # МГТС / ДЗО-N
+    # Задел под HRGate: источник узла и внешний идентификатор для синка.
+    source = Column(
+        _enum(OrgSource, "poa_org_source"),
+        nullable=False,
+        default=OrgSource.manual,
+        server_default=OrgSource.manual.value,
+    )
+    external_id = Column(String(100), nullable=True)  # id узла в HRGate
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     parent = relationship("OrgScope", remote_side=[id], backref="children")
 
 
 class OrgLevel(Base):
-    """Уровни полномочий CEO-1..CEO-5."""
+    """Уровень для расчёта лимита. Два значения: CEO-1 и «CEO-2 и ниже»."""
     __tablename__ = "poa_org_levels"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    code = Column(String(20), nullable=False, unique=True)  # CEO-1..CEO-5
-    rank = Column(Integer, nullable=False, unique=True)     # 1..5
+    code = Column(String(20), nullable=False, unique=True)  # CEO-1 / CEO-2-
+    rank = Column(Integer, nullable=False, unique=True)     # 1 / 2
 
 
 class AuthorityGrant(Base):
-    """Матрица выдачи (авторские правила): ячейка = полномочие × скоуп × уровень."""
+    """Доступность полномочия: ячейка = полномочие × узел оргструктуры.
+
+    Уровень (CEO) на доступность не влияет — только оргструктура. Полномочие
+    наследуется вниз по дереву. org_scope_id = null → доступно во всех скоупах.
+    """
     __tablename__ = "poa_authority_grants"
     __table_args__ = (
-        UniqueConstraint(
-            "authority_id", "org_scope_id", "org_level_id", name="uq_poa_grant_cell"
-        ),
+        UniqueConstraint("authority_id", "org_scope_id", name="uq_poa_grant_cell"),
     )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     authority_id = Column(
         Integer, ForeignKey("poa_authorities.id", ondelete="CASCADE"), nullable=False
     )
-    # null = универсальное / все скоупы
+    # null = во всех скоупах
     org_scope_id = Column(
         Integer, ForeignKey("poa_org_scopes.id", ondelete="CASCADE"), nullable=True
     )
-    org_level_id = Column(
-        Integer, ForeignKey("poa_org_levels.id", ondelete="CASCADE"), nullable=False
-    )
     granted = Column(Boolean, nullable=False, default=True, server_default="true")
-    # Обычно null (лимит из общего блока limit_rule); заполняется как исключение.
-    limit_override = Column(Numeric(18, 2), nullable=True)
-    no_limit = Column(Boolean, nullable=False, default=False, server_default="false")  # зелёное
     derivation = Column(
         _enum(GrantDerivation, "poa_grant_derivation"),
         nullable=False,
@@ -284,34 +276,21 @@ class AuthorityGrant(Base):
 
     authority = relationship("Authority", back_populates="grants")
     org_scope = relationship("OrgScope")
-    org_level = relationship("OrgLevel")
 
 
 class LimitRule(Base):
-    """Финансовые лимиты отдельным блоком (Матрица 2.0: правило формулируется 1 раз)."""
+    """Финансовый лимит по уровню. Один потолок на уровень (CEO-1 / CEO-2 и ниже)."""
     __tablename__ = "poa_limit_rules"
     __table_args__ = (
-        UniqueConstraint(
-            "scope_class", "org_level_id", "exception_kind", "deal_direction",
-            name="uq_poa_limit_rule",
-        ),
+        UniqueConstraint("org_level_id", name="uq_poa_limit_rule"),
     )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    scope_class = Column(_enum(ScopeClass, "poa_scope_class"), nullable=False)
     org_level_id = Column(
         Integer, ForeignKey("poa_org_levels.id", ondelete="CASCADE"), nullable=False
     )
-    exception_kind = Column(_enum(LimitClass, "poa_limit_class"), nullable=False)
     amount = Column(Numeric(18, 2), nullable=False)
     currency = Column(String(3), nullable=False, default="RUB", server_default="RUB")
-    # Лимиты применяются только к расходным сделкам.
-    deal_direction = Column(
-        _enum(DealDirection, "poa_deal_direction"),
-        nullable=False,
-        default=DealDirection.expense,
-        server_default=DealDirection.expense.value,
-    )
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False

@@ -28,13 +28,17 @@
 
 | # | Вопрос | Решение | Следствие |
 |---|--------|---------|-----------|
-| 1 | Источник уровня (CEO-1..5) | **Гибрид.** HR даёт должность+ФИО, но не вычисляет CEO-N. Пока интеграции нет — ручной ввод; позже деривация из должности + HR | `employee.org_level_id` nullable + `level_source(manual\|derived\|hr)`; таблица-заготовка `poa_position_level_rules` |
+| 1 | Источник уровня сотрудника | **Гибрид.** HR даёт должность+ФИО, но не вычисляет уровень. Пока интеграции нет — ручной ввод; позже деривация из должности + HR | `employee.org_level_id` nullable + `level_source(manual\|derived\|hr)`; таблица-заготовка `poa_position_level_rules` |
 | 2 | Источник правды матрицы | **Нативная админка в PostgreSQL** (не YAML-в-git) | Юрист правит матрицу в вебе; версионирование/аудит — таблицами |
-| 3 | Компании (МГТС + 5 ДЗО) | **Одна матрица, компания — атрибут** орг-скоупа/сотрудника | Единый движок резолвинга, без 6× дублирования |
-| 4 | Резолвинг | **Материализация с генерацией**: авторские правила → плоские аудируемые строки | Таблица `poa_resolved_grants` поверх авторской `poa_authority_grants`; `derivation` на каждой строке |
-| 5 | Дизайн-система | Дизайн-система: скилл .claude/skills/mgts-design/ есть локально. Вёрстка — через него + frontend/components/ui/ и @mts-ds/*. Table/Modal — кастом.
+| 3 | Компании (МГТС + ДЗО) | **Компания — атрибут** орг-скоупа/сотрудника | Единый движок резолвинга, без дублирования |
+| 4 | Резолвинг | **Материализация с генерацией**: авторские правила → плоские аудируемые строки | Таблица `poa_resolved_grants` поверх `poa_authority_grants`; `derivation` на каждой строке |
+| 5 | Дизайн-система | Скилл .claude/skills/mgts-design/ + frontend/components/ui/ и @mts-ds/*. Table/Modal — кастом. | |
 | 6 | Движок workflow (Модуль 6) | Отложено; Camunda vs FSM — при планировании фазы 4 | В фазе 1 — только сущность-каркас + точки интеграции |
-| 7 | Передоверие | **Не входит в бизнес МГТС — исключено.** Доверенности простые, без sub-delegation и коэффициента 60% | Убраны поля `sub_delegation_only`, `can_conclude_deals_default`, enum-значение `sub_delegation`, `poa_sub_delegation_coeff` |
+| 7 | Передоверие | **Не входит в бизнес МГТС — исключено.** | Убраны `sub_delegation_only`, `can_conclude_deals_default`, enum `sub_delegation`, `poa_sub_delegation_coeff` |
+| 8 | Модель матрицы (по интервью Масловой) | **Две независимые оси.** ПОДРАЗДЕЛЕНИЕ → какие полномочия доступны (наследование вниз по оргдереву); УРОВЕНЬ → лимит. Полномочие = «доступное меню», юрист/инициатор выбирает подмножество; лимит из матрицы — потолок (можно только меньше) | `authority_grant` = полномочие×скоуп (без уровня); различие судебник/договорник = дробность оргдерева |
+| 9 | Уровень | **Два тира: CEO-1 и «CEO-2 и ниже».** Влияет только на лимит, не на список полномочий | `limit_rule` ключ = `org_level_id` (один лимит на уровень) |
+| 10 | Регионы / класс лимита | **Исключены — у МГТС нет.** | Убраны `scope_class`, `region_tier`, `is_corporate_center`, `limit_class`/`exception_kind` |
+| 11 | Справочник оргструктуры / HRGate | Дерево `org_scopes` до отдела/иной единицы; источник гибридный (вручную/HRGate) — задел | + `scope_type(division\|unit)`, `org_scopes.source`, `external_id` (синк с HRGate — позже) |
 
 ---
 
@@ -42,17 +46,19 @@
 
 ### Data model — Module 1 (`backend/app/models/poa.py`)
 
-Сущности (реализованы в M0): `AuthorityCategory` (дерево H1–H5), `Authority` (каталог),
-`OrgScope` (self-ref, `company`, `region_tier`), `OrgLevel` (CEO-1..5, `rank`),
-`AuthorityGrant` (авторские ячейки), `LimitRule` (блок лимитов),
-`Employee`, `PositionLevelRule`, `AuthorityRequest`, `ResolvedGrant` (материализация).
+Сущности: `AuthorityCategory` (дерево H1–H5), `Authority` (каталог формулировок),
+`OrgScope` (дерево оргструктуры до отдела; `company`, `source`, `external_id`),
+`OrgLevel` (два тира: CEO-1 / CEO-2 и ниже), `AuthorityGrant` (доступность =
+полномочие×скоуп), `LimitRule` (лимит по уровню), `Employee`, `PositionLevelRule`,
+`AuthorityRequest`, `ResolvedGrant` (материализация).
 
-Уточнения к исходной схеме PRD (реализованы):
-- `Authority.limit_class` — ключ матча с `LimitRule.exception_kind` (общий enum `poa_limit_class`).
-- `OrgScope.company` — компания как атрибут (решение №3).
+Ключевые свойства модели (решения №8–11):
+- `AuthorityGrant` = `authority × org_scope` (уровень на доступность не влияет). Полномочие
+  наследуется вниз по оргдереву; `org_scope=null` → во всех скоупах.
+- `LimitRule` = один лимит на уровень (`org_level_id` unique). Регионов/классов лимита нет.
+- `OrgScope.company` — компания как атрибут; `source/external_id` — задел под HRGate.
 - `Employee.org_level_id` nullable + `level_source` (решение №1).
-- `poa_position_level_rules` — заготовка под деривацию CEO-N (в фазе 1 без логики).
-- `poa_resolved_grants` — материализация (решение №4), индекс `(org_scope_id, org_level_id)`.
+- `poa_resolved_grants` — материализация пула доступного (по `(org_scope_id, org_level_id)`).
 
 ### Data model — Module 2 (Registry)
 
@@ -67,17 +73,16 @@
 
 ### Resolving engine — `backend/app/services/poa/resolver.py` (M2)
 
-**(A) Генерация `resolved_grant`** из авторских правил (триггер: изменение
-`authority`/`authority_grant`/`limit_rule`/`org_level`/`category`; синхронно, при росте — arq):
-universal → каскад на все scope×level; авторские ячейки (base_rule); каскад вверх (rank меньше —
-cascade); явный запрет (`granted=false`) убирает ячейку.
+**(A) Генерация `resolved_grant`** (пул доступного) из авторских правил: для каждого узла
+оргструктуры собираем ближайшее правило на полномочие (сам узел `base_rule` > предки
+`cascade`); `org_scope=null` и универсальные полномочия → доступны везде (`universal`);
+явный запрет (`granted=false`) убирает ячейку. Затем для каждого узла × уровень считаем лимит.
 
 **(B) `resolve(employee)`** = строки `resolved_grant` по scope+level сотрудника + одобренные
 `authority_request` (manual_exception).
 
-**`compute_limit` precedence:** income/`limit_applies=false` → без лимита → `no_limit` (зелёное) →
-`limit_override` → матч `limit_rule` по `(scope_class, level, exception_kind=authority.limit_class,
-expense)`. Все ветки трассируемы через `derivation`. (Передоверия нет — см. решение №7.)
+**`compute_limit` precedence:** income/`limit_applies=false` → без лимита (`unlimited`) →
+`no_limit` (зелёное) → потолок из `limit_rule` по уровню. Все ветки трассируемы через `derivation`.
 
 ### RBAC — `backend/app/core/deps.py`
 
@@ -108,7 +113,7 @@ API-слой по образцу `lib/api/knowledge.ts` (`apiFetch` + React Quer
 |---|------|-----------|------------------|
 | **M0** ✅ | Тест-инфра + модели | `tests/conftest.py`; `models/poa.py` (14 таблиц); миграция `a7b1c2d3e4f5_poa_m0` | миграция применяется/откатывается; метаданные-тесты зелёные |
 | **M1** ✅ | Каталог + деревья + CRUD | `schemas/poa.py`, `api/poa/` CRUD + RBAC | юрист ведёт каталог/категории/скоупы/лимиты; 200 для юриста, 403 для employee |
-| **M2** ✅ | Движок + матрица | `services/poa/resolver.py` (генерация + resolve + compute_limit); эндпоинты матрицы/resolve; аудит | резолвинг корректно выдаёт полномочия+лимиты (universal, каскад, income=∞, no_limit, tier1/2/kc, override); правка ячейки → пересчёт |
+| **M2** ✅ | Движок + матрица | `services/poa/resolver.py` (генерация + resolve + compute_limit); эндпоинты матрицы/resolve; аудит | резолвинг корректно выдаёт полномочия+лимиты (universal, наследование по оргдереву, income=∞, no_limit, лимит по уровню, запрет); правка ячейки → пересчёт |
 | **M3** | Реестр + выдача оригинала | `PoaCertificate` (FK), `PoaOriginalIssue`, авто-`expired`, поиск; фронт реестра | реестр заменяет журнал (вкл. выдачу оригинала); срез «кто имеет X»; авто-инвалидация при revoke |
 | **M4** | Админка матрицы (фронт) | `MatrixGrid` с цвет-кодом, редакторы, очередь заявок, аудит-лог | юрист ведёт матрицу визуально; изменения в аудите |
 

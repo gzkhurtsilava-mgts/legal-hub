@@ -8,7 +8,6 @@ from app.models.poa import (
     AuditAction,
     Authority,
     AuthorityGrant,
-    OrgLevel,
     OrgScope,
     ResolvedGrant,
 )
@@ -26,10 +25,7 @@ router = APIRouter(prefix="/matrix", tags=["poa-matrix"])
 
 _LAWYER = Depends(require_role(UserRole.admin, UserRole.lawyer))
 
-_GRANT_FIELDS = [
-    "authority_id", "org_scope_id", "org_level_id", "granted",
-    "limit_override", "no_limit",
-]
+_GRANT_FIELDS = ["authority_id", "org_scope_id", "granted"]
 
 
 async def _validate_refs(db: AsyncSession, body: MatrixCellUpsert) -> None:
@@ -37,21 +33,14 @@ async def _validate_refs(db: AsyncSession, body: MatrixCellUpsert) -> None:
         await db.execute(select(Authority.id).where(Authority.id == body.authority_id))
     ).scalar_one_or_none() is None:
         raise HTTPException(status_code=400, detail="Полномочие не найдено")
-    if (
-        await db.execute(select(OrgLevel.id).where(OrgLevel.id == body.org_level_id))
-    ).scalar_one_or_none() is None:
-        raise HTTPException(status_code=400, detail="Уровень не найден")
     if body.org_scope_id is not None and (
         await db.execute(select(OrgScope.id).where(OrgScope.id == body.org_scope_id))
     ).scalar_one_or_none() is None:
         raise HTTPException(status_code=400, detail="Орг-скоуп не найден")
 
 
-def _cell_query(authority_id: int, org_level_id: int, org_scope_id: int | None):
-    stmt = select(AuthorityGrant).where(
-        AuthorityGrant.authority_id == authority_id,
-        AuthorityGrant.org_level_id == org_level_id,
-    )
+def _cell_query(authority_id: int, org_scope_id: int | None):
+    stmt = select(AuthorityGrant).where(AuthorityGrant.authority_id == authority_id)
     if org_scope_id is None:
         return stmt.where(AuthorityGrant.org_scope_id.is_(None))
     return stmt.where(AuthorityGrant.org_scope_id == org_scope_id)
@@ -61,7 +50,6 @@ def _cell_query(authority_id: int, org_level_id: int, org_scope_id: int | None):
 async def list_matrix(
     authority_id: int | None = None,
     org_scope_id: int | None = None,
-    org_level_id: int | None = None,
     db: AsyncSession = Depends(get_db),
     _: UserContext = _LAWYER,
 ) -> list[AuthorityGrant]:
@@ -70,12 +58,8 @@ async def list_matrix(
         stmt = stmt.where(AuthorityGrant.authority_id == authority_id)
     if org_scope_id is not None:
         stmt = stmt.where(AuthorityGrant.org_scope_id == org_scope_id)
-    if org_level_id is not None:
-        stmt = stmt.where(AuthorityGrant.org_level_id == org_level_id)
     result = await db.execute(
-        stmt.order_by(
-            AuthorityGrant.authority_id, AuthorityGrant.org_level_id, AuthorityGrant.org_scope_id
-        )
+        stmt.order_by(AuthorityGrant.authority_id, AuthorityGrant.org_scope_id)
     )
     return result.scalars().all()
 
@@ -111,7 +95,7 @@ async def upsert_cell(
 ) -> AuthorityGrant:
     await _validate_refs(db, body)
     existing = (
-        await db.execute(_cell_query(body.authority_id, body.org_level_id, body.org_scope_id))
+        await db.execute(_cell_query(body.authority_id, body.org_scope_id))
     ).scalar_one_or_none()
 
     if existing is None:
@@ -144,13 +128,12 @@ async def upsert_cell(
 @router.delete("/cell", status_code=204)
 async def delete_cell(
     authority_id: int,
-    org_level_id: int,
     org_scope_id: int | None = None,
     db: AsyncSession = Depends(get_db),
     user: UserContext = _LAWYER,
 ) -> Response:
     obj = (
-        await db.execute(_cell_query(authority_id, org_level_id, org_scope_id))
+        await db.execute(_cell_query(authority_id, org_scope_id))
     ).scalar_one_or_none()
     if obj is None:
         raise HTTPException(status_code=404, detail="Ячейка матрицы не найдена")

@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.deps import UserContext, require_role
-from app.models.poa import AuthorityGrant, Employee, LimitRule, OrgLevel
+from app.models.poa import Employee, LimitRule, OrgLevel
 from app.models.user import UserRole
 from app.schemas.poa import OrgLevelCreate, OrgLevelResponse, OrgLevelUpdate
 
@@ -100,7 +100,6 @@ async def delete_org_level(
 ) -> None:
     obj = await _get_or_404(db, level_id)
     for model, field, label in (
-        (AuthorityGrant, AuthorityGrant.org_level_id, "ячейках матрицы"),
         (LimitRule, LimitRule.org_level_id, "правилах лимитов"),
         (Employee, Employee.org_level_id, "сотрудниках"),
     ):

@@ -18,11 +18,9 @@ from app.models.poa import (
     DealDirection,
     GrantDerivation,
     LevelSource,
-    LimitClass,
-    RegionTier,
+    OrgSource,
     RequestStatus,
     ResolvedDerivation,
-    ScopeClass,
     ScopeType,
 )
 
@@ -66,7 +64,6 @@ class AuthorityCreate(BaseModel):
     text_full: str
     authority_kind: AuthorityKind
     deal_direction: DealDirection = DealDirection.na
-    limit_class: LimitClass | None = None
     is_universal: bool = False
     limit_applies: bool = False
     is_no_limit: bool = False
@@ -84,7 +81,6 @@ class AuthorityUpdate(BaseModel):
     text_full: str | None = None
     authority_kind: AuthorityKind | None = None
     deal_direction: DealDirection | None = None
-    limit_class: LimitClass | None = None
     is_universal: bool | None = None
     limit_applies: bool | None = None
     is_no_limit: bool | None = None
@@ -103,7 +99,6 @@ class AuthorityResponse(_OrmBase):
     text_full: str
     authority_kind: AuthorityKind
     deal_direction: DealDirection
-    limit_class: LimitClass | None
     is_universal: bool
     limit_applies: bool
     is_no_limit: bool
@@ -125,8 +120,8 @@ class OrgScopeCreate(BaseModel):
     scope_type: ScopeType
     name: str
     company: str
-    is_corporate_center: bool = False
-    region_tier: RegionTier | None = None
+    source: OrgSource = OrgSource.manual
+    external_id: str | None = None
 
 
 class OrgScopeUpdate(BaseModel):
@@ -134,8 +129,8 @@ class OrgScopeUpdate(BaseModel):
     scope_type: ScopeType | None = None
     name: str | None = None
     company: str | None = None
-    is_corporate_center: bool | None = None
-    region_tier: RegionTier | None = None
+    source: OrgSource | None = None
+    external_id: str | None = None
 
 
 class OrgScopeResponse(_OrmBase):
@@ -144,12 +139,12 @@ class OrgScopeResponse(_OrmBase):
     scope_type: ScopeType
     name: str
     company: str
-    is_corporate_center: bool
-    region_tier: RegionTier | None
+    source: OrgSource
+    external_id: str | None
     created_at: datetime
 
 
-# ─── OrgLevel (CEO-1..5) ──────────────────────────────────────────────────────
+# ─── OrgLevel (CEO-1 / CEO-2 и ниже) ──────────────────────────────────────────
 
 
 class OrgLevelCreate(BaseModel):
@@ -172,31 +167,22 @@ class OrgLevelResponse(_OrmBase):
 
 
 class LimitRuleCreate(BaseModel):
-    scope_class: ScopeClass
     org_level_id: int
-    exception_kind: LimitClass
     amount: Decimal
     currency: str = "RUB"
-    deal_direction: DealDirection = DealDirection.expense
 
 
 class LimitRuleUpdate(BaseModel):
-    scope_class: ScopeClass | None = None
     org_level_id: int | None = None
-    exception_kind: LimitClass | None = None
     amount: Decimal | None = None
     currency: str | None = None
-    deal_direction: DealDirection | None = None
 
 
 class LimitRuleResponse(_OrmBase):
     id: int
-    scope_class: ScopeClass
     org_level_id: int
-    exception_kind: LimitClass
     amount: Decimal
     currency: str
-    deal_direction: DealDirection
     created_at: datetime
     updated_at: datetime
 
@@ -205,23 +191,17 @@ class LimitRuleResponse(_OrmBase):
 
 
 class MatrixCellUpsert(BaseModel):
-    """Upsert ячейки матрицы выдачи. org_scope_id=None — «все скоупы»."""
+    """Upsert ячейки доступности. org_scope_id=None — «во всех скоупах»."""
     authority_id: int
     org_scope_id: int | None = None
-    org_level_id: int
     granted: bool = True
-    limit_override: Decimal | None = None
-    no_limit: bool = False
 
 
 class AuthorityGrantResponse(_OrmBase):
     id: int
     authority_id: int
     org_scope_id: int | None
-    org_level_id: int
     granted: bool
-    limit_override: Decimal | None
-    no_limit: bool
     derivation: GrantDerivation
     created_at: datetime
     updated_at: datetime

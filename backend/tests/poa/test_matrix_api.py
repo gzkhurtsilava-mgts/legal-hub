@@ -1,5 +1,8 @@
 """M2: HTTP-тесты матрицы/резолвинга — правка ячейки → пересчёт, resolve,
-заявки (approve → manual_exception), RBAC и аудит. Требуют PostgreSQL."""
+заявки (approve → manual_exception), RBAC и аудит. Требуют PostgreSQL.
+
+Ячейка доступности = полномочие × подразделение (уровень на доступность не влияет,
+только на лимит)."""
 
 import pytest
 from sqlalchemy import func, select
@@ -12,7 +15,7 @@ BASE = "/api/poa"
 
 
 async def _seed_catalog(client):
-    """Категория + активное полномочие + уровень + скоуп (КЦ). Возвращает id."""
+    """Категория + активное полномочие + уровень + скоуп. Возвращает id."""
     cat = (await client.post(f"{BASE}/categories/", json={"level": 1, "name": "Кат"})).json()
     auth = (
         await client.post(
@@ -28,8 +31,7 @@ async def _seed_catalog(client):
     scope = (
         await client.post(
             f"{BASE}/org-scopes/",
-            json={"scope_type": "metablock", "name": "КЦ", "company": "МГТС",
-                  "is_corporate_center": True},
+            json={"scope_type": "metablock", "name": "КЦ", "company": "МГТС"},
         )
     ).json()
     return cat, auth, lvl, scope
@@ -40,28 +42,25 @@ async def test_cell_upsert_regenerates(client, as_lawyer):
 
     r = await client.put(
         f"{BASE}/matrix/cell",
-        json={"authority_id": auth["id"], "org_scope_id": scope["id"],
-              "org_level_id": lvl["id"], "granted": True},
+        json={"authority_id": auth["id"], "org_scope_id": scope["id"], "granted": True},
     )
     assert r.status_code == 200, r.text
 
     resolved = (await client.get(f"{BASE}/matrix/resolved?authority_id={auth['id']}")).json()
-    assert len(resolved) == 1
+    assert len(resolved) == 1  # 1 скоуп × 1 уровень
     assert resolved[0]["org_scope_id"] == scope["id"]
     assert resolved[0]["org_level_id"] == lvl["id"]
 
-    # правка ячейки повторным PUT (upsert) — по-прежнему одна строка
+    # повторный PUT (upsert) той же ячейки — по-прежнему одна строка
     r = await client.put(
         f"{BASE}/matrix/cell",
-        json={"authority_id": auth["id"], "org_scope_id": scope["id"],
-              "org_level_id": lvl["id"], "granted": True, "no_limit": True},
+        json={"authority_id": auth["id"], "org_scope_id": scope["id"], "granted": True},
     )
     assert r.status_code == 200
 
     # удаление ячейки → пересчёт обнуляет resolved
     r = await client.delete(
-        f"{BASE}/matrix/cell"
-        f"?authority_id={auth['id']}&org_level_id={lvl['id']}&org_scope_id={scope['id']}"
+        f"{BASE}/matrix/cell?authority_id={auth['id']}&org_scope_id={scope['id']}"
     )
     assert r.status_code == 204
     resolved = (await client.get(f"{BASE}/matrix/resolved?authority_id={auth['id']}")).json()
@@ -72,8 +71,7 @@ async def test_cell_upsert_writes_audit(client, as_lawyer, db_session):
     _, auth, lvl, scope = await _seed_catalog(client)
     await client.put(
         f"{BASE}/matrix/cell",
-        json={"authority_id": auth["id"], "org_scope_id": scope["id"],
-              "org_level_id": lvl["id"], "granted": True},
+        json={"authority_id": auth["id"], "org_scope_id": scope["id"], "granted": True},
     )
     cnt = (
         await db_session.execute(
@@ -88,8 +86,7 @@ async def test_regenerate_endpoint(client, as_lawyer):
     _, auth, lvl, scope = await _seed_catalog(client)
     await client.put(
         f"{BASE}/matrix/cell",
-        json={"authority_id": auth["id"], "org_scope_id": scope["id"],
-              "org_level_id": lvl["id"], "granted": True},
+        json={"authority_id": auth["id"], "org_scope_id": scope["id"], "granted": True},
     )
     r = await client.post(f"{BASE}/matrix/regenerate")
     assert r.status_code == 200
@@ -100,8 +97,7 @@ async def test_resolve_endpoint(client, as_lawyer):
     _, auth, lvl, scope = await _seed_catalog(client)
     await client.put(
         f"{BASE}/matrix/cell",
-        json={"authority_id": auth["id"], "org_scope_id": scope["id"],
-              "org_level_id": lvl["id"], "granted": True},
+        json={"authority_id": auth["id"], "org_scope_id": scope["id"], "granted": True},
     )
     emp = (
         await client.post(
@@ -177,7 +173,7 @@ async def test_matrix_forbidden_for_employee(client, as_employee):
         assert (await client.get(f"{BASE}/{path}")).status_code == 403
     r = await client.put(
         f"{BASE}/matrix/cell",
-        json={"authority_id": 1, "org_level_id": 1, "granted": True},
+        json={"authority_id": 1, "granted": True},
     )
     assert r.status_code == 403
     assert (await client.get(f"{BASE}/resolve/1")).status_code == 403

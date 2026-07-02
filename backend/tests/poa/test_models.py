@@ -38,7 +38,7 @@ def test_authority_core_columns():
     cols = META["poa_authorities"].columns.keys()
     for c in (
         "code", "category_id", "name_short", "text_full", "authority_kind",
-        "deal_direction", "limit_class", "is_universal", "limit_applies",
+        "deal_direction", "is_universal", "limit_applies",
         "is_no_limit", "status", "version",
     ):
         assert c in cols
@@ -67,14 +67,10 @@ def test_certificate_authorities_are_fk_not_text():
 
 def test_enum_value_domains():
     assert [e.value for e in poa.DealDirection] == ["expense", "income", "na"]
-    assert [e.value for e in poa.ScopeClass] == ["kc", "region_tier1", "region_tier2"]
     assert [e.value for e in poa.LevelSource] == ["manual", "derived", "hr"]
+    assert [e.value for e in poa.OrgSource] == ["manual", "hrgate"]
     assert [e.value for e in poa.CertificateType] == ["paper", "notarial", "mchd"]
     assert [e.value for e in poa.IssueMethod] == ["in_person", "ring_mail", "postal"]
-    # LimitClass должен совпадать по домену с exception_kind в limit_rule.
-    assert [e.value for e in poa.LimitClass] == [
-        "general", "finance", "procurement", "infrastructure"
-    ]
 
 
 def test_employee_level_nullable_hybrid():

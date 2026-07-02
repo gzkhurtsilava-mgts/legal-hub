@@ -153,13 +153,13 @@ async def test_authority_bad_category(client, as_lawyer):
 async def test_org_scope_crud(client, as_lawyer):
     r = await client.post(
         f"{BASE}/org-scopes/",
-        json={"scope_type": "metablock", "name": "КЦ", "company": "МГТС",
-              "is_corporate_center": True},
+        json={"scope_type": "metablock", "name": "КЦ", "company": "МГТС"},
     )
     assert r.status_code == 201, r.text
     scope = r.json()
     sid = scope["id"]
     assert scope["company"] == "МГТС"
+    assert scope["source"] == "manual"
 
     child = await client.post(
         f"{BASE}/org-scopes/",
@@ -199,20 +199,14 @@ async def test_org_level_crud_and_uniqueness(client, as_lawyer):
 
 async def test_limit_rule_crud(client, as_lawyer):
     lvl = await _mk_level(client)
-    payload = {
-        "scope_class": "kc",
-        "org_level_id": lvl["id"],
-        "exception_kind": "general",
-        "amount": "1000000.00",
-    }
+    payload = {"org_level_id": lvl["id"], "amount": "1000000.00"}
     r = await client.post(f"{BASE}/limit-rules/", json=payload)
     assert r.status_code == 201, r.text
     rule = r.json()
     assert Decimal(str(rule["amount"])) == Decimal("1000000.00")
     assert rule["currency"] == "RUB"
-    assert rule["deal_direction"] == "expense"
 
-    # дубль по уникальной комбинации
+    # дубль: один лимит на уровень
     r = await client.post(f"{BASE}/limit-rules/", json=payload)
     assert r.status_code == 409
 
@@ -227,7 +221,6 @@ async def test_limit_rule_crud(client, as_lawyer):
 async def test_limit_rule_bad_level(client, as_lawyer):
     r = await client.post(
         f"{BASE}/limit-rules/",
-        json={"scope_class": "kc", "org_level_id": 9999,
-              "exception_kind": "general", "amount": "100"},
+        json={"org_level_id": 9999, "amount": "100"},
     )
     assert r.status_code == 400

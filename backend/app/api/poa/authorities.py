@@ -16,7 +16,7 @@ _LAWYER = Depends(require_role(UserRole.admin, UserRole.lawyer))
 
 _AUTH_FIELDS = [
     "code", "category_id", "name_short", "authority_kind", "deal_direction",
-    "limit_class", "is_universal", "limit_applies", "is_no_limit", "status", "version",
+    "is_universal", "limit_applies", "is_no_limit", "status", "version",
 ]
 
 

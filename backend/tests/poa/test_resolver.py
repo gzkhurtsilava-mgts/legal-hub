@@ -1,5 +1,6 @@
-"""M2: тесты движка резолвинга — по одному на каждое правило PRD 3.2.
+"""M2: тесты движка резолвинга.
 
+Две оси: подразделение (наследование по дереву) → полномочия, уровень → лимит.
 Работают напрямую с сервисным слоем (regenerate/resolve) через db_session.
 Требуют PostgreSQL (см. conftest).
 """
@@ -15,17 +16,15 @@ from app.models.poa import (
     AuthorityGrant,
     AuthorityKind,
     AuthorityRequest,
+    AuthorityStatus,
     DealDirection,
     Employee,
-    LimitClass,
     LimitRule,
     OrgLevel,
     OrgScope,
-    RegionTier,
     RequestStatus,
     ResolvedDerivation,
     ResolvedGrant,
-    ScopeClass,
 )
 from app.services.poa.resolver import regenerate_resolved_grants, resolve_employee
 
@@ -49,46 +48,34 @@ async def _level(db, code, rank):
     return await _flush(db, OrgLevel(code=code, rank=rank))
 
 
-async def _scope(db, name, company="МГТС", kc=False, tier=None, stype="metablock"):
+async def _scope(db, name, company="МГТС", parent_id=None, stype="metablock"):
     return await _flush(
-        db,
-        OrgScope(scope_type=stype, name=name, company=company,
-                 is_corporate_center=kc, region_tier=tier),
+        db, OrgScope(scope_type=stype, name=name, company=company, parent_id=parent_id)
     )
 
 
 async def _authority(db, cat_id, code, *, kind=AuthorityKind.deal,
                      direction=DealDirection.expense, limit_applies=True,
-                     limit_class=LimitClass.general, universal=False, no_limit=False):
-    from app.models.poa import AuthorityStatus
+                     universal=False, no_limit=False):
     return await _flush(
         db,
         Authority(
             code=code, category_id=cat_id, name_short=code, text_full="текст",
             authority_kind=kind, deal_direction=direction, limit_applies=limit_applies,
-            limit_class=limit_class, is_universal=universal, is_no_limit=no_limit,
-            status=AuthorityStatus.active,
+            is_universal=universal, is_no_limit=no_limit, status=AuthorityStatus.active,
         ),
     )
 
 
-async def _grant(db, auth_id, level_id, *, scope_id=None, granted=True,
-                 override=None, no_limit=False):
+async def _grant(db, auth_id, *, scope_id=None, granted=True):
     return await _flush(
         db,
-        AuthorityGrant(
-            authority_id=auth_id, org_scope_id=scope_id, org_level_id=level_id,
-            granted=granted, limit_override=override, no_limit=no_limit,
-        ),
+        AuthorityGrant(authority_id=auth_id, org_scope_id=scope_id, granted=granted),
     )
 
 
-async def _limit(db, scope_class, level_id, amount, kind=LimitClass.general):
-    return await _flush(
-        db,
-        LimitRule(scope_class=scope_class, org_level_id=level_id, exception_kind=kind,
-                  amount=Decimal(amount), deal_direction=DealDirection.expense),
-    )
+async def _limit(db, level_id, amount):
+    return await _flush(db, LimitRule(org_level_id=level_id, amount=Decimal(amount)))
 
 
 async def _resolved(db, scope_id, level_id, auth_id) -> ResolvedGrant | None:
@@ -106,46 +93,51 @@ async def _resolved(db, scope_id, level_id, auth_id) -> ResolvedGrant | None:
 # ─── правила ──────────────────────────────────────────────────────────────────
 
 
-async def test_universal_cascades_to_all(db_session):
+async def test_universal_applies_to_all(db_session):
     db = db_session
     cat = await _category(db)
     l1 = await _level(db, "CEO-1", 1)
-    await _level(db, "CEO-2", 2)
-    sc = await _scope(db, "КЦ", kc=True)
+    await _level(db, "CEO-2-", 2)
+    sc = await _scope(db, "КЦ")
     a = await _authority(db, cat.id, "POA-U", universal=True, limit_applies=False)
 
     n = await regenerate_resolved_grants(db)
-    assert n == 2  # 1 authority × 1 scope × 2 levels
+    assert n == 2  # 1 полномочие × 1 скоуп × 2 уровня
     r = await _resolved(db, sc.id, l1.id, a.id)
     assert r is not None and r.derivation == ResolvedDerivation.universal
     assert r.unlimited is True
 
 
-async def test_base_and_cascade_upward(db_session):
+async def test_tree_inheritance(db_session):
     db = db_session
     cat = await _category(db)
-    l1 = await _level(db, "CEO-1", 1)
-    l2 = await _level(db, "CEO-2", 2)
-    l3 = await _level(db, "CEO-3", 3)
-    sc = await _scope(db, "КЦ", kc=True)
-    a = await _authority(db, cat.id, "POA-D", limit_applies=False)
-    await _grant(db, a.id, l3.id, scope_id=sc.id)  # выдано на CEO-3
+    lvl = await _level(db, "CEO-1", 1)
+    bpo = await _scope(db, "БПО", stype="block")
+    court = await _scope(db, "Отдел судебной работы", parent_id=bpo.id, stype="division")
+    shared = await _authority(db, cat.id, "POA-BPO", limit_applies=False)
+    court_only = await _authority(db, cat.id, "POA-COURT", limit_applies=False)
+    await _grant(db, shared.id, scope_id=bpo.id)       # на родителе
+    await _grant(db, court_only.id, scope_id=court.id)  # на дочернем узле
 
     await regenerate_resolved_grants(db)
-    assert (await _resolved(db, sc.id, l3.id, a.id)).derivation == ResolvedDerivation.base_rule
-    assert (await _resolved(db, sc.id, l2.id, a.id)).derivation == ResolvedDerivation.cascade
-    assert (await _resolved(db, sc.id, l1.id, a.id)).derivation == ResolvedDerivation.cascade
-    # ниже по иерархии полномочие не появляется — CEO-3 самый нижний здесь
+    # полномочие БПО наследуется вниз в отдел (cascade), на самом БПО — base_rule
+    assert (await _resolved(db, bpo.id, lvl.id, shared.id)).derivation == \
+        ResolvedDerivation.base_rule
+    assert (await _resolved(db, court.id, lvl.id, shared.id)).derivation == \
+        ResolvedDerivation.cascade
+    # полномочие отдела виден только в отделе, не в БПО
+    assert await _resolved(db, court.id, lvl.id, court_only.id) is not None
+    assert await _resolved(db, bpo.id, lvl.id, court_only.id) is None
 
 
 async def test_income_is_unlimited(db_session):
     db = db_session
     cat = await _category(db)
     lvl = await _level(db, "CEO-1", 1)
-    sc = await _scope(db, "КЦ", kc=True)
+    sc = await _scope(db, "КЦ")
     a = await _authority(db, cat.id, "POA-INC", direction=DealDirection.income)
-    await _limit(db, ScopeClass.kc, lvl.id, "1000000")
-    await _grant(db, a.id, lvl.id, scope_id=sc.id)
+    await _limit(db, lvl.id, "1000000")
+    await _grant(db, a.id, scope_id=sc.id)
 
     await regenerate_resolved_grants(db)
     r = await _resolved(db, sc.id, lvl.id, a.id)
@@ -156,55 +148,53 @@ async def test_no_limit_green(db_session):
     db = db_session
     cat = await _category(db)
     lvl = await _level(db, "CEO-1", 1)
-    sc = await _scope(db, "КЦ", kc=True)
+    sc = await _scope(db, "КЦ")
     a = await _authority(db, cat.id, "POA-NL", no_limit=True)
-    await _grant(db, a.id, lvl.id, scope_id=sc.id)
+    await _grant(db, a.id, scope_id=sc.id)
 
     await regenerate_resolved_grants(db)
     r = await _resolved(db, sc.id, lvl.id, a.id)
     assert r.no_limit is True and r.unlimited is False and r.effective_limit is None
 
 
-async def test_limit_by_tier(db_session):
+async def test_limit_by_level(db_session):
     db = db_session
     cat = await _category(db)
-    lvl = await _level(db, "CEO-2", 2)
-    kc = await _scope(db, "КЦ", kc=True)
-    t1 = await _scope(db, "Москва", tier=RegionTier.tier1)
-    t2 = await _scope(db, "Регион", tier=RegionTier.tier2)
+    l1 = await _level(db, "CEO-1", 1)
+    l2 = await _level(db, "CEO-2-", 2)
+    sc = await _scope(db, "КЦ")
     a = await _authority(db, cat.id, "POA-LIM")
-    await _limit(db, ScopeClass.kc, lvl.id, "1000000")
-    await _limit(db, ScopeClass.region_tier1, lvl.id, "500000")
-    await _limit(db, ScopeClass.region_tier2, lvl.id, "250000")
-    await _grant(db, a.id, lvl.id)  # null scope → все скоупы
+    await _limit(db, l1.id, "1000000")   # CEO-1
+    await _limit(db, l2.id, "300000")    # CEO-2 и ниже
+    await _grant(db, a.id, scope_id=sc.id)
 
     await regenerate_resolved_grants(db)
-    assert (await _resolved(db, kc.id, lvl.id, a.id)).effective_limit == Decimal("1000000")
-    assert (await _resolved(db, t1.id, lvl.id, a.id)).effective_limit == Decimal("500000")
-    assert (await _resolved(db, t2.id, lvl.id, a.id)).effective_limit == Decimal("250000")
+    assert (await _resolved(db, sc.id, l1.id, a.id)).effective_limit == Decimal("1000000")
+    assert (await _resolved(db, sc.id, l2.id, a.id)).effective_limit == Decimal("300000")
 
 
-async def test_override_wins(db_session):
+async def test_null_scope_applies_everywhere(db_session):
     db = db_session
     cat = await _category(db)
     lvl = await _level(db, "CEO-1", 1)
-    sc = await _scope(db, "КЦ", kc=True)
-    a = await _authority(db, cat.id, "POA-OVR")
-    await _limit(db, ScopeClass.kc, lvl.id, "1000000")
-    await _grant(db, a.id, lvl.id, scope_id=sc.id, override=Decimal("777"))
+    s1 = await _scope(db, "БПО", stype="block")
+    s2 = await _scope(db, "IT", stype="block")
+    a = await _authority(db, cat.id, "POA-ALL", universal=False, limit_applies=False)
+    await _grant(db, a.id, scope_id=None)  # во всех скоупах
 
     await regenerate_resolved_grants(db)
-    assert (await _resolved(db, sc.id, lvl.id, a.id)).effective_limit == Decimal("777.00")
+    assert await _resolved(db, s1.id, lvl.id, a.id) is not None
+    assert await _resolved(db, s2.id, lvl.id, a.id) is not None
 
 
 async def test_explicit_denial_removes_cell(db_session):
     db = db_session
     cat = await _category(db)
     lvl = await _level(db, "CEO-1", 1)
-    sc = await _scope(db, "КЦ", kc=True)
+    sc = await _scope(db, "КЦ")
     a = await _authority(db, cat.id, "POA-DENY", universal=True, limit_applies=False)
-    # универсальное, но явный запрет на конкретной ячейке
-    await _grant(db, a.id, lvl.id, scope_id=sc.id, granted=False)
+    # универсальное, но явный запрет на конкретном узле
+    await _grant(db, a.id, scope_id=sc.id, granted=False)
 
     await regenerate_resolved_grants(db)
     assert await _resolved(db, sc.id, lvl.id, a.id) is None
@@ -213,10 +203,10 @@ async def test_explicit_denial_removes_cell(db_session):
 async def test_resolve_employee(db_session):
     db = db_session
     cat = await _category(db)
-    lvl = await _level(db, "CEO-2", 2)
-    sc = await _scope(db, "КЦ", kc=True)
+    lvl = await _level(db, "CEO-2-", 2)
+    sc = await _scope(db, "КЦ")
     a = await _authority(db, cat.id, "POA-E", limit_applies=False)
-    await _grant(db, a.id, lvl.id, scope_id=sc.id)
+    await _grant(db, a.id, scope_id=sc.id)
     await regenerate_resolved_grants(db)
     emp = await _flush(db, Employee(fio="Иванов", company="МГТС",
                                     org_scope_id=sc.id, org_level_id=lvl.id))
@@ -224,7 +214,7 @@ async def test_resolve_employee(db_session):
     items = await resolve_employee(db, emp)
     assert [i.code for i in items] == ["POA-E"]
 
-    # без уровня — пусто
+    # без уровня/подразделения — пусто
     emp2 = await _flush(db, Employee(fio="Петров", company="МГТС"))
     assert await resolve_employee(db, emp2) == []
 
@@ -232,11 +222,11 @@ async def test_resolve_employee(db_session):
 async def test_resolve_manual_exception(db_session):
     db = db_session
     cat = await _category(db)
-    lvl = await _level(db, "CEO-3", 3)
-    sc = await _scope(db, "КЦ", kc=True)
+    lvl = await _level(db, "CEO-1", 1)
+    sc = await _scope(db, "КЦ")
     granted_a = await _authority(db, cat.id, "POA-BASE", limit_applies=False)
     extra_a = await _authority(db, cat.id, "POA-EXTRA", limit_applies=False)
-    await _grant(db, granted_a.id, lvl.id, scope_id=sc.id)
+    await _grant(db, granted_a.id, scope_id=sc.id)
     await regenerate_resolved_grants(db)
     emp = await _flush(db, Employee(fio="Сидоров", company="МГТС",
                                     org_scope_id=sc.id, org_level_id=lvl.id))
