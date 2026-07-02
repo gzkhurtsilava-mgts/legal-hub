@@ -1,5 +1,142 @@
-import { ComingSoon } from "@/components/ComingSoon";
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { Icon } from "@/components/icons";
+import { PageHeader } from "@/components/ui";
+
+interface Section {
+  href: string;
+  title: string;
+  description: string;
+  icon: string;
+}
+
+const SECTIONS: Section[] = [
+  {
+    href: "/services/poa/catalog",
+    title: "Каталог полномочий",
+    description: "Полномочия, категории, подразделения, уровни и лимиты",
+    icon: "ShieldCheckSize24StyleOutline",
+  },
+  {
+    href: "/services/poa/matrix",
+    title: "Матрица доступности",
+    description: "Какие полномочия доступны по подразделениям",
+    icon: "ViewTableSize24StyleOutline",
+  },
+  {
+    href: "/services/poa/registry",
+    title: "Реестр доверенностей",
+    description: "Выданные доверенности и выдача оригиналов",
+    icon: "DocumentSize24StyleOutline",
+  },
+  {
+    href: "/services/poa/requests",
+    title: "Заявки на полномочия",
+    description: "Индивидуальные полномочия сверх набора подразделения",
+    icon: "ChecklistSize24StyleOutline",
+  },
+  {
+    href: "/services/poa/employees",
+    title: "Сотрудники",
+    description: "Привязка сотрудников к подразделению и уровню",
+    icon: "ProfileSize24StyleOutline",
+  },
+];
 
 export default function PoaPage() {
-  return <ComingSoon title="Доверенности" icon="FolderSize24StyleOutline" description="Поиск и оформление доверенностей по типу полномочий. Раздел в разработке." />;
+  const router = useRouter();
+  const { data: session } = useSession();
+  const role = (session?.user as { role?: string })?.role;
+  const canManage = role === "admin" || role === "lawyer";
+
+  return (
+    <div style={{ padding: "32px 24px", maxWidth: "1000px", margin: "0 auto" }}>
+      <PageHeader
+        title="Доверенности"
+        subtitle="Единый центр управления доверенностями БПО"
+      />
+
+      {!canManage ? (
+        <div
+          style={{
+            background: "var(--color-background-primary)",
+            border: "1px solid var(--color-line)",
+            borderRadius: "var(--radius-l)",
+            padding: "32px",
+            fontFamily: "MTS Compact, sans-serif",
+            fontSize: "15px",
+            color: "var(--color-text-secondary)",
+          }}
+        >
+          Раздел самообслуживания для сотрудников появится позже. Управление
+          доверенностями доступно юристам БПО.
+        </div>
+      ) : (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+            gap: "16px",
+          }}
+        >
+          {SECTIONS.map((s) => (
+            <button
+              key={s.href}
+              type="button"
+              onClick={() => router.push(s.href)}
+              className="ui-cardlink"
+              style={{
+                textAlign: "left",
+                cursor: "pointer",
+                background: "var(--color-background-primary)",
+                border: "1px solid var(--color-line)",
+                borderRadius: "var(--radius-l)",
+                padding: "24px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "12px",
+              }}
+            >
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "48px",
+                  height: "48px",
+                  borderRadius: "var(--radius-m)",
+                  background: "var(--color-accent-brand-bg)",
+                  color: "var(--color-brand)",
+                }}
+              >
+                <Icon name={s.icon} size={24} />
+              </span>
+              <span
+                style={{
+                  fontFamily: "MTS Compact, sans-serif",
+                  fontWeight: 500,
+                  fontSize: "17px",
+                  color: "var(--color-text-primary)",
+                }}
+              >
+                {s.title}
+              </span>
+              <span
+                style={{
+                  fontFamily: "MTS Compact, sans-serif",
+                  fontSize: "13px",
+                  color: "var(--color-text-secondary)",
+                  lineHeight: 1.4,
+                }}
+              >
+                {s.description}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
