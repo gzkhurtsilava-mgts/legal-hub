@@ -1,6 +1,6 @@
 # Doverennosti (Powers of Attorney) module
 
-> Status: 🟡 **M0 done** (models + migration + test infra), M1 next.
+> Status: 🟢 **M0–M2 done** (models, catalog CRUD, resolving engine + matrix + audit). M3 next.
 > This plan mirrors the format of `knowledge-module.md` / `processes-module.md`.
 
 ---
@@ -34,8 +34,7 @@
 | 4 | Резолвинг | **Материализация с генерацией**: авторские правила → плоские аудируемые строки | Таблица `poa_resolved_grants` поверх авторской `poa_authority_grants`; `derivation` на каждой строке |
 | 5 | Дизайн-система | Дизайн-система: скилл .claude/skills/mgts-design/ есть локально. Вёрстка — через него + frontend/components/ui/ и @mts-ds/*. Table/Modal — кастом.
 | 6 | Движок workflow (Модуль 6) | Отложено; Camunda vs FSM — при планировании фазы 4 | В фазе 1 — только сущность-каркас + точки интеграции |
-
-Глобальный параметр передоверия: **60%** → `settings.poa_sub_delegation_coeff` (не хардкод).
+| 7 | Передоверие | **Не входит в бизнес МГТС — исключено.** Доверенности простые, без sub-delegation и коэффициента 60% | Убраны поля `sub_delegation_only`, `can_conclude_deals_default`, enum-значение `sub_delegation`, `poa_sub_delegation_coeff` |
 
 ---
 
@@ -44,8 +43,8 @@
 ### Data model — Module 1 (`backend/app/models/poa.py`)
 
 Сущности (реализованы в M0): `AuthorityCategory` (дерево H1–H5), `Authority` (каталог),
-`OrgScope` (self-ref, `company`, `region_tier`), `OrgLevel` (CEO-1..5, `rank`,
-`can_conclude_deals_default`), `AuthorityGrant` (авторские ячейки), `LimitRule` (блок лимитов),
+`OrgScope` (self-ref, `company`, `region_tier`), `OrgLevel` (CEO-1..5, `rank`),
+`AuthorityGrant` (авторские ячейки), `LimitRule` (блок лимитов),
 `Employee`, `PositionLevelRule`, `AuthorityRequest`, `ResolvedGrant` (материализация).
 
 Уточнения к исходной схеме PRD (реализованы):
@@ -71,15 +70,14 @@
 **(A) Генерация `resolved_grant`** из авторских правил (триггер: изменение
 `authority`/`authority_grant`/`limit_rule`/`org_level`/`category`; синхронно, при росте — arq):
 universal → каскад на все scope×level; авторские ячейки (base_rule); каскад вверх (rank меньше —
-cascade); `sub_delegation_only` / CEO-4,-5 → derivation=sub_delegation.
+cascade); явный запрет (`granted=false`) убирает ячейку.
 
 **(B) `resolve(employee)`** = строки `resolved_grant` по scope+level сотрудника + одобренные
 `authority_request` (manual_exception).
 
 **`compute_limit` precedence:** income/`limit_applies=false` → без лимита → `no_limit` (зелёное) →
 `limit_override` → матч `limit_rule` по `(scope_class, level, exception_kind=authority.limit_class,
-expense)`; если derivation=sub_delegation → × `poa_sub_delegation_coeff` (0.60).
-Все ветки трассируемы через `derivation`.
+expense)`. Все ветки трассируемы через `derivation`. (Передоверия нет — см. решение №7.)
 
 ### RBAC — `backend/app/core/deps.py`
 
@@ -108,9 +106,9 @@ API-слой по образцу `lib/api/knowledge.ts` (`apiFetch` + React Quer
 
 | M | Веха | Содержимое | Критерий приёмки |
 |---|------|-----------|------------------|
-| **M0** ✅ | Тест-инфра + модели | `tests/conftest.py`; `models/poa.py` (14 таблиц); миграция `a7b1c2d3e4f5_poa_m0`; `poa_sub_delegation_coeff` | миграция применяется/откатывается; метаданные-тесты зелёные |
-| **M1** | Каталог + деревья + CRUD | `schemas/poa.py`, `api/poa/` CRUD + RBAC | юрист ведёт каталог/категории/скоупы/лимиты; 200 для юриста, 403 для employee |
-| **M2** | Движок + матрица | `services/poa/resolver.py` (генерация + resolve + compute_limit); эндпоинты матрицы/resolve; аудит | резолвинг корректно выдаёт полномочия+лимиты (universal, каскад, income=∞, no_limit, передоверие ×0.60, tier1/2/kc, override, CEO-4/-5); правка ячейки → пересчёт |
+| **M0** ✅ | Тест-инфра + модели | `tests/conftest.py`; `models/poa.py` (14 таблиц); миграция `a7b1c2d3e4f5_poa_m0` | миграция применяется/откатывается; метаданные-тесты зелёные |
+| **M1** ✅ | Каталог + деревья + CRUD | `schemas/poa.py`, `api/poa/` CRUD + RBAC | юрист ведёт каталог/категории/скоупы/лимиты; 200 для юриста, 403 для employee |
+| **M2** ✅ | Движок + матрица | `services/poa/resolver.py` (генерация + resolve + compute_limit); эндпоинты матрицы/resolve; аудит | резолвинг корректно выдаёт полномочия+лимиты (universal, каскад, income=∞, no_limit, tier1/2/kc, override); правка ячейки → пересчёт |
 | **M3** | Реестр + выдача оригинала | `PoaCertificate` (FK), `PoaOriginalIssue`, авто-`expired`, поиск; фронт реестра | реестр заменяет журнал (вкл. выдачу оригинала); срез «кто имеет X»; авто-инвалидация при revoke |
 | **M4** | Админка матрицы (фронт) | `MatrixGrid` с цвет-кодом, редакторы, очередь заявок, аудит-лог | юрист ведёт матрицу визуально; изменения в аудите |
 
@@ -128,14 +126,14 @@ JodConverter → docx/PDF/МЧД). **M0 фазы 2:** установить docxt
 
 ### Phase 4 — Сервис оформления (каркас, отдельный план)
 Модуль 6: заявка на оформление со статусами; точки входа из навигатора; запись в реестр;
-заглушки согласования/подписи; передоверие (60%) — first-class проверка. Camunda vs FSM — TBD.
+заглушки согласования/подписи. Camunda vs FSM — TBD.
 
 ---
 
 ## Critical files
 
 **Backend (M0, done):** `app/models/poa.py`, `app/models/__init__.py` (регистрация),
-`app/core/config.py` (`poa_sub_delegation_coeff`), `alembic/versions/a7b1c2d3e4f5_poa_m0.py`,
+`app/core/config.py`, `alembic/versions/a7b1c2d3e4f5_poa_m0.py`,
 `tests/conftest.py`, `tests/poa/test_models.py`.
 **Backend (M1+):** `app/schemas/poa.py`, `app/api/poa/{__init__,catalog,matrix,registry,requests,
 audit}.py`, `app/services/poa/resolver.py`, `app/main.py` (регистрация роутера), `tests/poa/*`.

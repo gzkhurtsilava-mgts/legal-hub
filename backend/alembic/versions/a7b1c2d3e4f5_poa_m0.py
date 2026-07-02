@@ -45,7 +45,7 @@ _grant_derivation = PgEnum(
     "base_rule", "cascade", "manual_exception", name="poa_grant_derivation"
 )
 _resolved_derivation = PgEnum(
-    "base_rule", "cascade", "universal", "sub_delegation", "manual_exception",
+    "base_rule", "cascade", "universal", "manual_exception",
     name="poa_resolved_derivation",
 )
 
@@ -103,7 +103,6 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
         sa.Column("code", sa.String(20), nullable=False),
         sa.Column("rank", sa.Integer(), nullable=False),
-        sa.Column("can_conclude_deals_default", sa.Boolean(), server_default="true", nullable=False),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("code"),
         sa.UniqueConstraint("rank"),
@@ -146,7 +145,6 @@ def upgrade() -> None:
         sa.Column("granted", sa.Boolean(), server_default="true", nullable=False),
         sa.Column("limit_override", sa.Numeric(18, 2), nullable=True),
         sa.Column("no_limit", sa.Boolean(), server_default="false", nullable=False),
-        sa.Column("sub_delegation_only", sa.Boolean(), server_default="false", nullable=False),
         sa.Column("derivation", _grant_derivation, server_default="base_rule", nullable=False),
         _ts(),
         _ts("updated_at"),

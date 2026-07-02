@@ -87,7 +87,6 @@ class ResolvedDerivation(str, enum.Enum):
     base_rule = "base_rule"
     cascade = "cascade"
     universal = "universal"
-    sub_delegation = "sub_delegation"
     manual_exception = "manual_exception"
 
 
@@ -246,10 +245,6 @@ class OrgLevel(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     code = Column(String(20), nullable=False, unique=True)  # CEO-1..CEO-5
     rank = Column(Integer, nullable=False, unique=True)     # 1..5
-    # false для CEO-4/-5 — сделки только через передоверие
-    can_conclude_deals_default = Column(
-        Boolean, nullable=False, default=True, server_default="true"
-    )
 
 
 class AuthorityGrant(Base):
@@ -276,7 +271,6 @@ class AuthorityGrant(Base):
     # Обычно null (лимит из общего блока limit_rule); заполняется как исключение.
     limit_override = Column(Numeric(18, 2), nullable=True)
     no_limit = Column(Boolean, nullable=False, default=False, server_default="false")  # зелёное
-    sub_delegation_only = Column(Boolean, nullable=False, default=False, server_default="false")
     derivation = Column(
         _enum(GrantDerivation, "poa_grant_derivation"),
         nullable=False,

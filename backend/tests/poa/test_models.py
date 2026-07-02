@@ -77,11 +77,6 @@ def test_enum_value_domains():
     ]
 
 
-def test_ceo_levels_have_deal_flag():
-    # CEO-4/-5 по умолчанию не заключают сделки — флаг присутствует в модели.
-    assert "can_conclude_deals_default" in META["poa_org_levels"].columns
-
-
 def test_employee_level_nullable_hybrid():
     # Гибрид: уровень может быть не задан, пока не введён вручную/из HR.
     assert META["poa_employees"].columns["org_level_id"].nullable is True

@@ -179,8 +179,7 @@ async def test_org_scope_crud(client, as_lawyer):
 
 
 async def test_org_level_crud_and_uniqueness(client, as_lawyer):
-    lvl = await _mk_level(client)
-    assert lvl["can_conclude_deals_default"] is True
+    await _mk_level(client)
 
     # дубль по коду
     r = await client.post(f"{BASE}/org-levels/", json={"code": "CEO-1", "rank": 2})
@@ -189,8 +188,7 @@ async def test_org_level_crud_and_uniqueness(client, as_lawyer):
     r = await client.post(f"{BASE}/org-levels/", json={"code": "CEO-2", "rank": 1})
     assert r.status_code == 409
 
-    lvl4 = await _mk_level(client, code="CEO-4", rank=4, can_conclude_deals_default=False)
-    assert lvl4["can_conclude_deals_default"] is False
+    await _mk_level(client, code="CEO-4", rank=4)
 
     r = await client.get(f"{BASE}/org-levels/")
     assert [x["rank"] for x in r.json()] == [1, 4]

@@ -18,11 +18,9 @@ from decimal import Decimal
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
 from app.models.poa import (
     Authority,
     AuthorityGrant,
-    AuthorityKind,
     AuthorityRequest,
     AuthorityStatus,
     DealDirection,
@@ -52,7 +50,6 @@ class _Cand:
     source_grant_id: int | None
     no_limit: bool
     limit_override: Decimal | None
-    sub_only: bool
 
 
 @dataclass
@@ -83,14 +80,12 @@ def compute_limit(
     *,
     no_limit_cell: bool,
     limit_override: Decimal | None,
-    is_sub_delegation: bool,
     lr_index: dict,
 ) -> _Limit:
     """Расчёт лимита ячейки. Порядок (precedence) — как в плане.
 
     income/limit_applies=false → без лимита (unlimited) → no_limit (зелёное) →
-    limit_override → матч limit_rule по (scope_class, level, exception_kind, expense);
-    если передоверие — умножаем на poa_sub_delegation_coeff.
+    limit_override → матч limit_rule по (scope_class, level, exception_kind, expense).
     """
     # 1. Лимит вообще не применяется: доходная сделка или полномочие не под лимитами.
     if authority.deal_direction == DealDirection.income or not authority.limit_applies:
@@ -113,11 +108,6 @@ def compute_limit(
         if rule is not None:
             base = rule.amount
             currency = rule.currency
-
-    # 4. Передоверие: доля лимита руководителя (глобальный коэффициент).
-    if base is not None and is_sub_delegation:
-        coeff = Decimal(str(settings.poa_sub_delegation_coeff))
-        base = (base * coeff).quantize(Decimal("0.01"))
 
     return _Limit(True, base, no_limit=False, unlimited=False, currency=currency)
 
@@ -144,10 +134,10 @@ async def regenerate_resolved_grants(db: AsyncSession) -> int:
     cells: dict[tuple[int, int, int], _Cand] = {}
     denials: dict[tuple[int, int, int], int] = {}
 
-    def put(key, priority, derivation, src, no_limit, override, sub_only):
+    def put(key, priority, derivation, src, no_limit, override):
         cur = cells.get(key)
         if cur is None or priority > cur.priority:
-            cells[key] = _Cand(priority, derivation, src, no_limit, override, sub_only)
+            cells[key] = _Cand(priority, derivation, src, no_limit, override)
 
     # 1. Универсальные полномочия — всем скоупам и уровням.
     for a in authorities:
@@ -156,7 +146,7 @@ async def regenerate_resolved_grants(db: AsyncSession) -> int:
                 for lvl in levels:
                     put(
                         (s, lvl.id, a.id), _P_UNIVERSAL, ResolvedDerivation.universal,
-                        None, a.is_no_limit, None, False,
+                        None, a.is_no_limit, None,
                     )
 
     # 2–3. Авторские ячейки (base_rule) + каскад вверх; учёт явных запретов.
@@ -175,7 +165,6 @@ async def regenerate_resolved_grants(db: AsyncSession) -> int:
                 put(
                     (s, g.org_level_id, g.authority_id), base_priority,
                     ResolvedDerivation.base_rule, g.id, g.no_limit, g.limit_override,
-                    g.sub_delegation_only,
                 )
                 # Каскад вверх: выше по иерархии = меньше rank, тот же скоуп.
                 for lvl in levels:
@@ -183,7 +172,7 @@ async def regenerate_resolved_grants(db: AsyncSession) -> int:
                         put(
                             (s, lvl.id, g.authority_id), _P_CASCADE,
                             ResolvedDerivation.cascade, g.id, g.no_limit,
-                            g.limit_override, g.sub_delegation_only,
+                            g.limit_override,
                         )
         else:
             deny_priority = _P_BASE_EXPLICIT if explicit_scope else _P_BASE_ALL_SCOPES
@@ -201,23 +190,17 @@ async def regenerate_resolved_grants(db: AsyncSession) -> int:
     rows: list[ResolvedGrant] = []
     for (scope_id, level_id, auth_id), c in cells.items():
         a = auth_by_id[auth_id]
-        lvl = level_by_id[level_id]
-        # Передоверие: явный флаг ячейки ИЛИ CEO-4/-5 на сделочном полномочии.
-        is_sub = c.sub_only or (
-            not lvl.can_conclude_deals_default and a.authority_kind == AuthorityKind.deal
-        )
-        derivation = ResolvedDerivation.sub_delegation if is_sub else c.derivation
         lim = compute_limit(
             a, scope_class.get(scope_id), level_id,
             no_limit_cell=c.no_limit, limit_override=c.limit_override,
-            is_sub_delegation=is_sub, lr_index=lr_index,
+            lr_index=lr_index,
         )
         rows.append(
             ResolvedGrant(
                 org_scope_id=scope_id, org_level_id=level_id, authority_id=auth_id,
                 granted=lim.granted, effective_limit=lim.effective_limit,
                 no_limit=lim.no_limit, unlimited=lim.unlimited, currency=lim.currency,
-                derivation=derivation, source_grant_id=c.source_grant_id,
+                derivation=c.derivation, source_grant_id=c.source_grant_id,
             )
         )
 
@@ -307,7 +290,7 @@ async def resolve_employee(db: AsyncSession, employee: Employee) -> list[Resolve
             lim = compute_limit(
                 a, scope_cls, employee.org_level_id or 0,
                 no_limit_cell=False, limit_override=None,
-                is_sub_delegation=False, lr_index=lr_index,
+                lr_index=lr_index,
             )
             items.append(
                 ResolvedItem(

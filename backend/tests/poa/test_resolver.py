@@ -45,8 +45,8 @@ async def _category(db):
     return await _flush(db, AuthorityCategory(level=1, name="Категория"))
 
 
-async def _level(db, code, rank, deals=True):
-    return await _flush(db, OrgLevel(code=code, rank=rank, can_conclude_deals_default=deals))
+async def _level(db, code, rank):
+    return await _flush(db, OrgLevel(code=code, rank=rank))
 
 
 async def _scope(db, name, company="МГТС", kc=False, tier=None, stype="metablock"):
@@ -73,13 +73,12 @@ async def _authority(db, cat_id, code, *, kind=AuthorityKind.deal,
 
 
 async def _grant(db, auth_id, level_id, *, scope_id=None, granted=True,
-                 override=None, no_limit=False, sub_only=False):
+                 override=None, no_limit=False):
     return await _flush(
         db,
         AuthorityGrant(
             authority_id=auth_id, org_scope_id=scope_id, org_level_id=level_id,
             granted=granted, limit_override=override, no_limit=no_limit,
-            sub_delegation_only=sub_only,
         ),
     )
 
@@ -196,43 +195,6 @@ async def test_override_wins(db_session):
 
     await regenerate_resolved_grants(db)
     assert (await _resolved(db, sc.id, lvl.id, a.id)).effective_limit == Decimal("777.00")
-
-
-async def test_sub_delegation_coeff(db_session):
-    db = db_session
-    cat = await _category(db)
-    lvl = await _level(db, "CEO-2", 2)
-    sc = await _scope(db, "КЦ", kc=True)
-    a = await _authority(db, cat.id, "POA-SUB")
-    await _limit(db, ScopeClass.kc, lvl.id, "1000000")
-    await _grant(db, a.id, lvl.id, scope_id=sc.id, sub_only=True)
-
-    await regenerate_resolved_grants(db)
-    r = await _resolved(db, sc.id, lvl.id, a.id)
-    assert r.derivation == ResolvedDerivation.sub_delegation
-    assert r.effective_limit == Decimal("600000.00")  # 1_000_000 × 0.60
-
-
-async def test_ceo4_deal_is_sub_delegation(db_session):
-    db = db_session
-    cat = await _category(db)
-    l4 = await _level(db, "CEO-4", 4, deals=False)
-    sc = await _scope(db, "КЦ", kc=True)
-    deal = await _authority(db, cat.id, "POA-DEAL", kind=AuthorityKind.deal)
-    repr_ = await _authority(db, cat.id, "POA-REPR", kind=AuthorityKind.representation,
-                             limit_applies=False)
-    await _limit(db, ScopeClass.kc, l4.id, "1000000")
-    await _grant(db, deal.id, l4.id, scope_id=sc.id)
-    await _grant(db, repr_.id, l4.id, scope_id=sc.id)
-
-    await regenerate_resolved_grants(db)
-    # сделочное на CEO-4 → передоверие + ×0.60
-    rd = await _resolved(db, sc.id, l4.id, deal.id)
-    assert rd.derivation == ResolvedDerivation.sub_delegation
-    assert rd.effective_limit == Decimal("600000.00")
-    # представительское — обычное, не передоверие
-    rr = await _resolved(db, sc.id, l4.id, repr_.id)
-    assert rr.derivation == ResolvedDerivation.base_rule
 
 
 async def test_explicit_denial_removes_cell(db_session):

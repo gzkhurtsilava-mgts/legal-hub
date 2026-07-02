@@ -28,7 +28,7 @@ _LAWYER = Depends(require_role(UserRole.admin, UserRole.lawyer))
 
 _GRANT_FIELDS = [
     "authority_id", "org_scope_id", "org_level_id", "granted",
-    "limit_override", "no_limit", "sub_delegation_only",
+    "limit_override", "no_limit",
 ]
 
 

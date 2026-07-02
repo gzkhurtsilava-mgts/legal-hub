@@ -155,20 +155,17 @@ class OrgScopeResponse(_OrmBase):
 class OrgLevelCreate(BaseModel):
     code: str
     rank: int = Field(ge=1)
-    can_conclude_deals_default: bool = True
 
 
 class OrgLevelUpdate(BaseModel):
     code: str | None = None
     rank: int | None = Field(default=None, ge=1)
-    can_conclude_deals_default: bool | None = None
 
 
 class OrgLevelResponse(_OrmBase):
     id: int
     code: str
     rank: int
-    can_conclude_deals_default: bool
 
 
 # ─── LimitRule (блок финансовых лимитов) ──────────────────────────────────────
@@ -215,7 +212,6 @@ class MatrixCellUpsert(BaseModel):
     granted: bool = True
     limit_override: Decimal | None = None
     no_limit: bool = False
-    sub_delegation_only: bool = False
 
 
 class AuthorityGrantResponse(_OrmBase):
@@ -226,7 +222,6 @@ class AuthorityGrantResponse(_OrmBase):
     granted: bool
     limit_override: Decimal | None
     no_limit: bool
-    sub_delegation_only: bool
     derivation: GrantDerivation
     created_at: datetime
     updated_at: datetime

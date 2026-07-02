@@ -25,8 +25,5 @@ class Settings(BaseSettings):
     # File storage (Docker volume /media)
     media_root: str = "/media"
 
-    # Доверенности: коэффициент передоверия (доля лимита руководителя)
-    poa_sub_delegation_coeff: float = 0.60
-
 
 settings = Settings()
