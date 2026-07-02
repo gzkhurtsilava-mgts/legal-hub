@@ -8,6 +8,7 @@ from app.api.poa import (
     matrix,
     org_levels,
     org_scopes,
+    registry,
     requests,
     resolve,
 )
@@ -23,3 +24,4 @@ router.include_router(matrix.router)
 router.include_router(employees.router)
 router.include_router(resolve.router)
 router.include_router(requests.router)
+router.include_router(registry.router)

@@ -1,6 +1,6 @@
 # Doverennosti (Powers of Attorney) module
 
-> Status: 🟢 **M0–M2 done** (models, catalog CRUD, resolving engine + matrix + audit). M3 next.
+> Status: 🟢 **M0–M3 (бэкенд) done** (models, catalog CRUD, resolving engine + matrix + audit, registry). Далее — фронт (M4).
 > This plan mirrors the format of `knowledge-module.md` / `processes-module.md`.
 
 ---
@@ -114,7 +114,7 @@ API-слой по образцу `lib/api/knowledge.ts` (`apiFetch` + React Quer
 | **M0** ✅ | Тест-инфра + модели | `tests/conftest.py`; `models/poa.py` (14 таблиц); миграция `a7b1c2d3e4f5_poa_m0` | миграция применяется/откатывается; метаданные-тесты зелёные |
 | **M1** ✅ | Каталог + деревья + CRUD | `schemas/poa.py`, `api/poa/` CRUD + RBAC | юрист ведёт каталог/категории/скоупы/лимиты; 200 для юриста, 403 для employee |
 | **M2** ✅ | Движок + матрица | `services/poa/resolver.py` (генерация + resolve + compute_limit); эндпоинты матрицы/resolve; аудит | резолвинг корректно выдаёт полномочия+лимиты (universal, наследование по оргдереву, income=∞, no_limit, лимит по уровню, запрет); правка ячейки → пересчёт |
-| **M3** | Реестр + выдача оригинала | `PoaCertificate` (FK), `PoaOriginalIssue`, авто-`expired`, поиск; фронт реестра | реестр заменяет журнал (вкл. выдачу оригинала); срез «кто имеет X»; авто-инвалидация при revoke |
+| **M3** ✅ (бэк) | Реестр + выдача оригинала | `api/poa/registry.py`: CRUD `PoaCertificate` (полномочия — FK), `PoaOriginalIssue`, авто-`expired`, поиск, revoke, аудит. Фронт реестра — отдельно | реестр заменяет журнал (вкл. выдачу оригинала); срез «кто имеет X»; авто-инвалидация при revoke |
 | **M4** | Админка матрицы (фронт) | `MatrixGrid` с цвет-кодом, редакторы, очередь заявок, аудит-лог | юрист ведёт матрицу визуально; изменения в аудите |
 
 **Критерий приёмки Фазы 1:** юрист ведёт матрицу; резолвинг корректно выдаёт полномочия по

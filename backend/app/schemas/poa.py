@@ -9,14 +9,18 @@ enum-типы импортируются из моделей.
 
 from datetime import date, datetime
 from decimal import Decimal
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.models.poa import (
     AuthorityKind,
     AuthorityStatus,
+    CertificateStatus,
+    CertificateType,
     DealDirection,
     GrantDerivation,
+    IssueMethod,
     LevelSource,
     OrgSource,
     RequestStatus,
@@ -306,5 +310,91 @@ class AuthorityRequestResponse(_OrmBase):
     justification: str | None
     status: RequestStatus
     approver: str | None
+    created_at: datetime
+    updated_at: datetime
+
+
+# ─── Registry: выданные доверенности (Модуль 2) ───────────────────────────────
+
+
+class AuthorityRef(_OrmBase):
+    """Лёгкая ссылка на полномочие в перечне доверенности."""
+    id: int
+    code: str
+    name_short: str
+
+
+class OriginalIssueCreate(BaseModel):
+    """Выдача оригинала — заменяет бумажный журнал (физическая выдача)."""
+    recipient_fio: str
+    issued_date: date
+    method: IssueMethod
+    confirmed: bool = False
+    confirmation_note: str | None = None
+
+
+class OriginalIssueResponse(_OrmBase):
+    id: int
+    certificate_id: int
+    recipient_fio: str
+    issued_date: date
+    method: IssueMethod
+    confirmed: bool
+    confirmation_note: str | None
+    created_at: datetime
+
+
+class CertificateCreate(BaseModel):
+    number: str
+    grantor_company: str
+    grantee_employee_id: int | None = None
+    grantee_fio: str
+    grantee_position: str | None = None
+    grantee_tab_number: str | None = None
+    cert_type: CertificateType
+    issued_date: date
+    valid_to: date | None = None
+    limits: dict[str, Any] | None = None
+    signer: str | None = None
+    registration_data: str | None = None
+    scan_path: str | None = None
+    basis_request_id: int | None = None
+    authority_ids: list[int] = []
+
+
+class CertificateUpdate(BaseModel):
+    grantor_company: str | None = None
+    grantee_employee_id: int | None = None
+    grantee_fio: str | None = None
+    grantee_position: str | None = None
+    grantee_tab_number: str | None = None
+    cert_type: CertificateType | None = None
+    issued_date: date | None = None
+    valid_to: date | None = None
+    limits: dict[str, Any] | None = None
+    signer: str | None = None
+    registration_data: str | None = None
+    scan_path: str | None = None
+    authority_ids: list[int] | None = None
+
+
+class CertificateResponse(_OrmBase):
+    id: int
+    number: str
+    grantor_company: str
+    grantee_employee_id: int | None
+    grantee_fio: str
+    grantee_position: str | None
+    grantee_tab_number: str | None
+    cert_type: CertificateType
+    issued_date: date
+    valid_to: date | None
+    limits: dict[str, Any] | None
+    signer: str | None
+    registration_data: str | None
+    scan_path: str | None
+    basis_request_id: int | None
+    status: CertificateStatus
+    authorities: list[AuthorityRef]
     created_at: datetime
     updated_at: datetime
