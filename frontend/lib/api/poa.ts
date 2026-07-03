@@ -689,6 +689,38 @@ export function useTemplates() {
   });
 }
 
+// ─── My (личный кабинет сотрудника) ──────────────────────────────────────────
+
+export interface MyRequest {
+  id: number;
+  authority_code: string | null;
+  authority_name: string | null;
+  proposed_text: string | null;
+  justification: string | null;
+  status: RequestStatus;
+  created_at: string;
+}
+
+export function useMyCertificates() {
+  const token = useToken();
+  const { data: session } = useSession();
+  return useQuery<Certificate[]>({
+    queryKey: ["poa-my-certs"],
+    queryFn: () => apiFetch<Certificate[]>(`${B}/my/certificates`, token),
+    enabled: !!session,
+  });
+}
+
+export function useMyRequests() {
+  const token = useToken();
+  const { data: session } = useSession();
+  return useQuery<MyRequest[]>({
+    queryKey: ["poa-my-requests"],
+    queryFn: () => apiFetch<MyRequest[]>(`${B}/my/requests`, token),
+    enabled: !!session,
+  });
+}
+
 // ─── Navigator (навигатор заявок) ────────────────────────────────────────────
 
 export interface NavigatorQuestion {

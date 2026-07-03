@@ -378,6 +378,20 @@ class CertificateUpdate(BaseModel):
     authority_ids: list[int] | None = None
 
 
+# ─── My (личный кабинет сотрудника, Модуль 5) ────────────────────────────────
+
+
+class MyRequestOut(BaseModel):
+    """Заявка сотрудника с названием полномочия — для личного кабинета."""
+    id: int
+    authority_code: str | None
+    authority_name: str | None
+    proposed_text: str | None
+    justification: str | None
+    status: RequestStatus
+    created_at: datetime
+
+
 # ─── Navigator (навигатор заявок, Модуль 4) ──────────────────────────────────
 
 

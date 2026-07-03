@@ -7,6 +7,7 @@ from app.api.poa import (
     employees,
     limit_rules,
     matrix,
+    my,
     navigator,
     org_levels,
     org_scopes,
@@ -29,3 +30,4 @@ router.include_router(requests.router)
 router.include_router(registry.router)
 router.include_router(documents.router)
 router.include_router(navigator.router)
+router.include_router(my.router)

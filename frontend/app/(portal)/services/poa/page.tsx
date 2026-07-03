@@ -23,6 +23,13 @@ const SECTIONS: Section[] = [
     access: "all",
   },
   {
+    href: "/services/poa/my",
+    title: "Мои доверенности",
+    description: "Свои доверенности и статусы заявок",
+    icon: "FolderSize24StyleOutline",
+    access: "all",
+  },
+  {
     href: "/services/poa/catalog",
     title: "Каталог полномочий",
     description: "Полномочия, категории, подразделения, уровни и лимиты",
