@@ -37,6 +37,30 @@ export async function apiFetch<T>(
   return res.json() as Promise<T>;
 }
 
+/** POST с JSON-телом, ответ — бинарный файл (для генерации документов). */
+export async function apiDownload(
+  path: string,
+  token: string | undefined,
+  body: unknown
+): Promise<{ blob: Blob; filename: string }> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new ApiError(err.detail ?? "API error", res.status);
+  }
+  const blob = await res.blob();
+  const cd = res.headers.get("content-disposition") ?? "";
+  const m = cd.match(/filename="?([^";]+)"?/);
+  return { blob, filename: m?.[1] ?? "document" };
+}
+
 export async function apiFetchForm<T>(
   path: string,
   token: string | undefined,

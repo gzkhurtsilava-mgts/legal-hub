@@ -9,7 +9,7 @@ enum-типы импортируются из моделей.
 
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -376,6 +376,16 @@ class CertificateUpdate(BaseModel):
     registration_data: str | None = None
     scan_path: str | None = None
     authority_ids: list[int] | None = None
+
+
+class RenderRequest(BaseModel):
+    """Запрос генерации доверенности из шаблона (конструктор, Модуль 3)."""
+    grantee_fio: str
+    grantee_passport: str = ""
+    validity: str = ""
+    authority_ids: list[int] = []
+    template: str = "mgts_default"
+    output: Literal["docx", "pdf"] = "docx"
 
 
 class CertificateResponse(_OrmBase):

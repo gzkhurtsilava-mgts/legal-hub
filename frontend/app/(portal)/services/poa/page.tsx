@@ -32,6 +32,12 @@ const SECTIONS: Section[] = [
     icon: "DocumentSize24StyleOutline",
   },
   {
+    href: "/services/poa/constructor",
+    title: "Конструктор",
+    description: "Сформировать доверенность по шаблону (docx / PDF)",
+    icon: "EditSize24StyleOutline",
+  },
+  {
     href: "/services/poa/requests",
     title: "Заявки на полномочия",
     description: "Индивидуальные полномочия сверх набора подразделения",

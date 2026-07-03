@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
-import { apiFetch } from "./client";
+import { apiDownload, apiFetch } from "./client";
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
@@ -666,4 +666,41 @@ export function useAddOriginalIssue(certId: number) {
       }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["poa-original-issues", certId] }),
   });
+}
+
+// ─── Documents (конструктор) ─────────────────────────────────────────────────
+
+export interface RenderRequest {
+  grantee_fio: string;
+  grantee_passport?: string;
+  validity?: string;
+  authority_ids: number[];
+  template?: string;
+  output?: "docx" | "pdf";
+}
+
+export function useTemplates() {
+  const token = useToken();
+  const { data: session } = useSession();
+  return useQuery<string[]>({
+    queryKey: ["poa-templates"],
+    queryFn: () => apiFetch<string[]>(`${B}/documents/templates`, token),
+    enabled: !!session,
+  });
+}
+
+/** Возвращает функцию генерации: рендерит и скачивает файл в браузере. */
+export function useRenderDocument() {
+  const token = useToken();
+  return async (body: RenderRequest) => {
+    const { blob, filename } = await apiDownload(`${B}/documents/render`, token, body);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
 }

@@ -120,11 +120,16 @@ API-слой по образцу `lib/api/knowledge.ts` (`apiFetch` + React Quer
 **Критерий приёмки Фазы 1:** юрист ведёт матрицу; резолвинг корректно выдаёт полномочия по
 уровню; реестр заменяет бумажный журнал. Автономная ценность достигнута.
 
-### Phase 2 — Self-service (обзор)
-Модуль 4 (Навигатор: 3 вопроса → 35 сценариев + 5 ДЗО, правила в общем конфиге для веба и LLM,
-выход = преднастроенный вход в workflow) + Модуль 3 (Конструктор: `docxtpl` + LibreOffice/
-JodConverter → docx/PDF/МЧД). **M0 фазы 2:** установить docxtpl + Office→PDF конвертер
-(`harbor.mgts.ru/dockerhub/eugenmayer/jodconverter`).
+### Phase 2 — Self-service
+- **M0 ✅** — инфра: `docxtpl==0.19.1` + сервис `jodconverter` (`eugenmayer/jodconverter:rest-0.2.0`
+  dev / Harbor corp), `JODCONVERTER_URL`.
+- **Модуль 3 (Конструктор) ✅** — `services/poa/constructor.py` (docxtpl render + PDF через
+  JodConverter), `api/poa/documents.py` (`GET /documents/templates`, `POST /documents/render`
+  → docx/pdf), шаблон `app/templates/poa/mgts_default.docx` (размечен из образца МГТС: поверенный,
+  цикл полномочий из каталога, срок; «без права передоверия» — уже в шаблоне). Фронт:
+  `services/poa/constructor` (форма + чек-лист полномочий + docx/PDF).
+- **Модуль 4 (Навигатор)** — 3 вопроса → 35 сценариев + ДЗО, правила в общем конфиге для веба и
+  LLM, выход = преднастроенный вход в workflow. **Ждёт фактуру по сценариям.**
 
 ### Phase 3 — Мои доверенности (обзор)
 Модуль 5: тонкий view поверх реестра + статусов заявок.
