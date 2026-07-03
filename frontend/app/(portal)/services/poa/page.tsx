@@ -10,9 +10,18 @@ interface Section {
   title: string;
   description: string;
   icon: string;
+  /** Доступ: all — всем сотрудникам; manage — только юрист/админ */
+  access?: "all" | "manage";
 }
 
 const SECTIONS: Section[] = [
+  {
+    href: "/services/poa/navigator",
+    title: "Навигатор доверенностей",
+    description: "Подскажем, куда подать заявку на оформление",
+    icon: "CatalogSearchSize24StyleOutline",
+    access: "all",
+  },
   {
     href: "/services/poa/catalog",
     title: "Каталог полномочий",
@@ -56,6 +65,7 @@ export default function PoaPage() {
   const { data: session } = useSession();
   const role = (session?.user as { role?: string })?.role;
   const canManage = role === "admin" || role === "lawyer";
+  const visible = SECTIONS.filter((s) => canManage || s.access === "all");
 
   return (
     <div style={{ padding: "32px 24px", maxWidth: "1000px", margin: "0 auto" }}>
@@ -64,22 +74,7 @@ export default function PoaPage() {
         subtitle="Единый центр управления доверенностями БПО"
       />
 
-      {!canManage ? (
-        <div
-          style={{
-            background: "var(--color-background-primary)",
-            border: "1px solid var(--color-line)",
-            borderRadius: "var(--radius-l)",
-            padding: "32px",
-            fontFamily: "MTS Compact, sans-serif",
-            fontSize: "15px",
-            color: "var(--color-text-secondary)",
-          }}
-        >
-          Раздел самообслуживания для сотрудников появится позже. Управление
-          доверенностями доступно юристам БПО.
-        </div>
-      ) : (
+      {(
         <div
           style={{
             display: "grid",
@@ -87,7 +82,7 @@ export default function PoaPage() {
             gap: "16px",
           }}
         >
-          {SECTIONS.map((s) => (
+          {visible.map((s) => (
             <button
               key={s.href}
               type="button"

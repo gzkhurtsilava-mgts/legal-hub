@@ -378,6 +378,32 @@ class CertificateUpdate(BaseModel):
     authority_ids: list[int] | None = None
 
 
+# ─── Navigator (навигатор заявок, Модуль 4) ──────────────────────────────────
+
+
+class NavigatorAnswers(BaseModel):
+    q1: str | None = None
+    q2: str | None = None
+    q3: str | None = None
+    q4: str | None = None
+    q5: str | None = None
+
+
+class NavigatorQuestion(BaseModel):
+    id: str
+    title: str
+    options: list[str]
+
+
+class NavigatorStepResponse(BaseModel):
+    status: Literal["question", "result"]
+    answered: int
+    total: int
+    question: NavigatorQuestion | None
+    result: str | None
+    url: str | None
+
+
 class RenderRequest(BaseModel):
     """Запрос генерации доверенности из шаблона (конструктор, Модуль 3)."""
     grantee_fio: str

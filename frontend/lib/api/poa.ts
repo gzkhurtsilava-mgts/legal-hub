@@ -689,6 +689,33 @@ export function useTemplates() {
   });
 }
 
+// ─── Navigator (навигатор заявок) ────────────────────────────────────────────
+
+export interface NavigatorQuestion {
+  id: string;
+  title: string;
+  options: string[];
+}
+
+export interface NavigatorStep {
+  status: "question" | "result";
+  answered: number;
+  total: number;
+  question: NavigatorQuestion | null;
+  result: string | null;
+  url: string | null;
+}
+
+/** Пошаговый навигатор: по частичным ответам возвращает вопрос или маршрут. */
+export function useNavigatorStep() {
+  const token = useToken();
+  return (answers: Record<string, string>): Promise<NavigatorStep> =>
+    apiFetch<NavigatorStep>(`${B}/navigator/step`, token, {
+      method: "POST",
+      body: JSON.stringify(answers),
+    });
+}
+
 /** Возвращает функцию генерации: рендерит и скачивает файл в браузере. */
 export function useRenderDocument() {
   const token = useToken();
