@@ -25,5 +25,8 @@ class Settings(BaseSettings):
     # File storage (Docker volume /media)
     media_root: str = "/media"
 
+    # Office → PDF конвертер (JodConverter REST) — конструктор доверенностей
+    jodconverter_url: str = "http://jodconverter:8080"
+
 
 settings = Settings()

@@ -13,6 +13,9 @@ services:
     image: harbor.mgts.ru/it/rnd/llm-eval/redis:7.2.13-alpine
     command: redis-server --save "" --appendonly no --dir /tmp
 
+  jodconverter:
+    image: harbor.mgts.ru/dockerhub/eugenmayer/jodconverter:rest-0.2.0
+
   backend:
     build:
       context: ./backend
