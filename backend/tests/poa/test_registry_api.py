@@ -81,11 +81,16 @@ async def test_who_has_authority_and_revoke(client, as_lawyer):
     assert (await client.post(f"{BASE}/registry/{cert['id']}/revoke")).status_code == 409
 
 
-async def test_auto_expired(client, as_lawyer):
+async def test_auto_expired(client, as_lawyer, db_session):
     a1 = await _authority(client, "POA-D1")
     yesterday = (date.today() - timedelta(days=1)).isoformat()
     cert = (await _mk_cert(client, "2026-030", [a1["id"]], valid_to=yesterday)).json()
-    # при чтении срок истёк → статус expired
+    # авто-expired выполняет ночной arq-крон (services/poa/lifecycle.py),
+    # а не чтение реестра — вызываем сервис напрямую
+    from app.services.poa.lifecycle import expire_overdue_certificates
+
+    count = await expire_overdue_certificates(db_session)
+    assert count == 1
     r = await client.get(f"{BASE}/registry/{cert['id']}")
     assert r.json()["status"] == "expired"
 

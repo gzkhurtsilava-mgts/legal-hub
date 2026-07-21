@@ -161,10 +161,19 @@ function CrudRow({ item, columns, fields, useUpdate, useDelete, canEdit }: {
   const [editing, setEditing] = useState(false);
   const [confirm, setConfirm] = useState(false);
   const [form, setForm] = useState<Body>(() => initForm(fields, item));
+  const [validationError, setValidationError] = useState("");
   const update = useUpdate(item.id as number);
   const del = useDelete(item.id as number);
 
   const save = async () => {
+    // Та же проверка обязательных полей, что и при создании: очищенное поле
+    // иначе уйдёт null'ом в NOT NULL-колонку.
+    const miss = fields.find((f) => f.required && !form[f.name]);
+    if (miss) {
+      setValidationError(`Заполните поле «${miss.label}»`);
+      return;
+    }
+    setValidationError("");
     await update.mutateAsync(serialize(fields, form));
     setEditing(false);
   };
@@ -181,6 +190,7 @@ function CrudRow({ item, columns, fields, useUpdate, useDelete, canEdit }: {
             <Button size="s" variant="secondary" onClick={() => { setEditing(false); setForm(initForm(fields, item)); }}>
               Отмена
             </Button>
+            {validationError && <span style={errText}>{validationError}</span>}
             {update.isError && (
               <span style={errText}>{(update.error as Error)?.message ?? "Ошибка"}</span>
             )}

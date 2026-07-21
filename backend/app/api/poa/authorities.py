@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.poa.common import reject_nulls_for_required
 from app.core.database import get_db
 from app.core.deps import UserContext, require_role
 from app.models.poa import AuditAction, Authority, AuthorityCategory, AuthorityGrant
@@ -9,6 +10,7 @@ from app.models.poa import poa_certificate_authorities as cert_auth
 from app.models.user import UserRole
 from app.schemas.poa import AuthorityCreate, AuthorityResponse, AuthorityUpdate
 from app.services.poa.audit import snapshot, write_audit
+from app.services.poa.resolver import regenerate_resolved_grants
 
 router = APIRouter(prefix="/authorities", tags=["poa-authorities"])
 
@@ -73,6 +75,8 @@ async def create_authority(
         db, entity_type="authority", entity_id=obj.id,
         action=AuditAction.create, user_id=user.id, after=snapshot(obj, _AUTH_FIELDS),
     )
+    # Статус/универсальность/лимитные флаги материализованы в resolved_grant.
+    await regenerate_resolved_grants(db)
     return obj
 
 
@@ -94,6 +98,7 @@ async def update_authority(
 ) -> Authority:
     obj = await _get_or_404(db, authority_id)
     data = body.model_dump(exclude_unset=True)
+    reject_nulls_for_required(Authority, data)
     if "code" in data and data["code"] != obj.code:
         await _ensure_code_free(db, data["code"], exclude_id=authority_id)
     if "category_id" in data:
@@ -109,6 +114,7 @@ async def update_authority(
         action=AuditAction.update, user_id=user.id,
         before=before, after=snapshot(obj, _AUTH_FIELDS),
     )
+    await regenerate_resolved_grants(db)
     return obj
 
 
@@ -148,3 +154,5 @@ async def delete_authority(
         action=AuditAction.delete, user_id=user.id, before=snapshot(obj, _AUTH_FIELDS),
     )
     await db.delete(obj)
+    await db.flush()
+    await regenerate_resolved_grants(db)

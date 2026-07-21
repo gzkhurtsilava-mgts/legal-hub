@@ -23,19 +23,29 @@ depends_on = None
 _authority_kind = PgEnum("deal", "representation", "action", name="poa_authority_kind")
 
 _deal_direction = PgEnum("expense", "income", "na", name="poa_deal_direction")
+_deal_direction_ref = PgEnum(
+    "expense", "income", "na", name="poa_deal_direction", create_type=False
+)
 
 _authority_status = PgEnum("draft", "active", "archived", name="poa_authority_status")
 
-_scope_type = PgEnum(
-    "metablock", "block", "department", "division", "unit", name="poa_scope_type"
+_limit_class = PgEnum(
+    "general", "finance", "procurement", "infrastructure", name="poa_limit_class"
 )
-_org_source = PgEnum("manual", "hrgate", name="poa_org_source")
+_limit_class_ref = PgEnum(
+    "general", "finance", "procurement", "infrastructure",
+    name="poa_limit_class", create_type=False,
+)
+
+_scope_type = PgEnum("metablock", "block", "department", name="poa_scope_type")
+_region_tier = PgEnum("tier1", "tier2", name="poa_region_tier")
+_scope_class = PgEnum("kc", "region_tier1", "region_tier2", name="poa_scope_class")
 
 _grant_derivation = PgEnum(
     "base_rule", "cascade", "manual_exception", name="poa_grant_derivation"
 )
 _resolved_derivation = PgEnum(
-    "base_rule", "cascade", "universal", "manual_exception",
+    "base_rule", "cascade", "universal", "sub_delegation", "manual_exception",
     name="poa_resolved_derivation",
 )
 
@@ -50,8 +60,8 @@ _audit_action = PgEnum(
 )
 
 _ALL_ENUM_NAMES = [
-    "poa_authority_kind", "poa_deal_direction", "poa_authority_status",
-    "poa_scope_type", "poa_org_source", "poa_grant_derivation",
+    "poa_authority_kind", "poa_deal_direction", "poa_authority_status", "poa_limit_class",
+    "poa_scope_type", "poa_region_tier", "poa_scope_class", "poa_grant_derivation",
     "poa_resolved_derivation", "poa_request_status", "poa_level_source",
     "poa_certificate_type", "poa_certificate_status", "poa_issue_method", "poa_audit_action",
 ]
@@ -81,8 +91,8 @@ def upgrade() -> None:
         sa.Column("scope_type", _scope_type, nullable=False),
         sa.Column("name", sa.String(500), nullable=False),
         sa.Column("company", sa.String(100), nullable=False),
-        sa.Column("source", _org_source, server_default="manual", nullable=False),
-        sa.Column("external_id", sa.String(100), nullable=True),
+        sa.Column("is_corporate_center", sa.Boolean(), server_default="false", nullable=False),
+        sa.Column("region_tier", _region_tier, nullable=True),
         _ts(),
         sa.ForeignKeyConstraint(["parent_id"], ["poa_org_scopes.id"], ondelete="RESTRICT"),
         sa.PrimaryKeyConstraint("id"),
@@ -93,6 +103,7 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
         sa.Column("code", sa.String(20), nullable=False),
         sa.Column("rank", sa.Integer(), nullable=False),
+        sa.Column("can_conclude_deals_default", sa.Boolean(), server_default="true", nullable=False),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("code"),
         sa.UniqueConstraint("rank"),
@@ -108,6 +119,7 @@ def upgrade() -> None:
         sa.Column("text_full", sa.Text(), nullable=False),
         sa.Column("authority_kind", _authority_kind, nullable=False),
         sa.Column("deal_direction", _deal_direction, server_default="na", nullable=False),
+        sa.Column("limit_class", _limit_class, nullable=True),
         sa.Column("is_universal", sa.Boolean(), server_default="false", nullable=False),
         sa.Column("limit_applies", sa.Boolean(), server_default="false", nullable=False),
         sa.Column("is_no_limit", sa.Boolean(), server_default="false", nullable=False),
@@ -130,28 +142,39 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
         sa.Column("authority_id", sa.Integer(), nullable=False),
         sa.Column("org_scope_id", sa.Integer(), nullable=True),
+        sa.Column("org_level_id", sa.Integer(), nullable=False),
         sa.Column("granted", sa.Boolean(), server_default="true", nullable=False),
+        sa.Column("limit_override", sa.Numeric(18, 2), nullable=True),
+        sa.Column("no_limit", sa.Boolean(), server_default="false", nullable=False),
+        sa.Column("sub_delegation_only", sa.Boolean(), server_default="false", nullable=False),
         sa.Column("derivation", _grant_derivation, server_default="base_rule", nullable=False),
         _ts(),
         _ts("updated_at"),
         sa.ForeignKeyConstraint(["authority_id"], ["poa_authorities.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(["org_scope_id"], ["poa_org_scopes.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(["org_level_id"], ["poa_org_levels.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("authority_id", "org_scope_id", name="uq_poa_grant_cell"),
+        sa.UniqueConstraint("authority_id", "org_scope_id", "org_level_id", name="uq_poa_grant_cell"),
     )
 
     # ── Блок лимитов ────────────────────────────────────────────────────────
     op.create_table(
         "poa_limit_rules",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
+        sa.Column("scope_class", _scope_class, nullable=False),
         sa.Column("org_level_id", sa.Integer(), nullable=False),
+        sa.Column("exception_kind", _limit_class_ref, nullable=False),
         sa.Column("amount", sa.Numeric(18, 2), nullable=False),
         sa.Column("currency", sa.String(3), server_default="RUB", nullable=False),
+        sa.Column("deal_direction", _deal_direction_ref, server_default="expense", nullable=False),
         _ts(),
         _ts("updated_at"),
         sa.ForeignKeyConstraint(["org_level_id"], ["poa_org_levels.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("org_level_id", name="uq_poa_limit_rule"),
+        sa.UniqueConstraint(
+            "scope_class", "org_level_id", "exception_kind", "deal_direction",
+            name="uq_poa_limit_rule",
+        ),
     )
 
     # ── Сотрудники и деривация уровня ───────────────────────────────────────

@@ -262,7 +262,11 @@ export function useCreateAuthority() {
   return useMutation<Authority, Error, Body>({
     mutationFn: (body) =>
       apiFetch(`${B}/authorities/`, token, { method: "POST", body: JSON.stringify(body) }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["poa-authorities"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["poa-authorities"] });
+      qc.invalidateQueries({ queryKey: ["poa-resolved"] });
+      qc.invalidateQueries({ queryKey: ["poa-resolve"] });
+    },
   });
 }
 
@@ -272,7 +276,11 @@ export function useUpdateAuthority(id: number) {
   return useMutation<Authority, Error, Body>({
     mutationFn: (body) =>
       apiFetch(`${B}/authorities/${id}`, token, { method: "PUT", body: JSON.stringify(body) }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["poa-authorities"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["poa-authorities"] });
+      qc.invalidateQueries({ queryKey: ["poa-resolved"] });
+      qc.invalidateQueries({ queryKey: ["poa-resolve"] });
+    },
   });
 }
 
@@ -281,7 +289,11 @@ export function useDeleteAuthority(id: number) {
   const qc = useQueryClient();
   return useMutation<void, Error, void>({
     mutationFn: () => apiFetch(`${B}/authorities/${id}`, token, { method: "DELETE" }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["poa-authorities"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["poa-authorities"] });
+      qc.invalidateQueries({ queryKey: ["poa-resolved"] });
+      qc.invalidateQueries({ queryKey: ["poa-resolve"] });
+    },
   });
 }
 
@@ -307,7 +319,11 @@ export function useCreateOrgScope() {
   return useMutation<OrgScope, Error, Body>({
     mutationFn: (body) =>
       apiFetch(`${B}/org-scopes/`, token, { method: "POST", body: JSON.stringify(body) }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["poa-org-scopes"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["poa-org-scopes"] });
+      qc.invalidateQueries({ queryKey: ["poa-resolved"] });
+      qc.invalidateQueries({ queryKey: ["poa-resolve"] });
+    },
   });
 }
 
@@ -317,7 +333,11 @@ export function useUpdateOrgScope(id: number) {
   return useMutation<OrgScope, Error, Body>({
     mutationFn: (body) =>
       apiFetch(`${B}/org-scopes/${id}`, token, { method: "PUT", body: JSON.stringify(body) }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["poa-org-scopes"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["poa-org-scopes"] });
+      qc.invalidateQueries({ queryKey: ["poa-resolved"] });
+      qc.invalidateQueries({ queryKey: ["poa-resolve"] });
+    },
   });
 }
 
@@ -326,7 +346,11 @@ export function useDeleteOrgScope(id: number) {
   const qc = useQueryClient();
   return useMutation<void, Error, void>({
     mutationFn: () => apiFetch(`${B}/org-scopes/${id}`, token, { method: "DELETE" }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["poa-org-scopes"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["poa-org-scopes"] });
+      qc.invalidateQueries({ queryKey: ["poa-resolved"] });
+      qc.invalidateQueries({ queryKey: ["poa-resolve"] });
+    },
   });
 }
 
@@ -389,7 +413,12 @@ export function useCreateLimitRule() {
   return useMutation<LimitRule, Error, Body>({
     mutationFn: (body) =>
       apiFetch(`${B}/limit-rules/`, token, { method: "POST", body: JSON.stringify(body) }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["poa-limit-rules"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["poa-limit-rules"] });
+      // Лимиты материализованы в resolved_grant — бэкенд пересчитывает их сразу.
+      qc.invalidateQueries({ queryKey: ["poa-resolved"] });
+      qc.invalidateQueries({ queryKey: ["poa-resolve"] });
+    },
   });
 }
 
@@ -399,7 +428,12 @@ export function useUpdateLimitRule(id: number) {
   return useMutation<LimitRule, Error, Body>({
     mutationFn: (body) =>
       apiFetch(`${B}/limit-rules/${id}`, token, { method: "PUT", body: JSON.stringify(body) }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["poa-limit-rules"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["poa-limit-rules"] });
+      // Лимиты материализованы в resolved_grant — бэкенд пересчитывает их сразу.
+      qc.invalidateQueries({ queryKey: ["poa-resolved"] });
+      qc.invalidateQueries({ queryKey: ["poa-resolve"] });
+    },
   });
 }
 
@@ -408,7 +442,12 @@ export function useDeleteLimitRule(id: number) {
   const qc = useQueryClient();
   return useMutation<void, Error, void>({
     mutationFn: () => apiFetch(`${B}/limit-rules/${id}`, token, { method: "DELETE" }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["poa-limit-rules"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["poa-limit-rules"] });
+      // Лимиты материализованы в resolved_grant — бэкенд пересчитывает их сразу.
+      qc.invalidateQueries({ queryKey: ["poa-resolved"] });
+      qc.invalidateQueries({ queryKey: ["poa-resolve"] });
+    },
   });
 }
 
@@ -670,9 +709,14 @@ export function useAddOriginalIssue(certId: number) {
 
 // ─── Documents (конструктор) ─────────────────────────────────────────────────
 
+export interface GranteeIn {
+  fio: string;
+  passport?: string;
+}
+
 export interface RenderRequest {
-  grantee_fio: string;
-  grantee_passport?: string;
+  /** Поверенные (групповая доверенность — несколько человек) */
+  grantees: GranteeIn[];
   validity?: string;
   authority_ids: number[];
   template?: string;

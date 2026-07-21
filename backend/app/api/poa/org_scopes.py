@@ -2,11 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.poa.common import reject_nulls_for_required
 from app.core.database import get_db
 from app.core.deps import UserContext, require_role
 from app.models.poa import AuthorityGrant, Employee, OrgScope
 from app.models.user import UserRole
 from app.schemas.poa import OrgScopeCreate, OrgScopeResponse, OrgScopeUpdate
+from app.services.poa.resolver import regenerate_resolved_grants
 
 router = APIRouter(prefix="/org-scopes", tags=["poa-org-scopes"])
 
@@ -55,6 +57,8 @@ async def create_org_scope(
     db.add(obj)
     await db.flush()
     await db.refresh(obj)
+    # Новый узел должен сразу получить строки resolved_grant (наследование).
+    await regenerate_resolved_grants(db)
     return obj
 
 
@@ -76,6 +80,7 @@ async def update_org_scope(
 ) -> OrgScope:
     obj = await _get_or_404(db, scope_id)
     data = body.model_dump(exclude_unset=True)
+    reject_nulls_for_required(OrgScope, data)
     if "parent_id" in data:
         if data["parent_id"] == scope_id:
             raise HTTPException(status_code=400, detail="Орг-скоуп не может быть своим родителем")
@@ -84,6 +89,8 @@ async def update_org_scope(
         setattr(obj, key, val)
     await db.flush()
     await db.refresh(obj)
+    # Смена родителя меняет цепочку наследования — пересчитываем.
+    await regenerate_resolved_grants(db)
     return obj
 
 
@@ -127,3 +134,5 @@ async def delete_org_scope(
             detail=f"Невозможно удалить: к скоупу привязано {emp_count} сотрудников",
         )
     await db.delete(obj)
+    await db.flush()
+    await regenerate_resolved_grants(db)

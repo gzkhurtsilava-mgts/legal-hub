@@ -418,9 +418,21 @@ class NavigatorStepResponse(BaseModel):
     url: str | None
 
 
+class GranteeIn(BaseModel):
+    """Один поверенный в доверенности (для групповых доверенностей — несколько)."""
+    fio: str
+    passport: str = ""
+
+
 class RenderRequest(BaseModel):
-    """Запрос генерации доверенности из шаблона (конструктор, Модуль 3)."""
-    grantee_fio: str
+    """Запрос генерации доверенности из шаблона (конструктор, Модуль 3).
+
+    Групповая доверенность: несколько поверенных в `grantees`. Одиночные поля
+    `grantee_fio`/`grantee_passport` оставлены для обратной совместимости —
+    если `grantees` пуст, поверенный собирается из них.
+    """
+    grantees: list[GranteeIn] = []
+    grantee_fio: str | None = None
     grantee_passport: str = ""
     validity: str = ""
     authority_ids: list[int] = []

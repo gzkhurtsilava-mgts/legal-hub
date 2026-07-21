@@ -3,14 +3,15 @@
 Тонкий персонализированный срез поверх реестра и заявок. Доступен любому
 аутентифицированному пользователю (самообслуживание).
 
-Связка «сотрудник ↔ учётная запись» пока по ФИО (User.full_name), т.к. SSO нет.
-При появлении SSO заменить на устойчивый идентификатор (user_id/tab_number).
+Связка «сотрудник ↔ учётная запись» пока по ФИО (User.full_name), т.к. SSO нет:
+сравнение нормализованное (пробелы, регистр, ё→е), доверенности дополнительно
+подтягиваются по FK grantee_employee_id. Единая точка связки —
+`_employee_ids_for_user`. Коллизию полных тёзок разрешит только SSO
+(user_id/tab_number) — при его появлении заменить связку здесь.
 """
 
-from datetime import date
-
 from fastapi import APIRouter, Depends
-from sqlalchemy import select, update
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -19,7 +20,6 @@ from app.core.deps import UserContext, get_current_user
 from app.models.poa import (
     Authority,
     AuthorityRequest,
-    CertificateStatus,
     Employee,
     PoaCertificate,
 )
@@ -30,16 +30,23 @@ router = APIRouter(prefix="/my", tags=["poa-my"])
 _AUTH = Depends(get_current_user)
 
 
-async def _expire_overdue(db: AsyncSession) -> None:
-    await db.execute(
-        update(PoaCertificate)
-        .where(
-            PoaCertificate.status == CertificateStatus.active,
-            PoaCertificate.valid_to.is_not(None),
-            PoaCertificate.valid_to < date.today(),
-        )
-        .values(status=CertificateStatus.expired)
+def _norm_py(fio: str) -> str:
+    """Нормализация ФИО: схлопнуть пробелы, нижний регистр, ё→е."""
+    return " ".join(fio.split()).lower().replace("ё", "е")
+
+
+def _norm_sql(col):
+    """SQL-зеркало _norm_py (для сравнения на стороне БД)."""
+    collapsed = func.btrim(func.regexp_replace(col, r"\s+", " ", "g"))
+    return func.replace(func.lower(collapsed), "ё", "е")
+
+
+async def _employee_ids_for_user(db: AsyncSession, user: UserContext) -> list[int]:
+    """Сотрудники, соответствующие учётке, — единая точка связки для /my."""
+    rows = await db.execute(
+        select(Employee.id).where(_norm_sql(Employee.fio) == _norm_py(user.full_name))
     )
+    return list(rows.scalars().all())
 
 
 @router.get("/certificates", response_model=list[CertificateResponse])
@@ -47,11 +54,17 @@ async def my_certificates(
     db: AsyncSession = Depends(get_db),
     user: UserContext = _AUTH,
 ) -> list[PoaCertificate]:
-    await _expire_overdue(db)
+    emp_ids = await _employee_ids_for_user(db, user)
+    fio_match = _norm_sql(PoaCertificate.grantee_fio) == _norm_py(user.full_name)
+    cond = (
+        or_(PoaCertificate.grantee_employee_id.in_(emp_ids), fio_match)
+        if emp_ids
+        else fio_match
+    )
     result = await db.execute(
         select(PoaCertificate)
         .options(selectinload(PoaCertificate.authorities))
-        .where(PoaCertificate.grantee_fio == user.full_name)
+        .where(cond)
         .order_by(PoaCertificate.issued_date.desc())
     )
     return result.scalars().all()
@@ -62,12 +75,14 @@ async def my_requests(
     db: AsyncSession = Depends(get_db),
     user: UserContext = _AUTH,
 ) -> list[MyRequestOut]:
+    emp_ids = await _employee_ids_for_user(db, user)
+    if not emp_ids:
+        return []
     rows = (
         await db.execute(
             select(AuthorityRequest, Authority.code, Authority.name_short)
-            .join(Employee, Employee.id == AuthorityRequest.employee_id)
             .outerjoin(Authority, Authority.id == AuthorityRequest.authority_id)
-            .where(Employee.fio == user.full_name)
+            .where(AuthorityRequest.employee_id.in_(emp_ids))
             .order_by(AuthorityRequest.created_at.desc())
         )
     ).all()

@@ -96,7 +96,7 @@ def route(q1=None, q2=None, q3=None, q4=None, q5=None) -> dict:
     # БЛОК В — нотариальная МЧД + контрагент → Кузнецов НЕ работникам
     if q3 == MGTS and q4 == NOTAR and q5 == MCHD and q2 == THIRD:
         return {"result": "Оформите служебную записку через Босс-Референт (Кузнецов Р.В.) — "
-                          "доверенность НЕ работникам МГТС", "url": URL_KUZ_NONSTAFF}
+                          "доверенность не работникам МГТС", "url": URL_KUZ_NONSTAFF}
 
     # БЛОК Б — нотариальная МЧД + сотрудники → Кузнецов работникам
     if q3 == MGTS and q4 == NOTAR and q5 == MCHD and q2 in (CEO1, OTHERS):
@@ -111,7 +111,7 @@ def route(q1=None, q2=None, q3=None, q4=None, q5=None) -> dict:
     # БЛОК В общий — Нескольким + контрагент + МГТС
     if q1 == MANY and q3 == MGTS and q2 == THIRD:
         return {"result": "Оформите служебную записку через Босс-Референт (Кузнецов Р.В.) — "
-                          "доверенность НЕ работникам МГТС", "url": URL_KUZ_NONSTAFF}
+                          "доверенность не работникам МГТС", "url": URL_KUZ_NONSTAFF}
 
     # БЛОКИ дочек Г–З — по Q3
     if q3 in SUBSIDIARIES:
@@ -124,7 +124,7 @@ def route(q1=None, q2=None, q3=None, q4=None, q5=None) -> dict:
 
     # БЛОК К — ServiceDesk Бумажная
     if q3 == MGTS and q5 == PAPER:
-        note = (" ❗ВАЖНО: Не забудьте выбрать вид «Нотариальная»! в самой заявке."
+        note = (" Важно: не забудьте выбрать вид «Нотариальная» в самой заявке."
                 if q4 == NOTAR else "")
         return {"result": f"Оформите заявку в ServiceDesk — Письменная доверенность.{note}",
                 "url": URL_SD_PAPER}
@@ -139,7 +139,7 @@ def _next_question_id(a: dict) -> str | None:
     if "q2" not in a:
         return "q2"
     # Ранние результаты после Q2 (Блок А): за пределами лимита или Нескольким+СЕО-1
-    if a["q2"] == BEYOND or (a["q1"] == MANY and a["q2"] == CEO1):
+    if a["q2"] == BEYOND or (a.get("q1") == MANY and a["q2"] == CEO1):
         return None
     if "q3" not in a:
         return "q3"
@@ -154,8 +154,9 @@ def _next_question_id(a: dict) -> str | None:
 
 
 def _estimate_total(a: dict) -> int:
-    """Оценка длины пути (для прогресс-бара)."""
-    if "q2" in a and (a["q2"] == BEYOND or (a["q1"] == MANY and a["q2"] == CEO1)):
+    """Оценка длины пути (для прогресс-бара). Ответы могут прийти не по порядку
+    (API-first: бот/LLM-агент) — не полагаемся на наличие q1 при данном q2."""
+    if "q2" in a and (a["q2"] == BEYOND or (a.get("q1") == MANY and a["q2"] == CEO1)):
         return 2
     if a.get("q3") and a["q3"] != MGTS:
         return 3

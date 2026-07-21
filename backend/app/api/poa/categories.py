@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.poa.common import reject_nulls_for_required
 from app.core.database import get_db
 from app.core.deps import UserContext, require_role
 from app.models.poa import Authority, AuthorityCategory
@@ -83,6 +84,7 @@ async def update_category(
 ) -> AuthorityCategory:
     obj = await _get_or_404(db, category_id)
     data = body.model_dump(exclude_unset=True)
+    reject_nulls_for_required(AuthorityCategory, data)
     if "parent_id" in data:
         if data["parent_id"] == category_id:
             raise HTTPException(status_code=400, detail="Категория не может быть своим родителем")

@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.poa.common import reject_nulls_for_required
 from app.core.database import get_db
 from app.core.deps import UserContext, require_role
 from app.models.poa import Employee, LimitRule, OrgLevel
@@ -79,6 +80,7 @@ async def update_org_level(
 ) -> OrgLevel:
     obj = await _get_or_404(db, level_id)
     data = body.model_dump(exclude_unset=True)
+    reject_nulls_for_required(OrgLevel, data)
     await _ensure_unique(
         db,
         code=data.get("code") if data.get("code") != obj.code else None,

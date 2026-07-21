@@ -416,10 +416,13 @@ interface CheckboxProps {
   onChange: (checked: boolean) => void;
   label?: ReactNode;
   disabled?: boolean;
+  /** Частично выбрано (tri-state): рисуется «минус» вместо галочки */
+  indeterminate?: boolean;
   style?: CSSProperties;
 }
 
-export function Checkbox({ checked, onChange, label, disabled, style }: CheckboxProps) {
+export function Checkbox({ checked, onChange, label, disabled, indeterminate, style }: CheckboxProps) {
+  const filled = checked || (indeterminate && !checked);
   return (
     <label
       style={{
@@ -443,16 +446,20 @@ export function Checkbox({ checked, onChange, label, disabled, style }: Checkbox
           height: "20px",
           flexShrink: 0,
           borderRadius: "var(--radius-s)",
-          background: checked ? "var(--brand-blue)" : "transparent",
-          border: checked ? "1px solid transparent" : "1px solid var(--color-control-stroke)",
+          background: filled ? "var(--brand-blue)" : "transparent",
+          border: filled ? "1px solid transparent" : "1px solid var(--color-control-stroke)",
           transition: "background var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard)",
         }}
       >
-        {checked && (
+        {checked ? (
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M5 12l5 5L20 7" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-        )}
+        ) : indeterminate ? (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 12h12" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" />
+          </svg>
+        ) : null}
       </span>
       {label && <span>{label}</span>}
     </label>

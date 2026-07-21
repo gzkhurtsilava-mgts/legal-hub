@@ -1,10 +1,9 @@
-from datetime import date
-
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import or_, select, update
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.api.poa.common import reject_nulls_for_required
 from app.core.database import get_db
 from app.core.deps import UserContext, require_role
 from app.models.poa import (
@@ -33,19 +32,6 @@ _CERT_FIELDS = [
     "number", "grantor_company", "grantee_fio", "cert_type",
     "issued_date", "valid_to", "status",
 ]
-
-
-async def _expire_overdue(db: AsyncSession) -> None:
-    """Авто-`expired`: доверенности с истёкшим сроком переводятся из active."""
-    await db.execute(
-        update(PoaCertificate)
-        .where(
-            PoaCertificate.status == CertificateStatus.active,
-            PoaCertificate.valid_to.is_not(None),
-            PoaCertificate.valid_to < date.today(),
-        )
-        .values(status=CertificateStatus.expired)
-    )
 
 
 async def _get_full(db: AsyncSession, cert_id: int) -> PoaCertificate | None:
@@ -86,7 +72,8 @@ async def list_registry(
     db: AsyncSession = Depends(get_db),
     _: UserContext = _LAWYER,
 ) -> list[PoaCertificate]:
-    await _expire_overdue(db)
+    # Авто-expired делает ночной arq-крон (services/poa/lifecycle.py) —
+    # чтение реестра не открывает write-транзакцию.
     stmt = select(PoaCertificate).options(selectinload(PoaCertificate.authorities))
     if authority_id is not None:  # срез «кто имеет полномочие X»
         stmt = stmt.join(
@@ -137,7 +124,6 @@ async def get_certificate(
     db: AsyncSession = Depends(get_db),
     _: UserContext = _LAWYER,
 ) -> PoaCertificate:
-    await _expire_overdue(db)
     return await _get_or_404(db, cert_id)
 
 
@@ -151,6 +137,7 @@ async def update_certificate(
     obj = await _get_or_404(db, cert_id)
     before = snapshot(obj, _CERT_FIELDS)
     data = body.model_dump(exclude_unset=True)
+    reject_nulls_for_required(PoaCertificate, data)
     authority_ids = data.pop("authority_ids", None)
     for key, val in data.items():
         setattr(obj, key, val)

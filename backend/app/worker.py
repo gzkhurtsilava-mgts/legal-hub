@@ -1,6 +1,7 @@
 import logging
 from pathlib import Path
 
+from arq import cron
 from arq.connections import RedisSettings
 from sqlalchemy import select
 
@@ -13,6 +14,7 @@ from app.services.knowledge.extractors import (
     generate_preview_docx,
     generate_preview_xlsx,
 )
+from app.services.poa.lifecycle import expire_overdue_certificates
 
 logger = logging.getLogger(__name__)
 
@@ -113,6 +115,15 @@ async def process_slides_zip(ctx: dict, version_id: int, zip_path: str) -> None:
             logger.error("process_slides_zip %s failed: %s", version_id, exc)
 
 
+async def expire_poa_certificates(ctx: dict) -> None:
+    """Ночной перевод просроченных доверенностей active → expired."""
+    async with async_session_factory() as db:
+        count = await expire_overdue_certificates(db)
+        await db.commit()
+        if count:
+            logger.info("PoA lifecycle: %s certificates expired", count)
+
+
 async def startup(ctx: dict) -> None:
     logger.info("Worker started")
 
@@ -126,3 +137,4 @@ class WorkerSettings:
     on_startup = startup
     on_shutdown = shutdown
     functions = [process_document_version, process_slides_zip]
+    cron_jobs = [cron(expire_poa_certificates, hour=3, minute=0)]

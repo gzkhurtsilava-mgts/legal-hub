@@ -42,7 +42,7 @@ def test_block_b_notarial_mchd_staff():
 
 def test_block_v_notarial_mchd_contractor():
     r = nav.route(ONE, THIRD, MGTS, NOTAR, MCHD)
-    assert r["url"] == nav.URL_KUZ_NONSTAFF and "НЕ работникам" in r["result"]
+    assert r["url"] == nav.URL_KUZ_NONSTAFF and "не работникам" in r["result"]
 
 
 def test_block_b_general():
@@ -68,10 +68,10 @@ def test_block_i_servicedesk_mchd():
 
 def test_block_k_paper():
     r = nav.route(ONE, OTHERS, MGTS, NOT_NOTAR, PAPER)
-    assert r["url"] == nav.URL_SD_PAPER and "❗" not in r["result"]
+    assert r["url"] == nav.URL_SD_PAPER and "Важно" not in r["result"]
     # нотариальная бумажная — та же ссылка + предупреждение
     r2 = nav.route(ONE, OTHERS, MGTS, NOTAR, PAPER)
-    assert r2["url"] == nav.URL_SD_PAPER and "❗" in r2["result"]
+    assert r2["url"] == nav.URL_SD_PAPER and "Важно" in r2["result"]
 
 
 def test_edge_notarial_mchd_never_servicedesk():
@@ -122,6 +122,14 @@ def test_step_mgts_asks_q4_q5_then_result():
 def test_step_invalid_answer_raises():
     with pytest.raises(ValueError):
         nav.step({"q1": "мусор"})
+
+
+def test_step_out_of_order_answers_no_crash():
+    # API-first: ответы могут прийти без q1 (бот/LLM-агент) — не KeyError.
+    r = nav.step({"q2": CEO1})
+    assert r["status"] == "question" and r["question"]["id"] == "q1"
+    r2 = nav.step({"q2": THIRD, "q3": MGTS})
+    assert r2["status"] == "question" and r2["question"]["id"] == "q1"
 
 
 # ─── HTTP: доступ employee ────────────────────────────────────────────────────

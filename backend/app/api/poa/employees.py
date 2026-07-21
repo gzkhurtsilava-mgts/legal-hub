@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.poa.common import reject_nulls_for_required
 from app.core.database import get_db
 from app.core.deps import UserContext, require_role
 from app.models.poa import AuthorityRequest, Employee, OrgLevel, OrgScope
@@ -79,6 +80,7 @@ async def update_employee(
 ) -> Employee:
     obj = await _get_or_404(db, employee_id)
     data = body.model_dump(exclude_unset=True)
+    reject_nulls_for_required(Employee, data)
     await _validate_refs(db, data.get("org_scope_id"), data.get("org_level_id"))
     for key, val in data.items():
         setattr(obj, key, val)

@@ -696,6 +696,28 @@
 }
 .ui-cardlink:hover { box-shadow: var(--shadow-middle); transform: translateY(-2px); border-color: var(--color-line); }
 
+/* — Текстовые поля (единый вид с .ui-select: белый фон, обводка, синий фокус) — */
+.ui-input,
+.ui-textarea {
+  width: 100%;
+  height: var(--control-m);
+  padding: 0 12px;
+  font-family: 'MTS Compact', sans-serif;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-control-stroke);
+  border-radius: var(--radius-m);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+.ui-textarea { height: auto; padding: 10px 12px; line-height: 1.45; resize: vertical; }
+.ui-input::placeholder, .ui-textarea::placeholder { color: var(--color-text-tertiary); }
+.ui-input:hover:not(:disabled), .ui-textarea:hover:not(:disabled) { border-color: var(--color-control-stroke-hover); }
+.ui-input:focus, .ui-textarea:focus { border-color: var(--brand-blue); }
+.ui-input:disabled, .ui-textarea:disabled { opacity: 0.6; cursor: not-allowed; }
+
 /* — Select (нативный, темизированный, со своим chevron) — */
 .ui-select-wrap { position: relative; display: inline-flex; width: 100%; }
 .ui-select {

@@ -2,12 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.poa.common import reject_nulls_for_required
 from app.core.database import get_db
 from app.core.deps import UserContext, require_role
 from app.models.poa import AuditAction, LimitRule, OrgLevel
 from app.models.user import UserRole
 from app.schemas.poa import LimitRuleCreate, LimitRuleResponse, LimitRuleUpdate
 from app.services.poa.audit import snapshot, write_audit
+from app.services.poa.resolver import regenerate_resolved_grants
 
 router = APIRouter(prefix="/limit-rules", tags=["poa-limit-rules"])
 
@@ -74,6 +76,8 @@ async def create_limit_rule(
         db, entity_type="limit_rule", entity_id=obj.id,
         action=AuditAction.create, user_id=user.id, after=snapshot(obj, _LIMIT_FIELDS),
     )
+    # Лимиты материализованы в resolved_grant — пересчитываем сразу.
+    await regenerate_resolved_grants(db)
     return obj
 
 
@@ -95,6 +99,7 @@ async def update_limit_rule(
 ) -> LimitRule:
     obj = await _get_or_404(db, rule_id)
     data = body.model_dump(exclude_unset=True)
+    reject_nulls_for_required(LimitRule, data)
     if "org_level_id" in data:
         await _ensure_level_exists(db, data["org_level_id"])
         await _ensure_no_duplicate(db, data["org_level_id"], exclude_id=rule_id)
@@ -108,6 +113,7 @@ async def update_limit_rule(
         action=AuditAction.update, user_id=user.id,
         before=before, after=snapshot(obj, _LIMIT_FIELDS),
     )
+    await regenerate_resolved_grants(db)
     return obj
 
 
@@ -123,3 +129,5 @@ async def delete_limit_rule(
         action=AuditAction.delete, user_id=user.id, before=snapshot(obj, _LIMIT_FIELDS),
     )
     await db.delete(obj)
+    await db.flush()
+    await regenerate_resolved_grants(db)
