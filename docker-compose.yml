@@ -100,13 +100,19 @@ services:
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8000
       BACKEND_INTERNAL_URL: http://backend:8000
-      WATCHPACK_POLLING: "true"
+      # Числовое значение = интервал опроса в мс (watchpack), вместо "true" с частым опросом.
+      WATCHPACK_POLLING: "2000"
     ports:
       - "3000:3000"
     volumes:
       - ./frontend:/app
       - /app/node_modules
       - /app/.next
+      # vendor/@mts-ds — 12 500 файлов, которые не меняются. На bind-mount из OneDrive
+      # их обход занимает ~100 с и тормозит любую компиляцию. Берём их из образа
+      # (frontend.Dockerfile: COPY vendor/ vendor/) через анонимный том.
+      # После обновления @mts-ds с корп-машины нужен пересбор образа.
+      - /app/vendor
     depends_on:
       - backend
 

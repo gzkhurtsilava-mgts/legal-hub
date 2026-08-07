@@ -13,7 +13,21 @@ const API =
 const nextConfig = {
   webpack: (config, { dev }) => {
     if (dev) {
-      config.watchOptions = { poll: 800, aggregateTimeout: 300 };
+      // Проект лежит на bind-mount из OneDrive — inotify там не работает, нужен polling.
+      // ВАЖНО: не перезаписывать watchOptions целиком — Next.js кладёт туда ignored,
+      // без которого watcher опрашивает node_modules и vendor/@mts-ds (12 500 файлов)
+      // каждый интервал. Обход этого дерева занимает ~100 с → dev-сервер стоит колом.
+      config.watchOptions = {
+        ...config.watchOptions,
+        poll: 2000,
+        aggregateTimeout: 300,
+        ignored: [
+          "**/node_modules/**",
+          "**/vendor/**",
+          "**/.next/**",
+          "**/.git/**",
+        ],
+      };
     }
     return config;
   },
