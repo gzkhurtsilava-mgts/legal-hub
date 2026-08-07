@@ -17,7 +17,6 @@ export type ResolvedDerivation =
   | "cascade"
   | "universal"
   | "manual_exception";
-export type RequestStatus = "pending" | "approved" | "rejected";
 export type LevelSource = "manual" | "derived" | "hr";
 export type CertificateType = "paper" | "notarial" | "mchd";
 export type CertificateStatus = "active" | "revoked" | "expired";
@@ -114,18 +113,6 @@ export interface Employee {
   org_level_id: number | null;
   level_source: LevelSource;
   tab_number: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface AuthorityRequest {
-  id: number;
-  employee_id: number;
-  authority_id: number | null;
-  proposed_text: string | null;
-  justification: string | null;
-  status: RequestStatus;
-  approver: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -582,48 +569,6 @@ export function useResolve(employeeId: number | null) {
   });
 }
 
-// ─── Authority requests ──────────────────────────────────────────────────────
-
-export function useRequests(status?: RequestStatus) {
-  const token = useToken();
-  const { data: session } = useSession();
-  return useQuery<AuthorityRequest[]>({
-    queryKey: ["poa-requests", status ?? null],
-    queryFn: () =>
-      apiFetch<AuthorityRequest[]>(
-        status ? `${B}/authority-requests/?status=${status}` : `${B}/authority-requests/`,
-        token
-      ),
-    enabled: !!session,
-  });
-}
-
-export function useCreateRequest() {
-  const token = useToken();
-  const qc = useQueryClient();
-  return useMutation<AuthorityRequest, Error, Body>({
-    mutationFn: (body) =>
-      apiFetch(`${B}/authority-requests/`, token, {
-        method: "POST",
-        body: JSON.stringify(body),
-      }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["poa-requests"] }),
-  });
-}
-
-export function useDecideRequest() {
-  const token = useToken();
-  const qc = useQueryClient();
-  return useMutation<AuthorityRequest, Error, { id: number; action: "approve" | "reject" }>({
-    mutationFn: ({ id, action }) =>
-      apiFetch(`${B}/authority-requests/${id}/${action}`, token, { method: "POST" }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["poa-requests"] });
-      qc.invalidateQueries({ queryKey: ["poa-resolve"] });
-    },
-  });
-}
-
 // ─── Registry ────────────────────────────────────────────────────────────────
 
 export function useRegistry(
@@ -729,38 +674,6 @@ export function useTemplates() {
   return useQuery<string[]>({
     queryKey: ["poa-templates"],
     queryFn: () => apiFetch<string[]>(`${B}/documents/templates`, token),
-    enabled: !!session,
-  });
-}
-
-// ─── My (личный кабинет сотрудника) ──────────────────────────────────────────
-
-export interface MyRequest {
-  id: number;
-  authority_code: string | null;
-  authority_name: string | null;
-  proposed_text: string | null;
-  justification: string | null;
-  status: RequestStatus;
-  created_at: string;
-}
-
-export function useMyCertificates() {
-  const token = useToken();
-  const { data: session } = useSession();
-  return useQuery<Certificate[]>({
-    queryKey: ["poa-my-certs"],
-    queryFn: () => apiFetch<Certificate[]>(`${B}/my/certificates`, token),
-    enabled: !!session,
-  });
-}
-
-export function useMyRequests() {
-  const token = useToken();
-  const { data: session } = useSession();
-  return useQuery<MyRequest[]>({
-    queryKey: ["poa-my-requests"],
-    queryFn: () => apiFetch<MyRequest[]>(`${B}/my/requests`, token),
     enabled: !!session,
   });
 }

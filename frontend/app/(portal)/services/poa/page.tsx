@@ -23,13 +23,6 @@ const SECTIONS: Section[] = [
     access: "all",
   },
   {
-    href: "/services/poa/my",
-    title: "Мои доверенности",
-    description: "Свои доверенности и статусы заявок",
-    icon: "FolderSize24StyleOutline",
-    access: "all",
-  },
-  {
     href: "/services/poa/catalog",
     title: "Каталог полномочий",
     description: "Полномочия, категории, подразделения, уровни и лимиты",
@@ -52,12 +45,6 @@ const SECTIONS: Section[] = [
     title: "Конструктор",
     description: "Сформировать доверенность по шаблону (docx / PDF)",
     icon: "EditSize24StyleOutline",
-  },
-  {
-    href: "/services/poa/requests",
-    title: "Заявки на полномочия",
-    description: "Индивидуальные полномочия сверх набора подразделения",
-    icon: "ChecklistSize24StyleOutline",
   },
   {
     href: "/services/poa/employees",

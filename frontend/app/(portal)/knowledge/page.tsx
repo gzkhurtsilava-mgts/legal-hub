@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Spinner } from "@mts-ds/granat2-react-spinner";
-import { Card } from "@/components/GranatCard";
 import { useSections, useSearch, useFavorites } from "@/lib/api/knowledge";
 import { Icon } from "@/components/icons";
 import { SearchBig } from "@/components/knowledge/SearchBig";
@@ -38,16 +37,28 @@ export default function KnowledgePage() {
             База знаний
           </h1>
         </div>
-        {isAdmin && (
+        <div style={{ flexShrink: 0, display: "flex", gap: "8px" }}>
+          {/* Избранное — персональный список, доступен всем */}
           <Button
             variant="secondary"
-            onClick={() => router.push("/knowledge/admin/sections")}
-            icon={<Icon name="SettingsSize24StyleOutline" size={15} />}
-            style={{ flexShrink: 0 }}
+            onClick={() => router.push("/knowledge/favorites")}
+            icon={<Icon name="StarSize24StyleOutline" size={15} />}
           >
-            Разделы
+            Избранное
+            {favCount > 0 && (
+              <span style={{ fontWeight: 400, color: "var(--color-text-tertiary)" }}>{favCount}</span>
+            )}
           </Button>
-        )}
+          {isAdmin && (
+            <Button
+              variant="secondary"
+              onClick={() => router.push("/knowledge/admin/sections")}
+              icon={<Icon name="SettingsSize24StyleOutline" size={15} />}
+            >
+              Разделы
+            </Button>
+          )}
+        </div>
       </div>
       <p style={{
         fontFamily: "MTS Compact", fontSize: "15px",
@@ -100,32 +111,6 @@ export default function KnowledgePage() {
             </div>
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "20px" }}>
-              {/* Карточка «Избранное» — всегда первая */}
-              <Card
-                variant="default"
-                device="desktop"
-                size="m"
-                cornerRadius={32}
-                className="ui-cardlink"
-                onClick={() => router.push("/knowledge/favorites")}
-                style={{ padding: "24px" }}
-              >
-                <div style={{ width: "48px", height: "48px", borderRadius: "var(--radius-m)", background: "var(--color-background-secondary)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px" }}>
-                  <Icon name="StarSize24StyleFill" size={24} style={{ color: "#FFB800" }} />
-                </div>
-                <p style={{ fontFamily: "MTS Wide", fontWeight: 700, fontSize: "15px", color: "var(--color-text-primary)", marginBottom: "8px", lineHeight: 1.3 }}>
-                  Избранное
-                </p>
-                <p style={{ fontFamily: "MTS Compact", fontSize: "13px", color: "var(--color-text-secondary)", lineHeight: 1.5, marginBottom: "12px" }}>
-                  Сохранённые материалы
-                </p>
-                {favCount > 0 && (
-                  <p style={{ fontFamily: "MTS Compact", fontSize: "12px", color: "var(--color-text-tertiary)" }}>
-                    {favCount} {plural(favCount)}
-                  </p>
-                )}
-              </Card>
-
               {topSections.map((section) => (
                 <SectionCard key={section.id} section={section} />
               ))}
@@ -135,11 +120,4 @@ export default function KnowledgePage() {
       )}
     </div>
   );
-}
-
-function plural(n: number) {
-  const mod10 = n % 10, mod100 = n % 100;
-  if (mod10 === 1 && mod100 !== 11) return "материал";
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return "материала";
-  return "материалов";
 }
