@@ -1,0 +1,41 @@
+@charset "UTF-8";
+/*
+  Шрифты для типографики v2
+
+  Deprecated
+*/
+@font-face {
+  font-family: "MTS Compact";
+  src: url("../../assets/fonts/MTSCompact-Bold.eot");
+  src: url("../../assets/fonts/MTSCompact-Bold.eot?#iefix") format("embedded-opentype"), url("../../assets/fonts/MTSCompact-Bold.woff2") format("woff2"), url("../../assets/fonts/MTSCompact-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: "MTS Compact";
+  src: url("../../assets/fonts/MTSCompact-Medium.eot");
+  src: url("../../assets/fonts/MTSCompact-Medium.eot?#iefix") format("embedded-opentype"), url("../../assets/fonts/MTSCompact-Medium.woff2") format("woff2"), url("../../assets/fonts/MTSCompact-Medium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: "MTS Compact";
+  src: url("../../assets/fonts/MTSCompact-Regular.eot");
+  src: url("../../assets/fonts/MTSCompact-Regular.eot?#iefix") format("embedded-opentype"), url("../../assets/fonts/MTSCompact-Regular.woff2") format("woff2"), url("../../assets/fonts/MTSCompact-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "MTS Text";
+  src: url("../../assets/fonts/MTSText-Regular.eot");
+  src: url("../../assets/fonts/MTSText-Regular.eot?#iefix") format("embedded-opentype"), url("../../assets/fonts/MTSText-Regular.woff2") format("woff2"), url("../../assets/fonts/MTSText-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "MTS Wide";
+  src: url("../../assets/fonts/MTSWide-Medium.eot");
+  src: url("../../assets/fonts/MTSWide-Medium.eot?#iefix") format("embedded-opentype"), url("../../assets/fonts/MTSWide-Medium.woff2") format("woff2"), url("../../assets/fonts/MTSWide-Medium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+}

@@ -1,0 +1,905 @@
+
+/*
+  Do not edit directly
+  Generated on Fri, 06 Feb 2026 11:09:10 GMT
+*/
+
+$typography-v3-promo1-short-wide-font-family: MTS Wide !default;
+$typography-v3-promo1-short-wide-font-size: 4.5rem !default;
+$typography-v3-promo1-short-wide-line-height: 4.5rem !default;
+$typography-v3-promo1-short-wide-font-weight: 500 !default;
+$typography-v3-promo1-short-wide-text-transform: uppercase !default;
+$typography-v3-promo1-long-wide-font-family: MTS Wide !default;
+$typography-v3-promo1-long-wide-font-size: 4.5rem !default;
+$typography-v3-promo1-long-wide-line-height: 4.5rem !default;
+$typography-v3-promo1-long-wide-font-weight: 500 !default;
+$typography-v3-promo2-short-wide-font-family: MTS Wide !default;
+$typography-v3-promo2-short-wide-font-size: 2.75rem !default;
+$typography-v3-promo2-short-wide-line-height: 2.75rem !default;
+$typography-v3-promo2-short-wide-font-weight: 500 !default;
+$typography-v3-promo2-short-wide-text-transform: uppercase !default;
+$typography-v3-promo2-long-wide-font-family: MTS Wide !default;
+$typography-v3-promo2-long-wide-font-size: 2.75rem !default;
+$typography-v3-promo2-long-wide-line-height: 2.75rem !default;
+$typography-v3-promo2-long-wide-font-weight: 500 !default;
+$typography-v3-promo-56-56-wide-font-family: MTS Wide !default;
+$typography-v3-promo-56-56-wide-font-size: 3.5rem !default;
+$typography-v3-promo-56-56-wide-line-height: 3.5rem !default;
+$typography-v3-promo-56-56-wide-font-weight: 500 !default;
+$typography-v3-promo-56-56-upp-wide-font-family: MTS Wide !default;
+$typography-v3-promo-56-56-upp-wide-font-size: 3.5rem !default;
+$typography-v3-promo-56-56-upp-wide-line-height: 3.5rem !default;
+$typography-v3-promo-56-56-upp-wide-font-weight: 500 !default;
+$typography-v3-promo-56-56-upp-wide-text-transform: uppercase !default;
+$typography-v3-promo-36-36-wide-font-family: MTS Wide !default;
+$typography-v3-promo-36-36-wide-font-size: 2.25rem !default;
+$typography-v3-promo-36-36-wide-line-height: 2.25rem !default;
+$typography-v3-promo-36-36-wide-font-weight: 500 !default;
+$typography-v3-promo-36-36-upp-wide-font-family: MTS Wide !default;
+$typography-v3-promo-36-36-upp-wide-font-size: 2.25rem !default;
+$typography-v3-promo-36-36-upp-wide-line-height: 2.25rem !default;
+$typography-v3-promo-36-36-upp-wide-font-weight: 500 !default;
+$typography-v3-promo-36-36-upp-wide-text-transform: uppercase !default;
+$typography-v3-h1-wide-font-family: MTS Wide !default;
+$typography-v3-h1-wide-font-size: 2.25rem !default;
+$typography-v3-h1-wide-line-height: 2.5rem !default;
+$typography-v3-h1-wide-font-weight: 500 !default;
+$typography-v3-h1-comp-font-family: MTS Compact !default;
+$typography-v3-h1-comp-font-size: 2.25rem !default;
+$typography-v3-h1-comp-line-height: 2.5rem !default;
+$typography-v3-h1-comp-font-weight: 500 !default;
+$typography-v3-h2-wide-font-family: MTS Wide !default;
+$typography-v3-h2-wide-font-size: 2rem !default;
+$typography-v3-h2-wide-line-height: 2.25rem !default;
+$typography-v3-h2-wide-font-weight: 500 !default;
+$typography-v3-h2-comp-font-family: MTS Compact !default;
+$typography-v3-h2-comp-font-size: 2rem !default;
+$typography-v3-h2-comp-line-height: 2.25rem !default;
+$typography-v3-h2-comp-font-weight: 500 !default;
+$typography-v3-h3-wide-font-family: MTS Wide !default;
+$typography-v3-h3-wide-font-size: 1.5rem !default;
+$typography-v3-h3-wide-line-height: 1.75rem !default;
+$typography-v3-h3-wide-font-weight: 500 !default;
+$typography-v3-h3-comp-font-family: MTS Compact !default;
+$typography-v3-h3-comp-font-size: 1.5rem !default;
+$typography-v3-h3-comp-line-height: 1.75rem !default;
+$typography-v3-h3-comp-font-weight: 500 !default;
+$typography-v3-h3-text-font-family: MTS Text !default;
+$typography-v3-h3-text-font-size: 1.5rem !default;
+$typography-v3-h3-text-line-height: 1.75rem !default;
+$typography-v3-h3-text-font-weight: 500 !default;
+$typography-v3-h4-wide-font-family: MTS Wide !default;
+$typography-v3-h4-wide-font-size: 1.25rem !default;
+$typography-v3-h4-wide-line-height: 1.5rem !default;
+$typography-v3-h4-wide-font-weight: 500 !default;
+$typography-v3-h4-comp-font-family: MTS Compact !default;
+$typography-v3-h4-comp-font-size: 1.25rem !default;
+$typography-v3-h4-comp-line-height: 1.5rem !default;
+$typography-v3-h4-comp-font-weight: 500 !default;
+$typography-v3-h4-text-font-family: MTS Text !default;
+$typography-v3-h4-text-font-size: 1.25rem !default;
+$typography-v3-h4-text-line-height: 1.5rem !default;
+$typography-v3-h4-text-font-weight: 500 !default;
+$typography-v3-p1-regular-comp-font-family: MTS Compact !default;
+$typography-v3-p1-regular-comp-font-size: 1.5rem !default;
+$typography-v3-p1-regular-comp-line-height: 2rem !default;
+$typography-v3-p1-regular-comp-font-weight: 400 !default;
+$typography-v3-p1-regular-text-font-family: MTS Text !default;
+$typography-v3-p1-regular-text-font-size: 1.5rem !default;
+$typography-v3-p1-regular-text-line-height: 2rem !default;
+$typography-v3-p1-regular-text-font-weight: 400 !default;
+$typography-v3-p2-regular-comp-font-family: MTS Compact !default;
+$typography-v3-p2-regular-comp-font-size: 1.25rem !default;
+$typography-v3-p2-regular-comp-line-height: 1.75rem !default;
+$typography-v3-p2-regular-comp-font-weight: 400 !default;
+$typography-v3-p2-regular-text-font-family: MTS Text !default;
+$typography-v3-p2-regular-text-font-size: 1.25rem !default;
+$typography-v3-p2-regular-text-line-height: 1.75rem !default;
+$typography-v3-p2-regular-text-font-weight: 400 !default;
+$typography-v3-p3-bold-comp-font-family: MTS Compact !default;
+$typography-v3-p3-bold-comp-font-size: 1.0625rem !default;
+$typography-v3-p3-bold-comp-line-height: 1.5rem !default;
+$typography-v3-p3-bold-comp-font-weight: 700 !default;
+$typography-v3-p3-medium-comp-font-family: MTS Compact !default;
+$typography-v3-p3-medium-comp-font-size: 1.0625rem !default;
+$typography-v3-p3-medium-comp-line-height: 1.5rem !default;
+$typography-v3-p3-medium-comp-font-weight: 500 !default;
+$typography-v3-p3-20-medium-comp-font-family: MTS Compact !default;
+$typography-v3-p3-20-medium-comp-font-size: 1.0625rem !default;
+$typography-v3-p3-20-medium-comp-line-height: 1.25rem !default;
+$typography-v3-p3-20-medium-comp-font-weight: 500 !default;
+$typography-v3-p3-regular-comp-font-family: MTS Compact !default;
+$typography-v3-p3-regular-comp-font-size: 1.0625rem !default;
+$typography-v3-p3-regular-comp-line-height: 1.5rem !default;
+$typography-v3-p3-regular-comp-font-weight: 400 !default;
+$typography-v3-p3-medium-text-font-family: MTS Text !default;
+$typography-v3-p3-medium-text-font-size: 1.0625rem !default;
+$typography-v3-p3-medium-text-line-height: 1.5rem !default;
+$typography-v3-p3-medium-text-font-weight: 500 !default;
+$typography-v3-p3-regular-text-font-family: MTS Text !default;
+$typography-v3-p3-regular-text-font-size: 1.0625rem !default;
+$typography-v3-p3-regular-text-line-height: 1.5rem !default;
+$typography-v3-p3-regular-text-font-weight: 400 !default;
+$typography-v3-p4-bold-comp-font-family: MTS Compact !default;
+$typography-v3-p4-bold-comp-font-size: 0.875rem !default;
+$typography-v3-p4-bold-comp-line-height: 1.25rem !default;
+$typography-v3-p4-bold-comp-font-weight: 700 !default;
+$typography-v3-p4-medium-comp-font-family: MTS Compact !default;
+$typography-v3-p4-medium-comp-font-size: 0.875rem !default;
+$typography-v3-p4-medium-comp-line-height: 1.25rem !default;
+$typography-v3-p4-medium-comp-font-weight: 500 !default;
+$typography-v3-p4-medium-comp-tight-font-family: MTS Compact !default;
+$typography-v3-p4-medium-comp-tight-font-size: 0.875rem !default;
+$typography-v3-p4-medium-comp-tight-line-height: 1.125rem !default;
+$typography-v3-p4-medium-comp-tight-font-weight: 500 !default;
+$typography-v3-p4-medium-upp-comp-font-family: MTS Compact !default;
+$typography-v3-p4-medium-upp-comp-font-size: 0.875rem !default;
+$typography-v3-p4-medium-upp-comp-line-height: 1.25rem !default;
+$typography-v3-p4-medium-upp-comp-font-weight: 500 !default;
+$typography-v3-p4-medium-upp-comp-text-transform: uppercase !default;
+$typography-v3-p4-medium-upp-text-font-family: MTS Text !default;
+$typography-v3-p4-medium-upp-text-font-size: 0.875rem !default;
+$typography-v3-p4-medium-upp-text-line-height: 1.25rem !default;
+$typography-v3-p4-medium-upp-text-font-weight: 500 !default;
+$typography-v3-p4-medium-upp-text-text-transform: uppercase !default;
+$typography-v3-p4-regular-comp-font-family: MTS Compact !default;
+$typography-v3-p4-regular-comp-font-size: 0.875rem !default;
+$typography-v3-p4-regular-comp-line-height: 1.25rem !default;
+$typography-v3-p4-regular-comp-font-weight: 400 !default;
+$typography-v3-p4-regular-comp-tight-font-family: MTS Compact !default;
+$typography-v3-p4-regular-comp-tight-font-size: 0.875rem !default;
+$typography-v3-p4-regular-comp-tight-line-height: 1.125rem !default;
+$typography-v3-p4-regular-comp-tight-font-weight: 400 !default;
+$typography-v3-p4-regular-text-font-family: MTS Text !default;
+$typography-v3-p4-regular-text-font-size: 0.875rem !default;
+$typography-v3-p4-regular-text-line-height: 1.25rem !default;
+$typography-v3-p4-regular-text-font-weight: 400 !default;
+$typography-v3-p4-bold-upp-wide-font-family: MTS Wide !default;
+$typography-v3-p4-bold-upp-wide-font-size: 0.875rem !default;
+$typography-v3-p4-bold-upp-wide-line-height: 1.25rem !default;
+$typography-v3-p4-bold-upp-wide-font-weight: 700 !default;
+$typography-v3-p4-bold-upp-wide-text-transform: uppercase !default;
+$typography-v3-p4-bold-upp-wide-letter-spacing: 0.05em !default;
+$typography-v3-c1-bold-comp-font-family: MTS Compact !default;
+$typography-v3-c1-bold-comp-font-size: 0.75rem !default;
+$typography-v3-c1-bold-comp-line-height: 1rem !default;
+$typography-v3-c1-bold-comp-font-weight: 700 !default;
+$typography-v3-c1-bold-upp-wide-font-family: MTS Wide !default;
+$typography-v3-c1-bold-upp-wide-font-size: 0.75rem !default;
+$typography-v3-c1-bold-upp-wide-line-height: 1rem !default;
+$typography-v3-c1-bold-upp-wide-font-weight: 700 !default;
+$typography-v3-c1-bold-upp-wide-text-transform: uppercase !default;
+$typography-v3-c1-bold-upp-wide-letter-spacing: 0.05em !default;
+$typography-v3-c1-medium-comp-font-family: MTS Compact !default;
+$typography-v3-c1-medium-comp-font-size: 0.75rem !default;
+$typography-v3-c1-medium-comp-line-height: 1rem !default;
+$typography-v3-c1-medium-comp-font-weight: 500 !default;
+$typography-v3-c1-medium-upp-comp-font-family: MTS Compact !default;
+$typography-v3-c1-medium-upp-comp-font-size: 0.75rem !default;
+$typography-v3-c1-medium-upp-comp-line-height: 1rem !default;
+$typography-v3-c1-medium-upp-comp-font-weight: 500 !default;
+$typography-v3-c1-medium-upp-comp-text-transform: uppercase !default;
+$typography-v3-c1-regular-comp-font-family: MTS Compact !default;
+$typography-v3-c1-regular-comp-font-size: 0.75rem !default;
+$typography-v3-c1-regular-comp-line-height: 1rem !default;
+$typography-v3-c1-regular-comp-font-weight: 400 !default;
+$typography-v3-c2-bold-upp-wide-font-family: MTS Wide !default;
+$typography-v3-c2-bold-upp-wide-font-size: 0.625rem !default;
+$typography-v3-c2-bold-upp-wide-line-height: 0.75rem !default;
+$typography-v3-c2-bold-upp-wide-font-weight: 700 !default;
+$typography-v3-c2-bold-upp-wide-text-transform: uppercase !default;
+$typography-v3-c2-bold-upp-wide-letter-spacing: 0.05em !default;
+$typography-v2-promo-wide-font-family: MTS Wide !default;
+$typography-v2-promo-wide-font-size: 2.75rem !default;
+$typography-v2-promo-wide-line-height: 2.75rem !default;
+$typography-v2-promo-wide-font-weight: 500 !default;
+$typography-v2-h1-wide-font-family: MTS Wide !default;
+$typography-v2-h1-wide-font-size: 2rem !default;
+$typography-v2-h1-wide-line-height: 2.25rem !default;
+$typography-v2-h1-wide-font-weight: 500 !default;
+$typography-v2-h2-wide-font-family: MTS Wide !default;
+$typography-v2-h2-wide-font-size: 1.5rem !default;
+$typography-v2-h2-wide-line-height: 1.75rem !default;
+$typography-v2-h2-wide-font-weight: 500 !default;
+$typography-v2-h2-comp-font-family: MTS Compact !default;
+$typography-v2-h2-comp-font-size: 1.5rem !default;
+$typography-v2-h2-comp-line-height: 1.75rem !default;
+$typography-v2-h2-comp-font-weight: 500 !default;
+$typography-v2-h3-wide-font-family: MTS Wide !default;
+$typography-v2-h3-wide-font-size: 1.25rem !default;
+$typography-v2-h3-wide-line-height: 1.5rem !default;
+$typography-v2-h3-wide-font-weight: 500 !default;
+$typography-v2-h3-comp-font-family: MTS Compact !default;
+$typography-v2-h3-comp-font-size: 1.25rem !default;
+$typography-v2-h3-comp-line-height: 1.5rem !default;
+$typography-v2-h3-comp-font-weight: 500 !default;
+$typography-v2-p1-regular-comp-font-family: MTS Compact !default;
+$typography-v2-p1-regular-comp-font-size: 1.25rem !default;
+$typography-v2-p1-regular-comp-line-height: 1.75rem !default;
+$typography-v2-p1-regular-comp-font-weight: 400 !default;
+$typography-v2-p1-regular-text-font-family: MTS Text !default;
+$typography-v2-p1-regular-text-font-size: 1.25rem !default;
+$typography-v2-p1-regular-text-line-height: 1.75rem !default;
+$typography-v2-p1-regular-text-font-weight: 400 !default;
+$typography-v2-p2-bold-comp-font-family: MTS Compact !default;
+$typography-v2-p2-bold-comp-font-size: 1.0625rem !default;
+$typography-v2-p2-bold-comp-line-height: 1.5rem !default;
+$typography-v2-p2-bold-comp-font-weight: 700 !default;
+$typography-v2-p2-medium-comp-font-family: MTS Compact !default;
+$typography-v2-p2-medium-comp-font-size: 1.0625rem !default;
+$typography-v2-p2-medium-comp-line-height: 1.5rem !default;
+$typography-v2-p2-medium-comp-font-weight: 500 !default;
+$typography-v2-p2-regular-comp-font-family: MTS Compact !default;
+$typography-v2-p2-regular-comp-font-size: 1.0625rem !default;
+$typography-v2-p2-regular-comp-line-height: 1.5rem !default;
+$typography-v2-p2-regular-comp-font-weight: 400 !default;
+$typography-v2-p2-regular-text-font-family: MTS Text !default;
+$typography-v2-p2-regular-text-font-size: 1.0625rem !default;
+$typography-v2-p2-regular-text-line-height: 1.5rem !default;
+$typography-v2-p2-regular-text-font-weight: 400 !default;
+$typography-v2-p3-bold-comp-font-family: MTS Compact !default;
+$typography-v2-p3-bold-comp-font-size: 0.875rem !default;
+$typography-v2-p3-bold-comp-line-height: 1.25rem !default;
+$typography-v2-p3-bold-comp-font-weight: 700 !default;
+$typography-v2-p3-medium-comp-font-family: MTS Compact !default;
+$typography-v2-p3-medium-comp-font-size: 0.875rem !default;
+$typography-v2-p3-medium-comp-line-height: 1.25rem !default;
+$typography-v2-p3-medium-comp-font-weight: 500 !default;
+$typography-v2-p3-regular-comp-font-family: MTS Compact !default;
+$typography-v2-p3-regular-comp-font-size: 0.875rem !default;
+$typography-v2-p3-regular-comp-line-height: 1.25rem !default;
+$typography-v2-p3-regular-comp-font-weight: 400 !default;
+$typography-v2-p3-regular-comp-tight-font-family: MTS Compact !default;
+$typography-v2-p3-regular-comp-tight-font-size: 1.0625rem !default;
+$typography-v2-p3-regular-comp-tight-line-height: 1.25rem !default;
+$typography-v2-p3-regular-comp-tight-font-weight: 400 !default;
+$typography-v2-p3-regular-text-font-family: MTS Text !default;
+$typography-v2-p3-regular-text-font-size: 0.875rem !default;
+$typography-v2-p3-regular-text-line-height: 1.25rem !default;
+$typography-v2-p3-regular-text-font-weight: 400 !default;
+$typography-v2-caption-bold-comp-font-family: MTS Compact !default;
+$typography-v2-caption-bold-comp-font-size: 0.75rem !default;
+$typography-v2-caption-bold-comp-line-height: 1rem !default;
+$typography-v2-caption-bold-comp-font-weight: 700 !default;
+$typography-v2-caption-medium-comp-font-family: MTS Compact !default;
+$typography-v2-caption-medium-comp-font-size: 0.75rem !default;
+$typography-v2-caption-medium-comp-line-height: 1rem !default;
+$typography-v2-caption-medium-comp-font-weight: 500 !default;
+$typography-v2-caption-regular-comp-font-family: MTS Compact !default;
+$typography-v2-caption-regular-comp-font-size: 0.75rem !default;
+$typography-v2-caption-regular-comp-line-height: 1rem !default;
+$typography-v2-caption-regular-comp-font-weight: 400 !default;
+$typography-v1-promo-font-size: 2.75rem !default; // Deprecated
+$typography-v1-promo-line-height: 2.75rem !default; // Deprecated
+$typography-v1-promo-font-weight: 1000 !default; // Deprecated
+$typography-v1-promo-spacing-bottom: 1.5rem !default; // Deprecated
+$typography-v1-promo-max-width: 129.75rem !default; // Deprecated
+$typography-v1-h1-black-font-size: 2rem !default; // Deprecated
+$typography-v1-h1-black-line-height: 2.25rem !default; // Deprecated
+$typography-v1-h1-black-font-weight: 900 !default; // Deprecated
+$typography-v1-h1-black-spacing-bottom: 1.5rem !default; // Deprecated
+$typography-v1-h1-black-max-width: 94.375rem !default; // Deprecated
+$typography-v1-h1-bold-font-size: 2rem !default; // Deprecated
+$typography-v1-h1-bold-line-height: 2.25rem !default; // Deprecated
+$typography-v1-h1-bold-font-weight: 700 !default; // Deprecated
+$typography-v1-h1-bold-spacing-bottom: 1.5rem !default; // Deprecated
+$typography-v1-h1-bold-max-width: 94.375rem !default; // Deprecated
+$typography-v1-h2-black-font-size: 1.5rem !default; // Deprecated
+$typography-v1-h2-black-line-height: 1.75rem !default; // Deprecated
+$typography-v1-h2-black-font-weight: 900 !default; // Deprecated
+$typography-v1-h2-black-spacing-bottom: 1.5rem !default; // Deprecated
+$typography-v1-h2-black-max-width: 70.75rem !default; // Deprecated
+$typography-v1-h2-bold-font-size: 1.5rem !default; // Deprecated
+$typography-v1-h2-bold-line-height: 1.75rem !default; // Deprecated
+$typography-v1-h2-bold-font-weight: 700 !default; // Deprecated
+$typography-v1-h2-bold-spacing-bottom: 1.5rem !default; // Deprecated
+$typography-v1-h2-bold-max-width: 70.75rem !default; // Deprecated
+$typography-v1-h2-medium-font-size: 1.5rem !default; // Deprecated
+$typography-v1-h2-medium-line-height: 1.75rem !default; // Deprecated
+$typography-v1-h2-medium-font-weight: 500 !default; // Deprecated
+$typography-v1-h2-medium-spacing-bottom: 1.5rem !default; // Deprecated
+$typography-v1-h2-medium-max-width: 70.75rem !default; // Deprecated
+$typography-v1-h3-bold-font-size: 1.25rem !default; // Deprecated
+$typography-v1-h3-bold-line-height: 1.5rem !default; // Deprecated
+$typography-v1-h3-bold-font-weight: 700 !default; // Deprecated
+$typography-v1-h3-bold-spacing-bottom: 1rem !default; // Deprecated
+$typography-v1-h3-bold-max-width: 59rem !default; // Deprecated
+$typography-v1-h3-medium-font-size: 1.25rem !default; // Deprecated
+$typography-v1-h3-medium-line-height: 1.5rem !default; // Deprecated
+$typography-v1-h3-medium-font-weight: 500 !default; // Deprecated
+$typography-v1-h3-medium-spacing-bottom: 1rem !default; // Deprecated
+$typography-v1-h3-medium-max-width: 59rem !default; // Deprecated
+$typography-v1-h3-regular-font-size: 1.25rem !default; // Deprecated
+$typography-v1-h3-regular-line-height: 1.75rem !default; // Deprecated
+$typography-v1-h3-regular-font-weight: 400 !default; // Deprecated
+$typography-v1-h3-regular-spacing-bottom: 1rem !default; // Deprecated
+$typography-v1-h3-regular-max-width: 59rem !default; // Deprecated
+$typography-v1-p1-bold-font-size: 1.0625rem !default; // Deprecated
+$typography-v1-p1-bold-line-height: 1.5rem !default; // Deprecated
+$typography-v1-p1-bold-font-weight: 700 !default; // Deprecated
+$typography-v1-p1-bold-spacing-bottom: 1rem !default; // Deprecated
+$typography-v1-p1-bold-max-width: 42.5rem !default; // Deprecated
+$typography-v1-p1-medium-font-size: 1.0625rem !default; // Deprecated
+$typography-v1-p1-medium-line-height: 1.5rem !default; // Deprecated
+$typography-v1-p1-medium-font-weight: 500 !default; // Deprecated
+$typography-v1-p1-medium-spacing-bottom: 1rem !default; // Deprecated
+$typography-v1-p1-medium-max-width: 42.5rem !default; // Deprecated
+$typography-v1-p1-regular-font-size: 1.0625rem !default; // Deprecated
+$typography-v1-p1-regular-line-height: 1.5rem !default; // Deprecated
+$typography-v1-p1-regular-font-weight: 400 !default; // Deprecated
+$typography-v1-p1-regular-spacing-bottom: 1rem !default; // Deprecated
+$typography-v1-p1-regular-max-width: 42.5rem !default; // Deprecated
+$typography-v1-p2-bold-font-size: 0.875rem !default; // Deprecated
+$typography-v1-p2-bold-line-height: 1.25rem !default; // Deprecated
+$typography-v1-p2-bold-font-weight: 700 !default; // Deprecated
+$typography-v1-p2-bold-spacing-bottom: 0.75rem !default; // Deprecated
+$typography-v1-p2-bold-max-width: 35rem !default; // Deprecated
+$typography-v1-p2-medium-font-size: 0.875rem !default; // Deprecated
+$typography-v1-p2-medium-line-height: 1.25rem !default; // Deprecated
+$typography-v1-p2-medium-font-weight: 500 !default; // Deprecated
+$typography-v1-p2-medium-spacing-bottom: 0.75rem !default; // Deprecated
+$typography-v1-p2-medium-max-width: 35rem !default; // Deprecated
+$typography-v1-p2-regular-font-size: 0.875rem !default; // Deprecated
+$typography-v1-p2-regular-line-height: 1.25rem !default; // Deprecated
+$typography-v1-p2-regular-font-weight: 400 !default; // Deprecated
+$typography-v1-p2-regular-spacing-bottom: 0.75rem !default; // Deprecated
+$typography-v1-p2-regular-max-width: 35rem !default; // Deprecated
+$typography-v1-p3-bold-font-size: 0.75rem !default; // Deprecated
+$typography-v1-p3-bold-line-height: 1rem !default; // Deprecated
+$typography-v1-p3-bold-font-weight: 700 !default; // Deprecated
+$typography-v1-p3-bold-spacing-bottom: 0.5rem !default; // Deprecated
+$typography-v1-p3-bold-max-width: 30rem !default; // Deprecated
+$typography-v1-p3-medium-font-size: 0.75rem !default; // Deprecated
+$typography-v1-p3-medium-line-height: 1rem !default; // Deprecated
+$typography-v1-p3-medium-font-weight: 500 !default; // Deprecated
+$typography-v1-p3-medium-spacing-bottom: 0.5rem !default; // Deprecated
+$typography-v1-p3-medium-max-width: 30rem !default; // Deprecated
+$typography-v1-p3-regular-font-size: 0.75rem !default; // Deprecated
+$typography-v1-p3-regular-line-height: 1rem !default; // Deprecated
+$typography-v1-p3-regular-font-weight: 400 !default; // Deprecated
+$typography-v1-p3-regular-spacing-bottom: 0.5rem !default; // Deprecated
+$typography-v1-p3-regular-max-width: 30rem !default; // Deprecated
+
+$tokens: (
+  'typography': (
+    'v3': (
+      'promo1-short-wide': (
+        'font-family': $typography-v3-promo1-short-wide-font-family,
+        'font-size': $typography-v3-promo1-short-wide-font-size,
+        'line-height': $typography-v3-promo1-short-wide-line-height,
+        'font-weight': $typography-v3-promo1-short-wide-font-weight,
+        'text-transform': $typography-v3-promo1-short-wide-text-transform
+      ),
+      'promo1-long-wide': (
+        'font-family': $typography-v3-promo1-long-wide-font-family,
+        'font-size': $typography-v3-promo1-long-wide-font-size,
+        'line-height': $typography-v3-promo1-long-wide-line-height,
+        'font-weight': $typography-v3-promo1-long-wide-font-weight
+      ),
+      'promo2-short-wide': (
+        'font-family': $typography-v3-promo2-short-wide-font-family,
+        'font-size': $typography-v3-promo2-short-wide-font-size,
+        'line-height': $typography-v3-promo2-short-wide-line-height,
+        'font-weight': $typography-v3-promo2-short-wide-font-weight,
+        'text-transform': $typography-v3-promo2-short-wide-text-transform
+      ),
+      'promo2-long-wide': (
+        'font-family': $typography-v3-promo2-long-wide-font-family,
+        'font-size': $typography-v3-promo2-long-wide-font-size,
+        'line-height': $typography-v3-promo2-long-wide-line-height,
+        'font-weight': $typography-v3-promo2-long-wide-font-weight
+      ),
+      'promo-56-56-wide': (
+        'font-family': $typography-v3-promo-56-56-wide-font-family,
+        'font-size': $typography-v3-promo-56-56-wide-font-size,
+        'line-height': $typography-v3-promo-56-56-wide-line-height,
+        'font-weight': $typography-v3-promo-56-56-wide-font-weight
+      ),
+      'promo-56-56-upp-wide': (
+        'font-family': $typography-v3-promo-56-56-upp-wide-font-family,
+        'font-size': $typography-v3-promo-56-56-upp-wide-font-size,
+        'line-height': $typography-v3-promo-56-56-upp-wide-line-height,
+        'font-weight': $typography-v3-promo-56-56-upp-wide-font-weight,
+        'text-transform': $typography-v3-promo-56-56-upp-wide-text-transform
+      ),
+      'promo-36-36-wide': (
+        'font-family': $typography-v3-promo-36-36-wide-font-family,
+        'font-size': $typography-v3-promo-36-36-wide-font-size,
+        'line-height': $typography-v3-promo-36-36-wide-line-height,
+        'font-weight': $typography-v3-promo-36-36-wide-font-weight
+      ),
+      'promo-36-36-upp-wide': (
+        'font-family': $typography-v3-promo-36-36-upp-wide-font-family,
+        'font-size': $typography-v3-promo-36-36-upp-wide-font-size,
+        'line-height': $typography-v3-promo-36-36-upp-wide-line-height,
+        'font-weight': $typography-v3-promo-36-36-upp-wide-font-weight,
+        'text-transform': $typography-v3-promo-36-36-upp-wide-text-transform
+      ),
+      'h1-wide': (
+        'font-family': $typography-v3-h1-wide-font-family,
+        'font-size': $typography-v3-h1-wide-font-size,
+        'line-height': $typography-v3-h1-wide-line-height,
+        'font-weight': $typography-v3-h1-wide-font-weight
+      ),
+      'h1-comp': (
+        'font-family': $typography-v3-h1-comp-font-family,
+        'font-size': $typography-v3-h1-comp-font-size,
+        'line-height': $typography-v3-h1-comp-line-height,
+        'font-weight': $typography-v3-h1-comp-font-weight
+      ),
+      'h2-wide': (
+        'font-family': $typography-v3-h2-wide-font-family,
+        'font-size': $typography-v3-h2-wide-font-size,
+        'line-height': $typography-v3-h2-wide-line-height,
+        'font-weight': $typography-v3-h2-wide-font-weight
+      ),
+      'h2-comp': (
+        'font-family': $typography-v3-h2-comp-font-family,
+        'font-size': $typography-v3-h2-comp-font-size,
+        'line-height': $typography-v3-h2-comp-line-height,
+        'font-weight': $typography-v3-h2-comp-font-weight
+      ),
+      'h3-wide': (
+        'font-family': $typography-v3-h3-wide-font-family,
+        'font-size': $typography-v3-h3-wide-font-size,
+        'line-height': $typography-v3-h3-wide-line-height,
+        'font-weight': $typography-v3-h3-wide-font-weight
+      ),
+      'h3-comp': (
+        'font-family': $typography-v3-h3-comp-font-family,
+        'font-size': $typography-v3-h3-comp-font-size,
+        'line-height': $typography-v3-h3-comp-line-height,
+        'font-weight': $typography-v3-h3-comp-font-weight
+      ),
+      'h3-text': (
+        'font-family': $typography-v3-h3-text-font-family,
+        'font-size': $typography-v3-h3-text-font-size,
+        'line-height': $typography-v3-h3-text-line-height,
+        'font-weight': $typography-v3-h3-text-font-weight
+      ),
+      'h4-wide': (
+        'font-family': $typography-v3-h4-wide-font-family,
+        'font-size': $typography-v3-h4-wide-font-size,
+        'line-height': $typography-v3-h4-wide-line-height,
+        'font-weight': $typography-v3-h4-wide-font-weight
+      ),
+      'h4-comp': (
+        'font-family': $typography-v3-h4-comp-font-family,
+        'font-size': $typography-v3-h4-comp-font-size,
+        'line-height': $typography-v3-h4-comp-line-height,
+        'font-weight': $typography-v3-h4-comp-font-weight
+      ),
+      'h4-text': (
+        'font-family': $typography-v3-h4-text-font-family,
+        'font-size': $typography-v3-h4-text-font-size,
+        'line-height': $typography-v3-h4-text-line-height,
+        'font-weight': $typography-v3-h4-text-font-weight
+      ),
+      'p1-regular-comp': (
+        'font-family': $typography-v3-p1-regular-comp-font-family,
+        'font-size': $typography-v3-p1-regular-comp-font-size,
+        'line-height': $typography-v3-p1-regular-comp-line-height,
+        'font-weight': $typography-v3-p1-regular-comp-font-weight
+      ),
+      'p1-regular-text': (
+        'font-family': $typography-v3-p1-regular-text-font-family,
+        'font-size': $typography-v3-p1-regular-text-font-size,
+        'line-height': $typography-v3-p1-regular-text-line-height,
+        'font-weight': $typography-v3-p1-regular-text-font-weight
+      ),
+      'p2-regular-comp': (
+        'font-family': $typography-v3-p2-regular-comp-font-family,
+        'font-size': $typography-v3-p2-regular-comp-font-size,
+        'line-height': $typography-v3-p2-regular-comp-line-height,
+        'font-weight': $typography-v3-p2-regular-comp-font-weight
+      ),
+      'p2-regular-text': (
+        'font-family': $typography-v3-p2-regular-text-font-family,
+        'font-size': $typography-v3-p2-regular-text-font-size,
+        'line-height': $typography-v3-p2-regular-text-line-height,
+        'font-weight': $typography-v3-p2-regular-text-font-weight
+      ),
+      'p3-bold-comp': (
+        'font-family': $typography-v3-p3-bold-comp-font-family,
+        'font-size': $typography-v3-p3-bold-comp-font-size,
+        'line-height': $typography-v3-p3-bold-comp-line-height,
+        'font-weight': $typography-v3-p3-bold-comp-font-weight
+      ),
+      'p3-medium-comp': (
+        'font-family': $typography-v3-p3-medium-comp-font-family,
+        'font-size': $typography-v3-p3-medium-comp-font-size,
+        'line-height': $typography-v3-p3-medium-comp-line-height,
+        'font-weight': $typography-v3-p3-medium-comp-font-weight
+      ),
+      'p3-20-medium-comp': (
+        'font-family': $typography-v3-p3-20-medium-comp-font-family,
+        'font-size': $typography-v3-p3-20-medium-comp-font-size,
+        'line-height': $typography-v3-p3-20-medium-comp-line-height,
+        'font-weight': $typography-v3-p3-20-medium-comp-font-weight
+      ),
+      'p3-regular-comp': (
+        'font-family': $typography-v3-p3-regular-comp-font-family,
+        'font-size': $typography-v3-p3-regular-comp-font-size,
+        'line-height': $typography-v3-p3-regular-comp-line-height,
+        'font-weight': $typography-v3-p3-regular-comp-font-weight
+      ),
+      'p3-medium-text': (
+        'font-family': $typography-v3-p3-medium-text-font-family,
+        'font-size': $typography-v3-p3-medium-text-font-size,
+        'line-height': $typography-v3-p3-medium-text-line-height,
+        'font-weight': $typography-v3-p3-medium-text-font-weight
+      ),
+      'p3-regular-text': (
+        'font-family': $typography-v3-p3-regular-text-font-family,
+        'font-size': $typography-v3-p3-regular-text-font-size,
+        'line-height': $typography-v3-p3-regular-text-line-height,
+        'font-weight': $typography-v3-p3-regular-text-font-weight
+      ),
+      'p4-bold-comp': (
+        'font-family': $typography-v3-p4-bold-comp-font-family,
+        'font-size': $typography-v3-p4-bold-comp-font-size,
+        'line-height': $typography-v3-p4-bold-comp-line-height,
+        'font-weight': $typography-v3-p4-bold-comp-font-weight
+      ),
+      'p4-medium-comp': (
+        'font-family': $typography-v3-p4-medium-comp-font-family,
+        'font-size': $typography-v3-p4-medium-comp-font-size,
+        'line-height': $typography-v3-p4-medium-comp-line-height,
+        'font-weight': $typography-v3-p4-medium-comp-font-weight
+      ),
+      'p4-medium-comp-tight': (
+        'font-family': $typography-v3-p4-medium-comp-tight-font-family,
+        'font-size': $typography-v3-p4-medium-comp-tight-font-size,
+        'line-height': $typography-v3-p4-medium-comp-tight-line-height,
+        'font-weight': $typography-v3-p4-medium-comp-tight-font-weight
+      ),
+      'p4-medium-upp-comp': (
+        'font-family': $typography-v3-p4-medium-upp-comp-font-family,
+        'font-size': $typography-v3-p4-medium-upp-comp-font-size,
+        'line-height': $typography-v3-p4-medium-upp-comp-line-height,
+        'font-weight': $typography-v3-p4-medium-upp-comp-font-weight,
+        'text-transform': $typography-v3-p4-medium-upp-comp-text-transform
+      ),
+      'p4-medium-upp-text': (
+        'font-family': $typography-v3-p4-medium-upp-text-font-family,
+        'font-size': $typography-v3-p4-medium-upp-text-font-size,
+        'line-height': $typography-v3-p4-medium-upp-text-line-height,
+        'font-weight': $typography-v3-p4-medium-upp-text-font-weight,
+        'text-transform': $typography-v3-p4-medium-upp-text-text-transform
+      ),
+      'p4-regular-comp': (
+        'font-family': $typography-v3-p4-regular-comp-font-family,
+        'font-size': $typography-v3-p4-regular-comp-font-size,
+        'line-height': $typography-v3-p4-regular-comp-line-height,
+        'font-weight': $typography-v3-p4-regular-comp-font-weight
+      ),
+      'p4-regular-comp-tight': (
+        'font-family': $typography-v3-p4-regular-comp-tight-font-family,
+        'font-size': $typography-v3-p4-regular-comp-tight-font-size,
+        'line-height': $typography-v3-p4-regular-comp-tight-line-height,
+        'font-weight': $typography-v3-p4-regular-comp-tight-font-weight
+      ),
+      'p4-regular-text': (
+        'font-family': $typography-v3-p4-regular-text-font-family,
+        'font-size': $typography-v3-p4-regular-text-font-size,
+        'line-height': $typography-v3-p4-regular-text-line-height,
+        'font-weight': $typography-v3-p4-regular-text-font-weight
+      ),
+      'p4-bold-upp-wide': (
+        'font-family': $typography-v3-p4-bold-upp-wide-font-family,
+        'font-size': $typography-v3-p4-bold-upp-wide-font-size,
+        'line-height': $typography-v3-p4-bold-upp-wide-line-height,
+        'font-weight': $typography-v3-p4-bold-upp-wide-font-weight,
+        'text-transform': $typography-v3-p4-bold-upp-wide-text-transform,
+        'letter-spacing': $typography-v3-p4-bold-upp-wide-letter-spacing
+      ),
+      'c1-bold-comp': (
+        'font-family': $typography-v3-c1-bold-comp-font-family,
+        'font-size': $typography-v3-c1-bold-comp-font-size,
+        'line-height': $typography-v3-c1-bold-comp-line-height,
+        'font-weight': $typography-v3-c1-bold-comp-font-weight
+      ),
+      'c1-bold-upp-wide': (
+        'font-family': $typography-v3-c1-bold-upp-wide-font-family,
+        'font-size': $typography-v3-c1-bold-upp-wide-font-size,
+        'line-height': $typography-v3-c1-bold-upp-wide-line-height,
+        'font-weight': $typography-v3-c1-bold-upp-wide-font-weight,
+        'text-transform': $typography-v3-c1-bold-upp-wide-text-transform,
+        'letter-spacing': $typography-v3-c1-bold-upp-wide-letter-spacing
+      ),
+      'c1-medium-comp': (
+        'font-family': $typography-v3-c1-medium-comp-font-family,
+        'font-size': $typography-v3-c1-medium-comp-font-size,
+        'line-height': $typography-v3-c1-medium-comp-line-height,
+        'font-weight': $typography-v3-c1-medium-comp-font-weight
+      ),
+      'c1-medium-upp-comp': (
+        'font-family': $typography-v3-c1-medium-upp-comp-font-family,
+        'font-size': $typography-v3-c1-medium-upp-comp-font-size,
+        'line-height': $typography-v3-c1-medium-upp-comp-line-height,
+        'font-weight': $typography-v3-c1-medium-upp-comp-font-weight,
+        'text-transform': $typography-v3-c1-medium-upp-comp-text-transform
+      ),
+      'c1-regular-comp': (
+        'font-family': $typography-v3-c1-regular-comp-font-family,
+        'font-size': $typography-v3-c1-regular-comp-font-size,
+        'line-height': $typography-v3-c1-regular-comp-line-height,
+        'font-weight': $typography-v3-c1-regular-comp-font-weight
+      ),
+      'c2-bold-upp-wide': (
+        'font-family': $typography-v3-c2-bold-upp-wide-font-family,
+        'font-size': $typography-v3-c2-bold-upp-wide-font-size,
+        'line-height': $typography-v3-c2-bold-upp-wide-line-height,
+        'font-weight': $typography-v3-c2-bold-upp-wide-font-weight,
+        'text-transform': $typography-v3-c2-bold-upp-wide-text-transform,
+        'letter-spacing': $typography-v3-c2-bold-upp-wide-letter-spacing
+      )
+    ),
+    'v2': (
+      'promo-wide': (
+        'font-family': $typography-v2-promo-wide-font-family,
+        'font-size': $typography-v2-promo-wide-font-size,
+        'line-height': $typography-v2-promo-wide-line-height,
+        'font-weight': $typography-v2-promo-wide-font-weight
+      ),
+      'h1-wide': (
+        'font-family': $typography-v2-h1-wide-font-family,
+        'font-size': $typography-v2-h1-wide-font-size,
+        'line-height': $typography-v2-h1-wide-line-height,
+        'font-weight': $typography-v2-h1-wide-font-weight
+      ),
+      'h2-wide': (
+        'font-family': $typography-v2-h2-wide-font-family,
+        'font-size': $typography-v2-h2-wide-font-size,
+        'line-height': $typography-v2-h2-wide-line-height,
+        'font-weight': $typography-v2-h2-wide-font-weight
+      ),
+      'h2-comp': (
+        'font-family': $typography-v2-h2-comp-font-family,
+        'font-size': $typography-v2-h2-comp-font-size,
+        'line-height': $typography-v2-h2-comp-line-height,
+        'font-weight': $typography-v2-h2-comp-font-weight
+      ),
+      'h3-wide': (
+        'font-family': $typography-v2-h3-wide-font-family,
+        'font-size': $typography-v2-h3-wide-font-size,
+        'line-height': $typography-v2-h3-wide-line-height,
+        'font-weight': $typography-v2-h3-wide-font-weight
+      ),
+      'h3-comp': (
+        'font-family': $typography-v2-h3-comp-font-family,
+        'font-size': $typography-v2-h3-comp-font-size,
+        'line-height': $typography-v2-h3-comp-line-height,
+        'font-weight': $typography-v2-h3-comp-font-weight
+      ),
+      'p1-regular-comp': (
+        'font-family': $typography-v2-p1-regular-comp-font-family,
+        'font-size': $typography-v2-p1-regular-comp-font-size,
+        'line-height': $typography-v2-p1-regular-comp-line-height,
+        'font-weight': $typography-v2-p1-regular-comp-font-weight
+      ),
+      'p1-regular-text': (
+        'font-family': $typography-v2-p1-regular-text-font-family,
+        'font-size': $typography-v2-p1-regular-text-font-size,
+        'line-height': $typography-v2-p1-regular-text-line-height,
+        'font-weight': $typography-v2-p1-regular-text-font-weight
+      ),
+      'p2-bold-comp': (
+        'font-family': $typography-v2-p2-bold-comp-font-family,
+        'font-size': $typography-v2-p2-bold-comp-font-size,
+        'line-height': $typography-v2-p2-bold-comp-line-height,
+        'font-weight': $typography-v2-p2-bold-comp-font-weight
+      ),
+      'p2-medium-comp': (
+        'font-family': $typography-v2-p2-medium-comp-font-family,
+        'font-size': $typography-v2-p2-medium-comp-font-size,
+        'line-height': $typography-v2-p2-medium-comp-line-height,
+        'font-weight': $typography-v2-p2-medium-comp-font-weight
+      ),
+      'p2-regular-comp': (
+        'font-family': $typography-v2-p2-regular-comp-font-family,
+        'font-size': $typography-v2-p2-regular-comp-font-size,
+        'line-height': $typography-v2-p2-regular-comp-line-height,
+        'font-weight': $typography-v2-p2-regular-comp-font-weight
+      ),
+      'p2-regular-text': (
+        'font-family': $typography-v2-p2-regular-text-font-family,
+        'font-size': $typography-v2-p2-regular-text-font-size,
+        'line-height': $typography-v2-p2-regular-text-line-height,
+        'font-weight': $typography-v2-p2-regular-text-font-weight
+      ),
+      'p3-bold-comp': (
+        'font-family': $typography-v2-p3-bold-comp-font-family,
+        'font-size': $typography-v2-p3-bold-comp-font-size,
+        'line-height': $typography-v2-p3-bold-comp-line-height,
+        'font-weight': $typography-v2-p3-bold-comp-font-weight
+      ),
+      'p3-medium-comp': (
+        'font-family': $typography-v2-p3-medium-comp-font-family,
+        'font-size': $typography-v2-p3-medium-comp-font-size,
+        'line-height': $typography-v2-p3-medium-comp-line-height,
+        'font-weight': $typography-v2-p3-medium-comp-font-weight
+      ),
+      'p3-regular-comp': (
+        'font-family': $typography-v2-p3-regular-comp-font-family,
+        'font-size': $typography-v2-p3-regular-comp-font-size,
+        'line-height': $typography-v2-p3-regular-comp-line-height,
+        'font-weight': $typography-v2-p3-regular-comp-font-weight
+      ),
+      'p3-regular-comp-tight': (
+        'font-family': $typography-v2-p3-regular-comp-tight-font-family,
+        'font-size': $typography-v2-p3-regular-comp-tight-font-size,
+        'line-height': $typography-v2-p3-regular-comp-tight-line-height,
+        'font-weight': $typography-v2-p3-regular-comp-tight-font-weight
+      ),
+      'p3-regular-text': (
+        'font-family': $typography-v2-p3-regular-text-font-family,
+        'font-size': $typography-v2-p3-regular-text-font-size,
+        'line-height': $typography-v2-p3-regular-text-line-height,
+        'font-weight': $typography-v2-p3-regular-text-font-weight
+      ),
+      'caption-bold-comp': (
+        'font-family': $typography-v2-caption-bold-comp-font-family,
+        'font-size': $typography-v2-caption-bold-comp-font-size,
+        'line-height': $typography-v2-caption-bold-comp-line-height,
+        'font-weight': $typography-v2-caption-bold-comp-font-weight
+      ),
+      'caption-medium-comp': (
+        'font-family': $typography-v2-caption-medium-comp-font-family,
+        'font-size': $typography-v2-caption-medium-comp-font-size,
+        'line-height': $typography-v2-caption-medium-comp-line-height,
+        'font-weight': $typography-v2-caption-medium-comp-font-weight
+      ),
+      'caption-regular-comp': (
+        'font-family': $typography-v2-caption-regular-comp-font-family,
+        'font-size': $typography-v2-caption-regular-comp-font-size,
+        'line-height': $typography-v2-caption-regular-comp-line-height,
+        'font-weight': $typography-v2-caption-regular-comp-font-weight
+      )
+    ),
+    'v1': (
+      'promo': (
+        'font-size': $typography-v1-promo-font-size,
+        'line-height': $typography-v1-promo-line-height,
+        'font-weight': $typography-v1-promo-font-weight,
+        'spacing-bottom': $typography-v1-promo-spacing-bottom,
+        'max-width': $typography-v1-promo-max-width
+      ),
+      'h': (
+        '1': (
+          'black': (
+            'font-size': $typography-v1-h1-black-font-size,
+            'line-height': $typography-v1-h1-black-line-height,
+            'font-weight': $typography-v1-h1-black-font-weight,
+            'spacing-bottom': $typography-v1-h1-black-spacing-bottom,
+            'max-width': $typography-v1-h1-black-max-width
+          ),
+          'bold': (
+            'font-size': $typography-v1-h1-bold-font-size,
+            'line-height': $typography-v1-h1-bold-line-height,
+            'font-weight': $typography-v1-h1-bold-font-weight,
+            'spacing-bottom': $typography-v1-h1-bold-spacing-bottom,
+            'max-width': $typography-v1-h1-bold-max-width
+          )
+        ),
+        '2': (
+          'black': (
+            'font-size': $typography-v1-h2-black-font-size,
+            'line-height': $typography-v1-h2-black-line-height,
+            'font-weight': $typography-v1-h2-black-font-weight,
+            'spacing-bottom': $typography-v1-h2-black-spacing-bottom,
+            'max-width': $typography-v1-h2-black-max-width
+          ),
+          'bold': (
+            'font-size': $typography-v1-h2-bold-font-size,
+            'line-height': $typography-v1-h2-bold-line-height,
+            'font-weight': $typography-v1-h2-bold-font-weight,
+            'spacing-bottom': $typography-v1-h2-bold-spacing-bottom,
+            'max-width': $typography-v1-h2-bold-max-width
+          ),
+          'medium': (
+            'font-size': $typography-v1-h2-medium-font-size,
+            'line-height': $typography-v1-h2-medium-line-height,
+            'font-weight': $typography-v1-h2-medium-font-weight,
+            'spacing-bottom': $typography-v1-h2-medium-spacing-bottom,
+            'max-width': $typography-v1-h2-medium-max-width
+          )
+        ),
+        '3': (
+          'bold': (
+            'font-size': $typography-v1-h3-bold-font-size,
+            'line-height': $typography-v1-h3-bold-line-height,
+            'font-weight': $typography-v1-h3-bold-font-weight,
+            'spacing-bottom': $typography-v1-h3-bold-spacing-bottom,
+            'max-width': $typography-v1-h3-bold-max-width
+          ),
+          'medium': (
+            'font-size': $typography-v1-h3-medium-font-size,
+            'line-height': $typography-v1-h3-medium-line-height,
+            'font-weight': $typography-v1-h3-medium-font-weight,
+            'spacing-bottom': $typography-v1-h3-medium-spacing-bottom,
+            'max-width': $typography-v1-h3-medium-max-width
+          ),
+          'regular': (
+            'font-size': $typography-v1-h3-regular-font-size,
+            'line-height': $typography-v1-h3-regular-line-height,
+            'font-weight': $typography-v1-h3-regular-font-weight,
+            'spacing-bottom': $typography-v1-h3-regular-spacing-bottom,
+            'max-width': $typography-v1-h3-regular-max-width
+          )
+        )
+      ),
+      'p': (
+        '1': (
+          'bold': (
+            'font-size': $typography-v1-p1-bold-font-size,
+            'line-height': $typography-v1-p1-bold-line-height,
+            'font-weight': $typography-v1-p1-bold-font-weight,
+            'spacing-bottom': $typography-v1-p1-bold-spacing-bottom,
+            'max-width': $typography-v1-p1-bold-max-width
+          ),
+          'medium': (
+            'font-size': $typography-v1-p1-medium-font-size,
+            'line-height': $typography-v1-p1-medium-line-height,
+            'font-weight': $typography-v1-p1-medium-font-weight,
+            'spacing-bottom': $typography-v1-p1-medium-spacing-bottom,
+            'max-width': $typography-v1-p1-medium-max-width
+          ),
+          'regular': (
+            'font-size': $typography-v1-p1-regular-font-size,
+            'line-height': $typography-v1-p1-regular-line-height,
+            'font-weight': $typography-v1-p1-regular-font-weight,
+            'spacing-bottom': $typography-v1-p1-regular-spacing-bottom,
+            'max-width': $typography-v1-p1-regular-max-width
+          )
+        ),
+        '2': (
+          'bold': (
+            'font-size': $typography-v1-p2-bold-font-size,
+            'line-height': $typography-v1-p2-bold-line-height,
+            'font-weight': $typography-v1-p2-bold-font-weight,
+            'spacing-bottom': $typography-v1-p2-bold-spacing-bottom,
+            'max-width': $typography-v1-p2-bold-max-width
+          ),
+          'medium': (
+            'font-size': $typography-v1-p2-medium-font-size,
+            'line-height': $typography-v1-p2-medium-line-height,
+            'font-weight': $typography-v1-p2-medium-font-weight,
+            'spacing-bottom': $typography-v1-p2-medium-spacing-bottom,
+            'max-width': $typography-v1-p2-medium-max-width
+          ),
+          'regular': (
+            'font-size': $typography-v1-p2-regular-font-size,
+            'line-height': $typography-v1-p2-regular-line-height,
+            'font-weight': $typography-v1-p2-regular-font-weight,
+            'spacing-bottom': $typography-v1-p2-regular-spacing-bottom,
+            'max-width': $typography-v1-p2-regular-max-width
+          )
+        ),
+        '3': (
+          'bold': (
+            'font-size': $typography-v1-p3-bold-font-size,
+            'line-height': $typography-v1-p3-bold-line-height,
+            'font-weight': $typography-v1-p3-bold-font-weight,
+            'spacing-bottom': $typography-v1-p3-bold-spacing-bottom,
+            'max-width': $typography-v1-p3-bold-max-width
+          ),
+          'medium': (
+            'font-size': $typography-v1-p3-medium-font-size,
+            'line-height': $typography-v1-p3-medium-line-height,
+            'font-weight': $typography-v1-p3-medium-font-weight,
+            'spacing-bottom': $typography-v1-p3-medium-spacing-bottom,
+            'max-width': $typography-v1-p3-medium-max-width
+          ),
+          'regular': (
+            'font-size': $typography-v1-p3-regular-font-size,
+            'line-height': $typography-v1-p3-regular-line-height,
+            'font-weight': $typography-v1-p3-regular-font-weight,
+            'spacing-bottom': $typography-v1-p3-regular-spacing-bottom,
+            'max-width': $typography-v1-p3-regular-max-width
+          )
+        )
+      )
+    )
+  )
+);

@@ -1,0 +1,297 @@
+
+/*
+  Do not edit directly
+  Generated on Fri, 06 Feb 2026 11:09:10 GMT
+*/
+
+$color-constant-greyscale-0: #ffffff !default;
+$color-constant-greyscale-100: #f2f3f7 !default;
+$color-constant-greyscale-200: #e2e5eb !default;
+$color-constant-greyscale-300: #bbc1c7 !default;
+$color-constant-greyscale-400: #969fa8 !default;
+$color-constant-greyscale-500: #626c77 !default;
+$color-constant-greyscale-600: #434a51 !default;
+$color-constant-greyscale-700: #2c3135 !default;
+$color-constant-greyscale-800: #1d2023 !default;
+$color-constant-greyscale-900: #000000 !default;
+$color-constant-blackberry-lightest: #e7eafa !default;
+$color-constant-blackberry-light: #6384e0 !default;
+$color-constant-blackberry-normal: #014fce !default;
+$color-constant-blackberry-dark: #003db7 !default;
+$color-constant-blackberry-darkest: #002094 !default;
+$color-constant-blueberry-lightest: #e1f3fe !default;
+$color-constant-blueberry-light: #45b6fc !default;
+$color-constant-blueberry-normal: #0097fd !default;
+$color-constant-blueberry-dark: #007cff !default;
+$color-constant-blueberry-darkest: #0048aa !default;
+$color-constant-mint-lightest: #dff9f5 !default;
+$color-constant-mint-light: #00d9bc !default;
+$color-constant-mint-normal: #00c19b !default;
+$color-constant-mint-dark: #03a17b !default;
+$color-constant-mint-darkest: #00724d !default;
+$color-constant-apple-lightest: #e8faeb !default;
+$color-constant-apple-light: #74df8b !default;
+$color-constant-apple-normal: #26cd58 !default;
+$color-constant-apple-dark: #04aa42 !default;
+$color-constant-apple-darkest: #027722 !default;
+$color-constant-lime-lightest: #f8fee7 !default;
+$color-constant-lime-light: #d3f36b !default;
+$color-constant-lime-normal: #c1eb1d !default;
+$color-constant-lime-dark: #a6c100 !default;
+$color-constant-lime-darkest: #808201 !default;
+$color-constant-banana-lightest: #fffde8 !default;
+$color-constant-banana-light: #fdf177 !default;
+$color-constant-banana-normal: #fbe739 !default;
+$color-constant-banana-dark: #fac031 !default;
+$color-constant-banana-darkest: #f37f19 !default;
+$color-constant-orange-lightest: #fbe9e7 !default;
+$color-constant-orange-light: #ffa080 !default;
+$color-constant-orange-normal: #f95721 !default;
+$color-constant-orange-dark: #e04a17 !default;
+$color-constant-orange-darkest: #ba360a !default;
+$color-constant-raspberry-lightest: #ffe4e9 !default;
+$color-constant-raspberry-light: #f55f7e !default;
+$color-constant-raspberry-normal: #ea1f49 !default;
+$color-constant-raspberry-dark: #c51345 !default;
+$color-constant-raspberry-darkest: #8e003f !default;
+$color-constant-cranberry-lightest: #f9e7f0 !default;
+$color-constant-cranberry-light: #e677ad !default;
+$color-constant-cranberry-normal: #e54887 !default;
+$color-constant-cranberry-dark: #bb4079 !default;
+$color-constant-cranberry-darkest: #7f3363 !default;
+$color-constant-plum-lightest: #f0e7f0 !default;
+$color-constant-plum-light: #a86ea7 !default;
+$color-constant-plum-normal: #883888 !default;
+$color-constant-plum-dark: #6d2d79 !default;
+$color-constant-plum-darkest: #471c61 !default;
+$font-weight-ultra: 1000 !default; // Deprecated
+$font-weight-black: 900 !default; // Deprecated
+$font-weight-bold: 700 !default;
+$font-weight-medium: 500 !default;
+$font-weight-regular: 400 !default;
+$font-family-base: MTS Sans !default; // Deprecated
+$font-family-wide: MTS Wide !default;
+$font-family-compact: MTS Compact !default;
+$font-family-text: MTS Text !default;
+$grid-m-breakpoint: 0rem !default;
+$grid-m-columns: 12 !default;
+$grid-m-gutter: 0.75rem !default;
+$grid-m-margin: 1.25rem !default;
+$grid-t-breakpoint: 48rem !default;
+$grid-t-columns: 12 !default;
+$grid-t-gutter: 2rem !default;
+$grid-t-margin: 2.5rem !default;
+$grid-dxs-breakpoint: 60rem !default;
+$grid-dxs-columns: 12 !default;
+$grid-dxs-gutter: 2rem !default;
+$grid-dxs-margin: 2.5rem !default;
+$grid-ds-breakpoint: 80rem !default;
+$grid-ds-max-width: 73rem !default;
+$grid-ds-columns: 12 !default;
+$grid-ds-gutter: 2rem !default;
+$grid-ds-margin: 2rem !default;
+$grid-dm-breakpoint: 90rem !default;
+$grid-dm-max-width: 79rem !default;
+$grid-dm-columns: 12 !default;
+$grid-dm-gutter: 2rem !default;
+$grid-dm-margin: 2.5rem !default;
+$grid-dl-breakpoint: 105rem !default;
+$grid-dl-max-width: 85rem !default;
+$grid-dl-columns: 12 !default;
+$grid-dl-gutter: 2rem !default;
+$grid-dl-margin: 2.5rem !default;
+$grid-dxl-breakpoint: 120rem !default;
+$grid-dxl-max-width: 97rem !default;
+$grid-dxl-columns: 12 !default;
+$grid-dxl-gutter: 2rem !default;
+$grid-dxl-margin: 2.5rem !default;
+$shadow-lowest: 0 0 6px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.08) !default; // Используется для нажатых карточек на мобильных устройствах
+$shadow-low: 0 0 16px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.08) !default; // Используется для карточек, шапок по дефолту.
+$shadow-middle: 0 4px 24px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.08) !default; // Используется для состояния ховер, шапок при скролле.
+$shadow-upper-middle: 0 -2px 24px rgba(0, 0, 0, 0.08), 0 -8px 24px rgba(0, 0, 0, 0.1) !default; // Используется для шторок на мобильных устройствах.
+$shadow-high: 0 4px 24px rgba(0, 0, 0, 0.12), 0 12px 20px rgba(0, 0, 0, 0.14) !default; // Используется для дропдаунов, модальных окон и шторок.
+$size-spacing-2: 0.125rem !default;
+$size-spacing-4: 0.25rem !default;
+$size-spacing-8: 0.5rem !default;
+$size-spacing-12: 0.75rem !default;
+$size-spacing-16: 1rem !default;
+$size-spacing-24: 1.5rem !default;
+$size-spacing-32: 2rem !default;
+$size-spacing-40: 2.5rem !default;
+$size-spacing-48: 3rem !default;
+$size-spacing-64: 4rem !default;
+$size-spacing-80: 5rem !default;
+
+$tokens: (
+  'color': (
+    'constant': (
+      'greyscale': (
+        '0': $color-constant-greyscale-0,
+        '100': $color-constant-greyscale-100,
+        '200': $color-constant-greyscale-200,
+        '300': $color-constant-greyscale-300,
+        '400': $color-constant-greyscale-400,
+        '500': $color-constant-greyscale-500,
+        '600': $color-constant-greyscale-600,
+        '700': $color-constant-greyscale-700,
+        '800': $color-constant-greyscale-800,
+        '900': $color-constant-greyscale-900
+      ),
+      'blackberry': (
+        'lightest': $color-constant-blackberry-lightest,
+        'light': $color-constant-blackberry-light,
+        'normal': $color-constant-blackberry-normal,
+        'dark': $color-constant-blackberry-dark,
+        'darkest': $color-constant-blackberry-darkest
+      ),
+      'blueberry': (
+        'lightest': $color-constant-blueberry-lightest,
+        'light': $color-constant-blueberry-light,
+        'normal': $color-constant-blueberry-normal,
+        'dark': $color-constant-blueberry-dark,
+        'darkest': $color-constant-blueberry-darkest
+      ),
+      'mint': (
+        'lightest': $color-constant-mint-lightest,
+        'light': $color-constant-mint-light,
+        'normal': $color-constant-mint-normal,
+        'dark': $color-constant-mint-dark,
+        'darkest': $color-constant-mint-darkest
+      ),
+      'apple': (
+        'lightest': $color-constant-apple-lightest,
+        'light': $color-constant-apple-light,
+        'normal': $color-constant-apple-normal,
+        'dark': $color-constant-apple-dark,
+        'darkest': $color-constant-apple-darkest
+      ),
+      'lime': (
+        'lightest': $color-constant-lime-lightest,
+        'light': $color-constant-lime-light,
+        'normal': $color-constant-lime-normal,
+        'dark': $color-constant-lime-dark,
+        'darkest': $color-constant-lime-darkest
+      ),
+      'banana': (
+        'lightest': $color-constant-banana-lightest,
+        'light': $color-constant-banana-light,
+        'normal': $color-constant-banana-normal,
+        'dark': $color-constant-banana-dark,
+        'darkest': $color-constant-banana-darkest
+      ),
+      'orange': (
+        'lightest': $color-constant-orange-lightest,
+        'light': $color-constant-orange-light,
+        'normal': $color-constant-orange-normal,
+        'dark': $color-constant-orange-dark,
+        'darkest': $color-constant-orange-darkest
+      ),
+      'raspberry': (
+        'lightest': $color-constant-raspberry-lightest,
+        'light': $color-constant-raspberry-light,
+        'normal': $color-constant-raspberry-normal,
+        'dark': $color-constant-raspberry-dark,
+        'darkest': $color-constant-raspberry-darkest
+      ),
+      'cranberry': (
+        'lightest': $color-constant-cranberry-lightest,
+        'light': $color-constant-cranberry-light,
+        'normal': $color-constant-cranberry-normal,
+        'dark': $color-constant-cranberry-dark,
+        'darkest': $color-constant-cranberry-darkest
+      ),
+      'plum': (
+        'lightest': $color-constant-plum-lightest,
+        'light': $color-constant-plum-light,
+        'normal': $color-constant-plum-normal,
+        'dark': $color-constant-plum-dark,
+        'darkest': $color-constant-plum-darkest
+      )
+    )
+  ),
+  'font': (
+    'weight': (
+      'ultra': $font-weight-ultra,
+      'black': $font-weight-black,
+      'bold': $font-weight-bold,
+      'medium': $font-weight-medium,
+      'regular': $font-weight-regular
+    ),
+    'family': (
+      'base': $font-family-base,
+      'wide': $font-family-wide,
+      'compact': $font-family-compact,
+      'text': $font-family-text
+    )
+  ),
+  'grid': (
+    'm': (
+      'breakpoint': $grid-m-breakpoint,
+      'columns': $grid-m-columns,
+      'gutter': $grid-m-gutter,
+      'margin': $grid-m-margin
+    ),
+    't': (
+      'breakpoint': $grid-t-breakpoint,
+      'columns': $grid-t-columns,
+      'gutter': $grid-t-gutter,
+      'margin': $grid-t-margin
+    ),
+    'dxs': (
+      'breakpoint': $grid-dxs-breakpoint,
+      'columns': $grid-dxs-columns,
+      'gutter': $grid-dxs-gutter,
+      'margin': $grid-dxs-margin
+    ),
+    'ds': (
+      'breakpoint': $grid-ds-breakpoint,
+      'max-width': $grid-ds-max-width,
+      'columns': $grid-ds-columns,
+      'gutter': $grid-ds-gutter,
+      'margin': $grid-ds-margin
+    ),
+    'dm': (
+      'breakpoint': $grid-dm-breakpoint,
+      'max-width': $grid-dm-max-width,
+      'columns': $grid-dm-columns,
+      'gutter': $grid-dm-gutter,
+      'margin': $grid-dm-margin
+    ),
+    'dl': (
+      'breakpoint': $grid-dl-breakpoint,
+      'max-width': $grid-dl-max-width,
+      'columns': $grid-dl-columns,
+      'gutter': $grid-dl-gutter,
+      'margin': $grid-dl-margin
+    ),
+    'dxl': (
+      'breakpoint': $grid-dxl-breakpoint,
+      'max-width': $grid-dxl-max-width,
+      'columns': $grid-dxl-columns,
+      'gutter': $grid-dxl-gutter,
+      'margin': $grid-dxl-margin
+    )
+  ),
+  'shadow': (
+    'lowest': $shadow-lowest,
+    'low': $shadow-low,
+    'middle': $shadow-middle,
+    'upper-middle': $shadow-upper-middle,
+    'high': $shadow-high
+  ),
+  'size': (
+    'spacing': (
+      '2': $size-spacing-2,
+      '4': $size-spacing-4,
+      '8': $size-spacing-8,
+      '12': $size-spacing-12,
+      '16': $size-spacing-16,
+      '24': $size-spacing-24,
+      '32': $size-spacing-32,
+      '40': $size-spacing-40,
+      '48': $size-spacing-48,
+      '64': $size-spacing-64,
+      '80': $size-spacing-80
+    )
+  )
+);

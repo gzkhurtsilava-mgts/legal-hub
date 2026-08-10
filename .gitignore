@@ -19,6 +19,9 @@ node_modules/
 .next/
 out/
 build/
+# vendor/@mts-ds — это НЕ артефакты сборки, а содержимое корп-пакетов
+# (в их package.json поле "files" указывает на build/**). Без них клон неполный.
+!frontend/vendor/**/build/
 frontend/.mts-ds-backup/
 *.tsbuildinfo
 

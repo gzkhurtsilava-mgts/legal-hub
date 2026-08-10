@@ -1,0 +1,18 @@
+body{
+  margin:0;
+}
+body.mts-backdrop-no-scroll{
+  overflow:hidden;
+}
+
+a{
+  color:var(--color-text-primary-link);
+  text-decoration:none;
+}
+a:hover{
+  -webkit-text-decoration:underline solid var(--color-text-primary-link);
+          text-decoration:underline solid var(--color-text-primary-link);
+}
+a:focus{
+  outline:var(--color-text-primary-link) auto;
+}

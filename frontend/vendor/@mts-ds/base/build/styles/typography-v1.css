@@ -1,0 +1,139 @@
+@charset "UTF-8";
+/*
+  Классы для типографики v1
+
+  Deprecated
+*/
+.mts-promo {
+  font-family: MTS Sans, sans-serif;
+  font-size: var(--typography-v1-promo-font-size, var(--typography-promo-font-size));
+  line-height: var(--typography-v1-promo-line-height, var(--typography-promo-line-height));
+  font-weight: var(--typography-v1-promo-font-weight, var(--typography-promo-font-weight));
+}
+
+.mts-h1-black {
+  font-family: MTS Sans, sans-serif;
+  font-size: var(--typography-v1-h1-black-font-size, var(--typography-h1-black-font-size));
+  line-height: var(--typography-v1-h1-black-line-height, var(--typography-h1-black-line-height));
+  font-weight: var(--typography-v1-h1-black-font-weight, var(--typography-h1-black-font-weight));
+}
+
+.mts-h1-bold {
+  font-family: MTS Sans, sans-serif;
+  font-size: var(--typography-v1-h1-bold-font-size, var(--typography-h1-bold-font-size));
+  line-height: var(--typography-v1-h1-bold-line-height, var(--typography-h1-bold-line-height));
+  font-weight: var(--typography-v1-h1-bold-font-weight, var(--typography-h1-bold-font-weight));
+}
+
+.mts-h2-black {
+  font-family: MTS Sans, sans-serif;
+  font-size: var(--typography-v1-h2-black-font-size, var(--typography-h2-black-font-size));
+  line-height: var(--typography-v1-h2-black-line-height, var(--typography-h2-black-line-height));
+  font-weight: var(--typography-v1-h2-black-font-weight, var(--typography-h2-black-font-weight));
+}
+
+.mts-h2-bold {
+  font-family: MTS Sans, sans-serif;
+  font-size: var(--typography-v1-h2-bold-font-size, var(--typography-h2-bold-font-size));
+  line-height: var(--typography-v1-h2-bold-line-height, var(--typography-h2-bold-line-height));
+  font-weight: var(--typography-v1-h2-bold-font-weight, var(--typography-h2-bold-font-weight));
+}
+
+.mts-h2-medium {
+  font-family: MTS Sans, sans-serif;
+  font-size: var(--typography-v1-h2-medium-font-size, var(--typography-h2-medium-font-size));
+  line-height: var(--typography-v1-h2-medium-line-height, var(--typography-h2-medium-line-height));
+  font-weight: var(--typography-v1-h2-medium-font-weight, var(--typography-h2-medium-font-weight));
+}
+
+.mts-h3-bold {
+  font-family: MTS Sans, sans-serif;
+  font-size: var(--typography-v1-h3-bold-font-size, var(--typography-h3-bold-font-size));
+  line-height: var(--typography-v1-h3-bold-line-height, var(--typography-h3-bold-line-height));
+  font-weight: var(--typography-v1-h3-bold-font-weight, var(--typography-h3-bold-font-weight));
+}
+
+.mts-h3-medium {
+  font-family: MTS Sans, sans-serif;
+  font-size: var(--typography-v1-h3-medium-font-size, var(--typography-h3-medium-font-size));
+  line-height: var(--typography-v1-h3-medium-line-height, var(--typography-h3-medium-line-height));
+  font-weight: var(--typography-v1-h3-medium-font-weight, var(--typography-h3-medium-font-weight));
+}
+
+.mts-h3-regular {
+  font-family: MTS Sans, sans-serif;
+  font-size: var(--typography-v1-h3-regular-font-size, var(--typography-h3-regular-font-size));
+  line-height: var(--typography-v1-h3-regular-line-height, var(--typography-h3-regular-line-height));
+  font-weight: var(--typography-v1-h3-regular-font-weight, var(--typography-h3-regular-font-weight));
+}
+
+.mts-p1-bold {
+  font-family: MTS Sans, sans-serif;
+  font-size: var(--typography-v1-p1-bold-font-size, var(--typography-p1-bold-font-size));
+  line-height: var(--typography-v1-p1-bold-line-height, var(--typography-p1-bold-line-height));
+  font-weight: var(--typography-v1-p1-bold-font-weight, var(--typography-p1-bold-font-weight));
+}
+
+.mts-p1-medium {
+  font-family: MTS Sans, sans-serif;
+  font-size: var(--typography-v1-p1-medium-font-size, var(--typography-p1-medium-font-size));
+  line-height: var(--typography-v1-p1-medium-line-height, var(--typography-p1-medium-line-height));
+  font-weight: var(--typography-v1-p1-medium-font-weight, var(--typography-p1-medium-font-weight));
+}
+
+.mts-p1-regular {
+  font-family: MTS Sans, sans-serif;
+  font-size: var(--typography-v1-p1-regular-font-size, var(--typography-p1-regular-font-size));
+  line-height: var(--typography-v1-p1-regular-line-height, var(--typography-p1-regular-line-height));
+  font-weight: var(--typography-v1-p1-regular-font-weight, var(--typography-p1-regular-font-weight));
+}
+
+.mts-p2-bold {
+  font-family: MTS Sans, sans-serif;
+  font-size: var(--typography-v1-p2-bold-font-size, var(--typography-p2-bold-font-size));
+  line-height: var(--typography-v1-p2-bold-line-height, var(--typography-p2-bold-line-height));
+  font-weight: var(--typography-v1-p2-bold-font-weight, var(--typography-p2-bold-font-weight));
+}
+
+.mts-p2-medium, .mts-p2-medium-uc {
+  font-family: MTS Sans, sans-serif;
+  font-size: var(--typography-v1-p2-medium-font-size, var(--typography-p2-medium-font-size));
+  line-height: var(--typography-v1-p2-medium-line-height, var(--typography-p2-medium-line-height));
+  font-weight: var(--typography-v1-p2-medium-font-weight, var(--typography-p2-medium-font-weight));
+}
+
+.mts-p2-regular {
+  font-family: MTS Sans, sans-serif;
+  font-size: var(--typography-v1-p2-regular-font-size, var(--typography-p2-regular-font-size));
+  line-height: var(--typography-v1-p2-regular-line-height, var(--typography-p2-regular-line-height));
+  font-weight: var(--typography-v1-p2-regular-font-weight, var(--typography-p2-regular-font-weight));
+}
+
+.mts-p3-bold {
+  font-family: MTS Sans, sans-serif;
+  font-size: var(--typography-v1-p3-bold-font-size, var(--typography-p3-bold-font-size));
+  line-height: var(--typography-v1-p3-bold-line-height, var(--typography-p3-bold-line-height));
+  font-weight: var(--typography-v1-p3-bold-font-weight, var(--typography-p3-bold-font-weight));
+}
+
+.mts-p3-medium, .mts-p3-medium-uc {
+  font-family: MTS Sans, sans-serif;
+  font-size: var(--typography-v1-p3-medium-font-size, var(--typography-p3-medium-font-size));
+  line-height: var(--typography-v1-p3-medium-line-height, var(--typography-p3-medium-line-height));
+  font-weight: var(--typography-v1-p3-medium-font-weight, var(--typography-p3-medium-font-weight));
+}
+
+.mts-p3-regular {
+  font-family: MTS Sans, sans-serif;
+  font-size: var(--typography-v1-p3-regular-font-size, var(--typography-p3-regular-font-size));
+  line-height: var(--typography-v1-p3-regular-line-height, var(--typography-p3-regular-line-height));
+  font-weight: var(--typography-v1-p3-regular-font-weight, var(--typography-p3-regular-font-weight));
+}
+
+.mts-p2-medium-uc {
+  text-transform: uppercase;
+}
+
+.mts-p3-medium-uc {
+  text-transform: uppercase;
+}

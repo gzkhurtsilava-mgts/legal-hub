@@ -1,0 +1,62 @@
+/**
+ * Do not edit directly
+ * Generated on Fri, 06 Feb 2026 11:09:10 GMT
+ */
+
+@mixin vars {
+  --color-brand: #ff0032;
+  --color-accent-active: #007cff;
+  --color-accent-positive: #26cd58;
+  --color-accent-warning: #fac031;
+  --color-accent-negative: #f95721;
+  --color-accent-active-inverted: #45b6fc;
+  --color-accent-positive-inverted: #74df8b;
+  --color-accent-warning-inverted: #fad67d;
+  --color-accent-negative-inverted: #fa8a64;
+  --color-text-headline: #000000;
+  --color-text-primary: #1d2023;
+  --color-text-secondary: #626c77;
+  --color-text-tertiary: #969fa8;
+  --color-text-inverted: #fafafa;
+  --color-text-positive: #12b23f;
+  --color-text-negative: #db400c;
+  --color-text-primary-link: #0070e5;
+  --color-text-primary-link-hover: #007cff;
+  --color-text-primary-link-visited: #3396ff;
+  --color-text-primary-link-inverted: #45b6fc;
+  --color-text-secondary-link: #626c77;
+  --color-text-secondary-link-hover: #bbc1c7;
+  --color-text-secondary-link-visited: #abb2b9;
+  --color-text-visited-link: #883888;
+  --color-text-inactive-tab-bar: #6e7782;
+  --color-background-primary: #ffffff;
+  --color-background-stroke: rgba(188, 195, 208, 0.5);
+  --color-background-primary-elevated: #ffffff;
+  --color-background-secondary: #f2f3f7;
+  --color-background-secondary-elevated: #ffffff;
+  --color-background-modal: #ffffff;
+  --color-background-inverted: #1d2023;
+  --color-background-overlay: rgba(29, 32, 35, 0.4);
+  --color-background-hover: rgba(188, 195, 208, 0.25);
+  --color-background-hover-inverted: rgba(242, 243, 247, 0.2);
+  --color-background-navbar-ios: rgba(255, 255, 255, 0.92);
+  --color-background-disabled: #f8f8fb;
+  --color-background-stroke-disabled: rgba(188, 195, 208, 0.25);
+  --color-background-lower: #f2f3f7;
+  --color-background-bar: rgba(255, 255, 255, 0.88);
+  --color-control-primary-active: #ff0032;
+  --color-control-secondary-active: #1d2023;
+  --color-control-tertiary-active: #f2f3f7;
+  --color-control-inactive: rgba(188, 195, 208, 0.5);
+  --color-control-alternative: #ffffff;
+  --color-control-alternative-stroke-hover: #ced4dc;
+  --color-control-active-tab-bar: #ff0032;
+  --color-control-inactive-tab-bar: #8d969f;
+  --color-control-stroke: #8d969f;
+  --color-icon-primary: #1d2023;
+  --color-icon-secondary: #8d969f;
+  --color-icon-tertiary: #bbc1c7;
+  --color-premium: linear-gradient(48deg, #9BD5FF 6.25%, #9B93FF 44.27%, #9A8DFF 58.33%, #7C86FE 84.9%);
+  --blend-hover: multiply;
+  --blend-hover-inverted: normal;
+}

@@ -1,0 +1,39 @@
+/**
+ * Do not edit directly
+ * Generated on Fri, 06 Feb 2026 11:09:10 GMT
+ */
+
+:root {
+  --grid-m-breakpoint: 0rem;
+  --grid-m-columns: 12;
+  --grid-m-gutter: 0.75rem;
+  --grid-m-margin: 1.25rem;
+  --grid-t-breakpoint: 48rem;
+  --grid-t-columns: 12;
+  --grid-t-gutter: 2rem;
+  --grid-t-margin: 2.5rem;
+  --grid-dxs-breakpoint: 60rem;
+  --grid-dxs-columns: 12;
+  --grid-dxs-gutter: 2rem;
+  --grid-dxs-margin: 2.5rem;
+  --grid-ds-breakpoint: 80rem;
+  --grid-ds-max-width: 73rem;
+  --grid-ds-columns: 12;
+  --grid-ds-gutter: 2rem;
+  --grid-ds-margin: 2rem;
+  --grid-dm-breakpoint: 90rem;
+  --grid-dm-max-width: 79rem;
+  --grid-dm-columns: 12;
+  --grid-dm-gutter: 2rem;
+  --grid-dm-margin: 2.5rem;
+  --grid-dl-breakpoint: 105rem;
+  --grid-dl-max-width: 85rem;
+  --grid-dl-columns: 12;
+  --grid-dl-gutter: 2rem;
+  --grid-dl-margin: 2.5rem;
+  --grid-dxl-breakpoint: 120rem;
+  --grid-dxl-max-width: 97rem;
+  --grid-dxl-columns: 12;
+  --grid-dxl-gutter: 2rem;
+  --grid-dxl-margin: 2.5rem;
+}

@@ -1,0 +1,11 @@
+{
+  "FontWeightUltra": "1000",
+  "FontWeightBlack": "900",
+  "FontWeightBold": "700",
+  "FontWeightMedium": "500",
+  "FontWeightRegular": "400",
+  "FontFamilyBase": "MTS Sans",
+  "FontFamilyWide": "MTS Wide",
+  "FontFamilyCompact": "MTS Compact",
+  "FontFamilyText": "MTS Text"
+}

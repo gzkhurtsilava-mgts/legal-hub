@@ -1,0 +1,150 @@
+@charset "UTF-8";
+/*
+  Классы для типографики v2
+
+  Deprecated
+*/
+.mts-h1-wide {
+  font-family: var(--typography-v2-h1-wide-font-family, var(--typography-h1-wide-font-family)), sans-serif;
+  font-size: var(--typography-v2-h1-wide-font-size, var(--typography-h1-wide-font-size));
+  line-height: var(--typography-v2-h1-wide-line-height, var(--typography-h1-wide-line-height));
+  font-weight: var(--typography-v2-h1-wide-font-weight, var(--typography-h1-wide-font-weight));
+}
+
+.mts-h2-wide {
+  font-family: var(--typography-v2-h2-wide-font-family, var(--typography-h2-wide-font-family)), sans-serif;
+  font-size: var(--typography-v2-h2-wide-font-size, var(--typography-h2-wide-font-size));
+  line-height: var(--typography-v2-h2-wide-line-height, var(--typography-h2-wide-line-height));
+  font-weight: var(--typography-v2-h2-wide-font-weight, var(--typography-h2-wide-font-weight));
+}
+
+.mts-h2-comp {
+  font-family: var(--typography-v2-h2-comp-font-family, var(--typography-h2-comp-font-family)), sans-serif;
+  font-size: var(--typography-v2-h2-comp-font-size, var(--typography-h2-comp-font-size));
+  line-height: var(--typography-v2-h2-comp-line-height, var(--typography-h2-comp-line-height));
+  font-weight: var(--typography-v2-h2-comp-font-weight, var(--typography-h2-comp-font-weight));
+}
+
+.mts-h3-wide {
+  font-family: var(--typography-v2-h3-wide-font-family, var(--typography-h3-wide-font-family)), sans-serif;
+  font-size: var(--typography-v2-h3-wide-font-size, var(--typography-h3-wide-font-size));
+  line-height: var(--typography-v2-h3-wide-line-height, var(--typography-h3-wide-line-height));
+  font-weight: var(--typography-v2-h3-wide-font-weight, var(--typography-h3-wide-font-weight));
+}
+
+.mts-h3-comp {
+  font-family: var(--typography-v2-h3-comp-font-family, var(--typography-h3-comp-font-family)), sans-serif;
+  font-size: var(--typography-v2-h3-comp-font-size, var(--typography-h3-comp-font-size));
+  line-height: var(--typography-v2-h3-comp-line-height, var(--typography-h3-comp-line-height));
+  font-weight: var(--typography-v2-h3-comp-font-weight, var(--typography-h3-comp-font-weight));
+}
+
+.mts-p1-regular-comp {
+  font-family: var(--typography-v2-p1-regular-comp-font-family, var(--typography-p1-regular-comp-font-family)), sans-serif;
+  font-size: var(--typography-v2-p1-regular-comp-font-size, var(--typography-p1-regular-comp-font-size));
+  line-height: var(--typography-v2-p1-regular-comp-line-height, var(--typography-p1-regular-comp-line-height));
+  font-weight: var(--typography-v2-p1-regular-comp-font-weight, var(--typography-p1-regular-comp-font-weight));
+}
+
+.mts-p1-regular-text {
+  font-family: var(--typography-v2-p1-regular-text-font-family, var(--typography-p1-regular-text-font-family)), sans-serif;
+  font-size: var(--typography-v2-p1-regular-text-font-size, var(--typography-p1-regular-text-font-size));
+  line-height: var(--typography-v2-p1-regular-text-line-height, var(--typography-p1-regular-text-line-height));
+  font-weight: var(--typography-v2-p1-regular-text-font-weight, var(--typography-p1-regular-text-font-weight));
+}
+
+.mts-p2-bold-comp {
+  font-family: var(--typography-v2-p2-bold-comp-font-family, var(--typography-p2-bold-comp-font-family)), sans-serif;
+  font-size: var(--typography-v2-p2-bold-comp-font-size, var(--typography-p2-bold-comp-font-size));
+  line-height: var(--typography-v2-p2-bold-comp-line-height, var(--typography-p2-bold-comp-line-height));
+  font-weight: var(--typography-v2-p2-bold-comp-font-weight, var(--typography-p2-bold-comp-font-weight));
+}
+
+.mts-p2-medium-comp {
+  font-family: var(--typography-v2-p2-medium-comp-font-family, var(--typography-p2-medium-comp-font-family)), sans-serif;
+  font-size: var(--typography-v2-p2-medium-comp-font-size, var(--typography-p2-medium-comp-font-size));
+  line-height: var(--typography-v2-p2-medium-comp-line-height, var(--typography-p2-medium-comp-line-height));
+  font-weight: var(--typography-v2-p2-medium-comp-font-weight, var(--typography-p2-medium-comp-font-weight));
+}
+
+.mts-p2-regular-comp {
+  font-family: var(--typography-v2-p2-regular-comp-font-family, var(--typography-p2-regular-comp-font-family)), sans-serif;
+  font-size: var(--typography-v2-p2-regular-comp-font-size, var(--typography-p2-regular-comp-font-size));
+  line-height: var(--typography-v2-p2-regular-comp-line-height, var(--typography-p2-regular-comp-line-height));
+  font-weight: var(--typography-v2-p2-regular-comp-font-weight, var(--typography-p2-regular-comp-font-weight));
+}
+
+.mts-p2-regular-text {
+  font-family: var(--typography-v2-p2-regular-text-font-family, var(--typography-p2-regular-text-font-family)), sans-serif;
+  font-size: var(--typography-v2-p2-regular-text-font-size, var(--typography-p2-regular-text-font-size));
+  line-height: var(--typography-v2-p2-regular-text-line-height, var(--typography-p2-regular-text-line-height));
+  font-weight: var(--typography-v2-p2-regular-text-font-weight, var(--typography-p2-regular-text-font-weight));
+}
+
+.mts-p3-bold-comp {
+  font-family: var(--typography-v2-p3-bold-comp-font-family, var(--typography-p3-bold-comp-font-family)), sans-serif;
+  font-size: var(--typography-v2-p3-bold-comp-font-size, var(--typography-p3-bold-comp-font-size));
+  line-height: var(--typography-v2-p3-bold-comp-line-height, var(--typography-p3-bold-comp-line-height));
+  font-weight: var(--typography-v2-p3-bold-comp-font-weight, var(--typography-p3-bold-comp-font-weight));
+}
+
+.mts-p3-medium-comp, .mts-p3-medium-comp-uc {
+  font-family: var(--typography-v2-p3-medium-comp-font-family, var(--typography-p3-medium-comp-font-family)), sans-serif;
+  font-size: var(--typography-v2-p3-medium-comp-font-size, var(--typography-p3-medium-comp-font-size));
+  line-height: var(--typography-v2-p3-medium-comp-line-height, var(--typography-p3-medium-comp-line-height));
+  font-weight: var(--typography-v2-p3-medium-comp-font-weight, var(--typography-p3-medium-comp-font-weight));
+}
+
+.mts-p3-regular-comp {
+  font-family: var(--typography-v2-p3-regular-comp-font-family, var(--typography-p3-regular-comp-font-family)), sans-serif;
+  font-size: var(--typography-v2-p3-regular-comp-font-size, var(--typography-p3-regular-comp-font-size));
+  line-height: var(--typography-v2-p3-regular-comp-line-height, var(--typography-p3-regular-comp-line-height));
+  font-weight: var(--typography-v2-p3-regular-comp-font-weight, var(--typography-p3-regular-comp-font-weight));
+}
+
+.mts-p3-regular-text {
+  font-family: var(--typography-v2-p3-regular-text-font-family, var(--typography-p3-regular-text-font-family)), sans-serif;
+  font-size: var(--typography-v2-p3-regular-text-font-size, var(--typography-p3-regular-text-font-size));
+  line-height: var(--typography-v2-p3-regular-text-line-height, var(--typography-p3-regular-text-line-height));
+  font-weight: var(--typography-v2-p3-regular-text-font-weight, var(--typography-p3-regular-text-font-weight));
+}
+
+.mts-caption-bold-comp {
+  font-family: var(--typography-v2-caption-bold-comp-font-family, var(--typography-caption-bold-comp-font-family)), sans-serif;
+  font-size: var(--typography-v2-caption-bold-comp-font-size, var(--typography-caption-bold-comp-font-size));
+  line-height: var(--typography-v2-caption-bold-comp-line-height, var(--typography-caption-bold-comp-line-height));
+  font-weight: var(--typography-v2-caption-bold-comp-font-weight, var(--typography-caption-bold-comp-font-weight));
+}
+
+.mts-caption-medium-comp, .mts-caption-medium-comp-uc {
+  font-family: var(--typography-v2-caption-medium-comp-font-family, var(--typography-caption-medium-comp-font-family)), sans-serif;
+  font-size: var(--typography-v2-caption-medium-comp-font-size, var(--typography-caption-medium-comp-font-size));
+  line-height: var(--typography-v2-caption-medium-comp-line-height, var(--typography-caption-medium-comp-line-height));
+  font-weight: var(--typography-v2-caption-medium-comp-font-weight, var(--typography-caption-medium-comp-font-weight));
+}
+
+.mts-caption-regular-comp {
+  font-family: var(--typography-v2-caption-regular-comp-font-family, var(--typography-caption-regular-comp-font-family)), sans-serif;
+  font-size: var(--typography-v2-caption-regular-comp-font-size, var(--typography-caption-regular-comp-font-size));
+  line-height: var(--typography-v2-caption-regular-comp-line-height, var(--typography-caption-regular-comp-line-height));
+  font-weight: var(--typography-v2-caption-regular-comp-font-weight, var(--typography-caption-regular-comp-font-weight));
+}
+
+.mts-p3-medium-comp-uc {
+  text-transform: uppercase;
+}
+
+.mts-caption-medium-comp-uc {
+  text-transform: uppercase;
+}
+
+.mts-promo-long-wide, .mts-promo-short-wide {
+  font-family: var(--typography-v2-promo-wide-font-family, var(--typography-promo-wide-font-family)), sans-serif;
+  font-size: var(--typography-v2-promo-wide-font-size, var(--typography-promo-wide-font-size));
+  line-height: var(--typography-v2-promo-wide-line-height, var(--typography-promo-wide-line-height));
+  font-weight: var(--typography-v2-promo-wide-font-weight, var(--typography-promo-wide-font-weight));
+}
+
+.mts-promo-short-wide {
+  text-transform: uppercase;
+}

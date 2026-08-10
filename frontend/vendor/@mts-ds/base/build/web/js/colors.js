@@ -1,0 +1,65 @@
+/**
+ * Do not edit directly
+ * Generated on Fri, 06 Feb 2026 11:09:10 GMT
+ */
+
+export const ColorConstantGreyscale0 = "#ffffff";
+export const ColorConstantGreyscale100 = "#f2f3f7";
+export const ColorConstantGreyscale200 = "#e2e5eb";
+export const ColorConstantGreyscale300 = "#bbc1c7";
+export const ColorConstantGreyscale400 = "#969fa8";
+export const ColorConstantGreyscale500 = "#626c77";
+export const ColorConstantGreyscale600 = "#434a51";
+export const ColorConstantGreyscale700 = "#2c3135";
+export const ColorConstantGreyscale800 = "#1d2023";
+export const ColorConstantGreyscale900 = "#000000";
+export const ColorConstantBlackberryLightest = "#e7eafa";
+export const ColorConstantBlackberryLight = "#6384e0";
+export const ColorConstantBlackberryNormal = "#014fce";
+export const ColorConstantBlackberryDark = "#003db7";
+export const ColorConstantBlackberryDarkest = "#002094";
+export const ColorConstantBlueberryLightest = "#e1f3fe";
+export const ColorConstantBlueberryLight = "#45b6fc";
+export const ColorConstantBlueberryNormal = "#0097fd";
+export const ColorConstantBlueberryDark = "#007cff";
+export const ColorConstantBlueberryDarkest = "#0048aa";
+export const ColorConstantMintLightest = "#dff9f5";
+export const ColorConstantMintLight = "#00d9bc";
+export const ColorConstantMintNormal = "#00c19b";
+export const ColorConstantMintDark = "#03a17b";
+export const ColorConstantMintDarkest = "#00724d";
+export const ColorConstantAppleLightest = "#e8faeb";
+export const ColorConstantAppleLight = "#74df8b";
+export const ColorConstantAppleNormal = "#26cd58";
+export const ColorConstantAppleDark = "#04aa42";
+export const ColorConstantAppleDarkest = "#027722";
+export const ColorConstantLimeLightest = "#f8fee7";
+export const ColorConstantLimeLight = "#d3f36b";
+export const ColorConstantLimeNormal = "#c1eb1d";
+export const ColorConstantLimeDark = "#a6c100";
+export const ColorConstantLimeDarkest = "#808201";
+export const ColorConstantBananaLightest = "#fffde8";
+export const ColorConstantBananaLight = "#fdf177";
+export const ColorConstantBananaNormal = "#fbe739";
+export const ColorConstantBananaDark = "#fac031";
+export const ColorConstantBananaDarkest = "#f37f19";
+export const ColorConstantOrangeLightest = "#fbe9e7";
+export const ColorConstantOrangeLight = "#ffa080";
+export const ColorConstantOrangeNormal = "#f95721";
+export const ColorConstantOrangeDark = "#e04a17";
+export const ColorConstantOrangeDarkest = "#ba360a";
+export const ColorConstantRaspberryLightest = "#ffe4e9";
+export const ColorConstantRaspberryLight = "#f55f7e";
+export const ColorConstantRaspberryNormal = "#ea1f49";
+export const ColorConstantRaspberryDark = "#c51345";
+export const ColorConstantRaspberryDarkest = "#8e003f";
+export const ColorConstantCranberryLightest = "#f9e7f0";
+export const ColorConstantCranberryLight = "#e677ad";
+export const ColorConstantCranberryNormal = "#e54887";
+export const ColorConstantCranberryDark = "#bb4079";
+export const ColorConstantCranberryDarkest = "#7f3363";
+export const ColorConstantPlumLightest = "#f0e7f0";
+export const ColorConstantPlumLight = "#a86ea7";
+export const ColorConstantPlumNormal = "#883888";
+export const ColorConstantPlumDark = "#6d2d79";
+export const ColorConstantPlumDarkest = "#471c61";

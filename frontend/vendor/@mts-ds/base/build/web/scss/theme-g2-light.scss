@@ -1,0 +1,70 @@
+
+// Do not edit directly
+// Generated on Fri, 06 Feb 2026 11:09:10 GMT
+
+$color-text-primary: #1d2023; // Основной текст.
+$color-text-secondary: #626c77; // Дополнительный текст.
+$color-text-tertiary: #969fa8; // Третичный текст. Используется только в начертаниях медиум и выше. Исключение — маска в полях (например, ввод телефона и даты).
+$color-text-inverted: #fafafa; // Текст для тултипа, тоста и снэкбара.
+$color-text-positive: #12b23f; // Текст успешных действий.
+$color-text-negative: #d8400c; // Текст ошибки и негативных действий.
+$color-text-primary-link: #0070e5; // Основные ссылки.
+$color-text-primary-link-inverted: #45b6fc; // Основные ссылки на инвертированном бэкграунде.
+$color-text-secondary-link: #626c77; // Второстепенные ссылки. Только для веба.
+$color-text-visited-link: #883888; // Посещенные ссылки.
+$color-text-inactive-tabbar: #6e7782; // Цвет текста в неактивном пункте таббара.
+$color-text-active-strong: #005cbd; // Текст на инфо бейдже.
+$color-text-positive-strong: #007502; // Текст на бейдже успеха.
+$color-text-warning-strong: #806000; // Текст на бейдже-предупреждении.
+$color-text-negative-strong: #ad3400; // Текст на негативном бейдже.
+$color-text-highlight-strong: #7936c9; // Текст на дополнительном акцентном бейдже.
+$color-background-primary: #ffffff; // Основной фон темы.
+$color-background-lower: #f2f3f7; // Альтернативный основной фон темы.
+$color-background-primary-elevated: #ffffff; // Первый уровень над фоном: карточки, инпут, таббар.
+$color-background-modal: #ffffff; // Второй уровень над фоном, например, выпадающие меню и шторки.
+$color-background-stroke: rgba(188, 195, 208, 0.5); // Сепараторы и обводки.
+$color-background-secondary: #f2f3f7; // Второстепенный фон темы.
+$color-background-secondary-elevated: #ffffff; // Тот же первый уровень, но над Secondary Background.
+$color-background-overlay: rgba(29, 32, 35, 0.4); // Затемнение фона. Можно использовать совместно с Blur 50.
+$color-background-overlay-alternative: rgba(29, 32, 35, 0.4); // Альтернативное затемнение фона. Можно использовать совместно с Blur 50.
+$color-background-inverted: #1d2023; // Фон тултипа, тоста и снэкбара.
+$color-background-hover: rgba(188, 195, 208, 0.25); // Ховер. Используется над фоном элемента, но под его контентом.
+$color-background-bar: rgba(255, 255, 255, 0.88); // Навбар и таббар G2.0. Использовать только совместно с Blur 40.
+$color-background-disabled: #f8f8fb; // Цвет фона для неактивных инпута, дропдауна, текстареа.
+$color-background-stroke-disabled: rgba(188, 195, 208, 0.25); // Цвет обводки фона для неактивных инпута, дропдауна, текстареа.
+$color-background-active-soft: #c7e1ff; // Цвет фона инфо бейджа.
+$color-background-positive-soft: #bef4bd; // Цвет фона бейджа успеха.
+$color-background-warning-soft: #fae89e; // Цвет фона бейджа-предупреждения.
+$color-background-negative-soft: #fcd4c9; // Цвет фона негативного бейджа.
+$color-background-highlight-soft: #e3ccff; // Дополнительный акцентный цвет для бейджа.
+$color-icons-primary: #1d2023; // Цвет иконок в навбаре и второстепенных кнопках.
+$color-icons-secondary: #8d969f; // Цвет интерактивных иконок.
+$color-icons-tertiary: #bbc1c7; // Цвет декоративных иконок.
+$color-icons-inverted: #fafafa; // Цвет иконок на кнопке c Secondary Active фоном или для любой сущности с фоном Inverted.
+$color-control-primary-active: #ff0032; // Выбранный, активный контрол.
+$color-control-secondary-active: #1d2023; // Выбранный, активный второстепенный контрол.
+$color-control-tertiary-active: #f2f3f7; // Цвет второстепенной кнопки.
+$color-control-blur: rgba(255, 255, 255, 0.08); // Цвет кнопки c блюром G2.0, используется вместе со стилем Blur 40.
+$color-control-stroke: #8d969f; // Цвет обводки, когда компонент Checkbox, Radiobutton и List Checkbox находятся в состоянии «Default».
+$color-control-inactive: rgba(188, 195, 208, 0.5); // Невыбранный, неактивный контрол, выключенный Switch, предвыбранные Radio и Checkbox.
+$color-control-alternative: #ffffff; // Цвет фона дефолтного состояния у Radio и Checkbox, Secondary Inverted Button.
+$color-control-active-tabbar: #ff0032; // Активный пункт в таббаре.
+$color-control-inactive-tabbar: #8d969f; // Цвет иконок у неактивного пункта в таббаре.
+$color-control-hover-primary: rgba(188, 195, 208, 0.4); // Ховер. Используется на кнопках Primary и Always White
+$color-control-hover-alternative: rgba(242, 243, 247, 0.12); // Ховер. Используется на кнопке Primary Alternative
+$color-accent-active: #007cff; // Используется для иконок и состояния фокуса.
+$color-accent-positive: #26cd58; // Цвет успешных действий. Используется для иконок.
+$color-accent-warning: #fac031; // Цвет предупреждения. Используется для иконок.
+$color-accent-negative: #f95721; // Цвет ошибки. Используется для иконок и состояния ошибки.
+$color-accent-active-inverted: #45b6fc; // Используется для иконок и состояния фокуса на инвертированном бэкграунде.
+$color-accent-positive-inverted: #74df8b; // Цвет успешных действий. Используется для иконок на инвертированном бэкграунде.
+$color-accent-warning-inverted: #fad67d; // Цвет предупреждения. Используется для иконок на инвертированном бэкграунде.
+$color-accent-negative-inverted: #fa8a64; // Цвет ошибки. Используется для иконок и состояния ошибки на инвертированном бэкграунде.
+$color-accent-notification: #ff0032; // Цвет Notification и акцентного Counter.
+$color-brand-mts-red: #ff0032; // Цвет логотипа.
+$color-brand-mts-red-50: rgba(255, 0, 50, 0.5); // Для Disabled состояния текущей даты в Calendar.
+$color-ecosystem-background-inverted-elevated: #434a51; // Цвет бейджа.
+$color-ecosystem-text: linear-gradient(263.75deg, #785BC2 0.49%, #9941FF 99.05%); // Цвет текста для выделения AI фичи.
+$color-ecosystem-background: linear-gradient(263.75deg, #994BFF 0.49%, #C09AFF 99.05%); // Цвет фона для выделения AI фичи.
+$blend-background-hover: multiply;
+$blend-control-hover-primary: multiply;

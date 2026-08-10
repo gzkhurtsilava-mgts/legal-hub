@@ -1,0 +1,142 @@
+.mts-font-weight-regular{
+  font-weight:400;
+}
+
+.mts-font-weight-medium{
+  font-weight:500;
+}
+
+.mts-font-weight-bold{
+  font-weight:700;
+}
+
+.mts-font-weight-black{
+  font-weight:900;
+}
+
+.mts-font-weight-ultra{
+  font-weight:1000;
+}
+
+.mts-font-weight-regular-m{
+  font-weight:400;
+}
+
+.mts-font-weight-medium-m{
+  font-weight:500;
+}
+
+.mts-font-weight-bold-m{
+  font-weight:700;
+}
+
+.mts-font-weight-black-m{
+  font-weight:900;
+}
+
+.mts-font-weight-ultra-m{
+  font-weight:1000;
+}
+
+@media (min-width: 48rem){
+  .mts-font-weight-regular-t{
+    font-weight:400;
+  }
+  .mts-font-weight-medium-t{
+    font-weight:500;
+  }
+  .mts-font-weight-bold-t{
+    font-weight:700;
+  }
+  .mts-font-weight-black-t{
+    font-weight:900;
+  }
+  .mts-font-weight-ultra-t{
+    font-weight:1000;
+  }
+}
+@media (min-width: 60rem){
+  .mts-font-weight-regular-dxs{
+    font-weight:400;
+  }
+  .mts-font-weight-medium-dxs{
+    font-weight:500;
+  }
+  .mts-font-weight-bold-dxs{
+    font-weight:700;
+  }
+  .mts-font-weight-black-dxs{
+    font-weight:900;
+  }
+  .mts-font-weight-ultra-dxs{
+    font-weight:1000;
+  }
+}
+@media (min-width: 80rem){
+  .mts-font-weight-regular-ds{
+    font-weight:400;
+  }
+  .mts-font-weight-medium-ds{
+    font-weight:500;
+  }
+  .mts-font-weight-bold-ds{
+    font-weight:700;
+  }
+  .mts-font-weight-black-ds{
+    font-weight:900;
+  }
+  .mts-font-weight-ultra-ds{
+    font-weight:1000;
+  }
+}
+@media (min-width: 90rem){
+  .mts-font-weight-regular-dm{
+    font-weight:400;
+  }
+  .mts-font-weight-medium-dm{
+    font-weight:500;
+  }
+  .mts-font-weight-bold-dm{
+    font-weight:700;
+  }
+  .mts-font-weight-black-dm{
+    font-weight:900;
+  }
+  .mts-font-weight-ultra-dm{
+    font-weight:1000;
+  }
+}
+@media (min-width: 105rem){
+  .mts-font-weight-regular-dl{
+    font-weight:400;
+  }
+  .mts-font-weight-medium-dl{
+    font-weight:500;
+  }
+  .mts-font-weight-bold-dl{
+    font-weight:700;
+  }
+  .mts-font-weight-black-dl{
+    font-weight:900;
+  }
+  .mts-font-weight-ultra-dl{
+    font-weight:1000;
+  }
+}
+@media (min-width: 120rem){
+  .mts-font-weight-regular-dxl{
+    font-weight:400;
+  }
+  .mts-font-weight-medium-dxl{
+    font-weight:500;
+  }
+  .mts-font-weight-bold-dxl{
+    font-weight:700;
+  }
+  .mts-font-weight-black-dxl{
+    font-weight:900;
+  }
+  .mts-font-weight-ultra-dxl{
+    font-weight:1000;
+  }
+}

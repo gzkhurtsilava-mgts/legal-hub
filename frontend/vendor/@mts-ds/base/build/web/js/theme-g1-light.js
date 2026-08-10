@@ -1,0 +1,60 @@
+/**
+ * Do not edit directly
+ * Generated on Fri, 06 Feb 2026 11:09:10 GMT
+ */
+
+export const ColorBrand = "#ff0032"; // Цвет логотипа
+export const ColorAccentActive = "#007cff"; // Используется для иконок и состояния фокуса
+export const ColorAccentPositive = "#26cd58"; // Цвет успешных действий. Используется для иконок
+export const ColorAccentWarning = "#fac031"; // Цвет предупреждения. Используется для иконок
+export const ColorAccentNegative = "#f95721"; // Цвет ошибки. Используется для иконок и состояния ошибки
+export const ColorAccentActiveInverted = "#45b6fc"; // Используется для иконок и состояния фокуса на инвертированном бэкграунде.
+export const ColorAccentPositiveInverted = "#74df8b"; // Цвет успешных действий. Используется для иконок на инвертированном бэкграунде.
+export const ColorAccentWarningInverted = "#fad67d"; // Цвет предупреждения. Используется для иконок на инвертированном бэкграунде.
+export const ColorAccentNegativeInverted = "#fa8a64"; // Цвет ошибки. Используется для иконок и состояния ошибки на инвертированном бэкграунде.
+export const ColorTextHeadline = "#000000"; // Цвет заголовка
+export const ColorTextPrimary = "#1d2023"; // Основной текст
+export const ColorTextSecondary = "#626c77"; // Цвет дополнительного текста
+export const ColorTextTertiary = "#969fa8"; // Цвет масок
+export const ColorTextInverted = "#fafafa"; // Текст для тултипа, тоста и снэкбара
+export const ColorTextPositive = "#12b23f"; // Цвет успешных действий
+export const ColorTextNegative = "#db400c"; // Цвет текста ошибки и негативных действий
+export const ColorTextPrimaryLink = "#0070e5"; // Цвет ссылок
+export const ColorTextPrimaryLinkHover = "#007cff"; // Цвет ссылок и бордера при наведении
+export const ColorTextPrimaryLinkVisited = "#3396ff"; // Цвет visited ссылок и бордера
+export const ColorTextPrimaryLinkInverted = "#45b6fc"; // Основные ссылки на инвертированном бэкграунде.
+export const ColorTextSecondaryLink = "#626c77"; // Цвет второстепенных ссылок
+export const ColorTextSecondaryLinkHover = "#bbc1c7"; // Цвет второстепенных ссылок и бордера при наведении
+export const ColorTextSecondaryLinkVisited = "#abb2b9"; // Цвет второстепенных visited ссылок и бордера
+export const ColorTextVisitedLink = "#883888";
+export const ColorTextInactiveTabBar = "#6e7782";
+export const ColorBackgroundPrimary = "#ffffff"; // Основной фон темы.
+export const ColorBackgroundStroke = "rgba(188, 195, 208, 0.5)"; // Сепараторы и обводки.
+export const ColorBackgroundPrimaryElevated = "#ffffff"; // Первый уровень над фоном: карточки, инпут, таббар.
+export const ColorBackgroundSecondary = "#f2f3f7"; // Второстепенный фон темы.
+export const ColorBackgroundSecondaryElevated = "#ffffff"; // Тот же первый уровень, но над Secondary Background.
+export const ColorBackgroundModal = "#ffffff"; // Второй уровень над фоном, например, выпадающие меню и шторки.
+export const ColorBackgroundInverted = "#1d2023"; // Фон тултипа, тоста и снэкбара.
+export const ColorBackgroundOverlay = "rgba(29, 32, 35, 0.4)"; // Затемнение фона.
+export const ColorBackgroundHover = "rgba(188, 195, 208, 0.25)"; // Ховер. Используется над фоном элемента, но под его контентом.
+export const ColorBackgroundHoverInverted = "rgba(242, 243, 247, 0.2)"; // Ховер кнопки снэкбара
+export const ColorBackgroundNavbarIos = "rgba(255, 255, 255, 0.92)"; // Навбар iOS. Использовать только совместно с Background Blur.
+export const ColorBackgroundDisabled = "#f8f8fb"; // Цвет фона для неактивных инпута, дропдауна, текстареа.
+export const ColorBackgroundStrokeDisabled = "rgba(188, 195, 208, 0.25)"; // Цвет обводки фона для неактивных инпута, дропдауна, текстареа.
+export const ColorBackgroundLower = "#f2f3f7"; // Альтернативный основной фон темы.
+export const ColorBackgroundBar = "rgba(255, 255, 255, 0.88)"; // Навбар и таббар G2.0. Использовать только совместно с Blur 40.
+export const ColorControlPrimaryActive = "#ff0032"; // Выбранный, активный контрол
+export const ColorControlSecondaryActive = "#1d2023"; // Выбранный, активный второстепенный контрол
+export const ColorControlTertiaryActive = "#f2f3f7"; // Цвет второстепенной кнопки
+export const ColorControlInactive = "rgba(188, 195, 208, 0.5)"; // Невыбранный контрол, выключенный Switch, предвыбранные Radio и Checkbox
+export const ColorControlAlternative = "#ffffff"; // Цвет фона дефолтного состояния у Radio и Checkbox, Secondary Inverted Button
+export const ColorControlAlternativeStrokeHover = "#ced4dc"; // Цвет обводки Radio и Checkbox при наведении
+export const ColorControlActiveTabBar = "#ff0032"; // Активный пункт в таббаре
+export const ColorControlInactiveTabBar = "#8d969f"; // Неактивный пункт в таббаре.
+export const ColorControlStroke = "#8d969f";
+export const ColorIconPrimary = "#1d2023"; // Цвет иконок в навбаре и второстепенных кнопках
+export const ColorIconSecondary = "#8d969f"; // Цвет интерактивных иконок
+export const ColorIconTertiary = "#bbc1c7"; // Цвет декоративных иконок
+export const ColorPremium = "linear-gradient(48deg, #9BD5FF 6.25%, #9B93FF 44.27%, #9A8DFF 58.33%, #7C86FE 84.9%)"; // Цвет кнопки, бейджей, логотипа
+export const BlendHover = "multiply"; // Режим смешивания ховера с фоном
+export const BlendHoverInverted = "normal"; // Режим смешивания ховера с фоном кнопки снэкбара

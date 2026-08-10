@@ -1,0 +1,59 @@
+
+// Do not edit directly
+// Generated on Fri, 06 Feb 2026 11:09:10 GMT
+
+$color-brand: #ff0032; // Цвет логотипа
+$color-accent-active: #45b6fc; // Используется для иконок и состояния фокуса
+$color-accent-positive: #74df8b; // Цвет успешных действий. Используется для иконок
+$color-accent-warning: #fad67d; // Цвет предупреждения. Используется для иконок
+$color-accent-negative: #fa8a64; // Цвет ошибки. Используется для иконок и состояния ошибки
+$color-accent-active-inverted: #007cff; // Используется для иконок и состояния фокуса на инвертированном бэкграунде.
+$color-accent-positive-inverted: #26cd58; // Цвет успешных действий. Используется для иконок на инвертированном бэкграунде.
+$color-accent-warning-inverted: #fac031; // Цвет предупреждения. Используется для иконок на инвертированном бэкграунде.
+$color-accent-negative-inverted: #f95721; // Цвет ошибки. Используется для иконок и состояния ошибки на инвертированном бэкграунде.
+$color-text-headline: #ffffff; // Цвет заголовка
+$color-text-primary: #fafafa; // Основной текст
+$color-text-secondary: #969fa8; // Цвет дополнительного текста
+$color-text-tertiary: #626c77; // Цвет масок
+$color-text-inverted: #1d2023; // Текст для тултипа, тоста и снэкбара.
+$color-text-positive: #74df8b; // Цвет успешных действий
+$color-text-negative: #ffa080; // Цвет текста ошибки и негативных действий
+$color-text-primary-link: #45b6fc; // Цвет ссылок
+$color-text-primary-link-hover: #45b6fc; // Цвет ссылок и бордера при наведении
+$color-text-primary-link-visited: #0063cc; // Цвет visited ссылок и бордера
+$color-text-primary-link-inverted: #0070e5; // Основные ссылки на инвертированном бэкграунде.
+$color-text-secondary-link: #969fa8; // Цвет второстепенных ссылок
+$color-text-secondary-link-hover: #626c77; // Цвет второстепенных ссылок и бордера при наведении
+$color-text-secondary-link-visited: #787f86; // Цвет второстепенных visited ссылок и бордера
+$color-text-visited-link: #b767b7;
+$color-text-inactive-tab-bar: rgba(255, 255, 255, 0.46);
+$color-background-primary: #000000; // Основной фон темы.
+$color-background-stroke: rgba(127, 140, 153, 0.35); // Сепараторы и обводки.
+$color-background-primary-elevated: #1d2023; // Первый уровень над фоном: карточки, инпут, таббар.
+$color-background-secondary: rgba(98, 108, 119, 0.25); // Второстепенный фон темы.
+$color-background-secondary-elevated: rgba(98, 108, 119, 0.25); // Тот же первый уровень, но над Secondary Background.
+$color-background-modal: #2c3135; // Второй уровень над фоном, например, выпадающие меню и шторки.
+$color-background-inverted: #ffffff; // Фон тултипа, тоста и снэкбара.
+$color-background-overlay: rgba(29, 32, 35, 0.6); // Затемнение фона.
+$color-background-hover: rgba(242, 243, 247, 0.2); // Ховер. Используется над фоном элемента, но под его контентом.
+$color-background-hover-inverted: rgba(188, 195, 208, 0.25); // Ховер кнопки снэкбара
+$color-background-navbar-ios: rgba(0, 0, 0, 0.92); // Навбар iOS. Использовать только совместно с Background Blur.
+$color-background-disabled: rgba(98, 108, 119, 0.15); // Цвет фона для неактивных инпута, дропдауна, текстареа.
+$color-background-stroke-disabled: rgba(127, 140, 153, 0.1); // Цвет обводки фона для неактивных инпута, дропдауна, текстареа.
+$color-background-lower: #000000; // Альтернативный основной фон темы.
+$color-background-bar: rgba(0, 0, 0, 0.7); // Навбар и таббар G2.0. Использовать только совместно с Blur 40.
+$color-control-primary-active: #ff0032; // Выбранный, активный контрол
+$color-control-secondary-active: #ffffff; // Выбранный, активный второстепенный контрол
+$color-control-tertiary-active: rgba(127, 140, 153, 0.35); // Цвет второстепенной кнопки
+$color-control-inactive: rgba(127, 140, 153, 0.35); // Невыбранный контрол, выключенный Switch, предвыбранные Radio и Checkbox
+$color-control-alternative: rgba(127, 140, 153, 0.35); // Цвет фона дефолтного состояния у Radio и Checkbox, Secondary Inverted Button
+$color-control-alternative-stroke-hover: #6a7278; // Цвет обводки Radio и Checkbox при наведении
+$color-control-active-tab-bar: #ffffff; // Активный пункт в таббаре
+$color-control-inactive-tab-bar: rgba(255, 255, 255, 0.46); // Неактивный пункт в таббаре.
+$color-control-stroke: #636b72;
+$color-icon-primary: #fafafa; // Цвет иконок в навбаре и второстепенных кнопках
+$color-icon-secondary: #969fa8; // Цвет интерактивных иконок
+$color-icon-tertiary: #626c77; // Цвет декоративных иконок
+$color-premium: linear-gradient(48deg, #9BD5FF 6.25%, #9B93FF 44.27%, #9A8DFF 58.33%, #7C86FE 84.9%); // Цвет кнопки, бейджей, логотипа
+$blend-hover: normal; // Режим смешивания ховера с фоном
+$blend-hover-inverted: multiply; // Режим смешивания ховера с фоном кнопки снэкбара

@@ -1,0 +1,65 @@
+/**
+ * Do not edit directly
+ * Generated on Fri, 06 Feb 2026 10:35:43 GMT
+ */
+
+export const ColorConstantGreyscale0 : string;
+export const ColorConstantGreyscale100 : string;
+export const ColorConstantGreyscale200 : string;
+export const ColorConstantGreyscale300 : string;
+export const ColorConstantGreyscale400 : string;
+export const ColorConstantGreyscale500 : string;
+export const ColorConstantGreyscale600 : string;
+export const ColorConstantGreyscale700 : string;
+export const ColorConstantGreyscale800 : string;
+export const ColorConstantGreyscale900 : string;
+export const ColorConstantBlackberryLightest : string;
+export const ColorConstantBlackberryLight : string;
+export const ColorConstantBlackberryNormal : string;
+export const ColorConstantBlackberryDark : string;
+export const ColorConstantBlackberryDarkest : string;
+export const ColorConstantBlueberryLightest : string;
+export const ColorConstantBlueberryLight : string;
+export const ColorConstantBlueberryNormal : string;
+export const ColorConstantBlueberryDark : string;
+export const ColorConstantBlueberryDarkest : string;
+export const ColorConstantMintLightest : string;
+export const ColorConstantMintLight : string;
+export const ColorConstantMintNormal : string;
+export const ColorConstantMintDark : string;
+export const ColorConstantMintDarkest : string;
+export const ColorConstantAppleLightest : string;
+export const ColorConstantAppleLight : string;
+export const ColorConstantAppleNormal : string;
+export const ColorConstantAppleDark : string;
+export const ColorConstantAppleDarkest : string;
+export const ColorConstantLimeLightest : string;
+export const ColorConstantLimeLight : string;
+export const ColorConstantLimeNormal : string;
+export const ColorConstantLimeDark : string;
+export const ColorConstantLimeDarkest : string;
+export const ColorConstantBananaLightest : string;
+export const ColorConstantBananaLight : string;
+export const ColorConstantBananaNormal : string;
+export const ColorConstantBananaDark : string;
+export const ColorConstantBananaDarkest : string;
+export const ColorConstantOrangeLightest : string;
+export const ColorConstantOrangeLight : string;
+export const ColorConstantOrangeNormal : string;
+export const ColorConstantOrangeDark : string;
+export const ColorConstantOrangeDarkest : string;
+export const ColorConstantRaspberryLightest : string;
+export const ColorConstantRaspberryLight : string;
+export const ColorConstantRaspberryNormal : string;
+export const ColorConstantRaspberryDark : string;
+export const ColorConstantRaspberryDarkest : string;
+export const ColorConstantCranberryLightest : string;
+export const ColorConstantCranberryLight : string;
+export const ColorConstantCranberryNormal : string;
+export const ColorConstantCranberryDark : string;
+export const ColorConstantCranberryDarkest : string;
+export const ColorConstantPlumLightest : string;
+export const ColorConstantPlumLight : string;
+export const ColorConstantPlumNormal : string;
+export const ColorConstantPlumDark : string;
+export const ColorConstantPlumDarkest : string;

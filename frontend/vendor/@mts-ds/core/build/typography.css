@@ -1,0 +1,172 @@
+.mtsds-promo1-short-wide{
+  font:500 4.5rem/4.5rem MTS Wide, sans-serif;
+  text-transform:uppercase;
+}
+
+.mtsds-promo1-long-wide{
+  font:500 4.5rem/4.5rem MTS Wide, sans-serif;
+}
+
+.mtsds-promo2-short-wide{
+  font:500 2.75rem/2.75rem MTS Wide, sans-serif;
+  text-transform:uppercase;
+}
+
+.mtsds-promo2-long-wide{
+  font:500 2.75rem/2.75rem MTS Wide, sans-serif;
+}
+
+.mtsds-promo-56-56-wide{
+  font:500 3.5rem/3.5rem MTS Wide, sans-serif;
+}
+
+.mtsds-promo-56-56-upp-wide{
+  font:500 3.5rem/3.5rem MTS Wide, sans-serif;
+  text-transform:uppercase;
+}
+
+.mtsds-promo-36-36-wide{
+  font:500 2.25rem/2.25rem MTS Wide, sans-serif;
+}
+
+.mtsds-promo-36-36-upp-wide{
+  font:500 2.25rem/2.25rem MTS Wide, sans-serif;
+  text-transform:uppercase;
+}
+
+.mtsds-h1-wide{
+  font:500 2.25rem/2.5rem MTS Wide, sans-serif;
+}
+
+.mtsds-h1-comp{
+  font:500 2.25rem/2.5rem MTS Compact, sans-serif;
+}
+
+.mtsds-h2-wide{
+  font:500 2rem/2.25rem MTS Wide, sans-serif;
+}
+
+.mtsds-h2-comp{
+  font:500 2rem/2.25rem MTS Compact, sans-serif;
+}
+
+.mtsds-h3-wide{
+  font:500 1.5rem/1.75rem MTS Wide, sans-serif;
+}
+
+.mtsds-h3-comp{
+  font:500 1.5rem/1.75rem MTS Compact, sans-serif;
+}
+
+.mtsds-h3-text{
+  font:500 1.5rem/1.75rem MTS Text, sans-serif;
+}
+
+.mtsds-h4-wide{
+  font:500 1.25rem/1.5rem MTS Wide, sans-serif;
+}
+
+.mtsds-h4-comp{
+  font:500 1.25rem/1.5rem MTS Compact, sans-serif;
+}
+
+.mtsds-h4-text{
+  font:500 1.25rem/1.5rem MTS Text, sans-serif;
+}
+
+.mtsds-p1-regular-comp{
+  font:400 1.5rem/2rem MTS Compact, sans-serif;
+}
+
+.mtsds-p1-regular-text{
+  font:400 1.5rem/2rem MTS Text, sans-serif;
+}
+
+.mtsds-p2-regular-comp{
+  font:400 1.25rem/1.75rem MTS Compact, sans-serif;
+}
+
+.mtsds-p2-regular-text{
+  font:400 1.25rem/1.75rem MTS Text, sans-serif;
+}
+
+.mtsds-p3-bold-comp{
+  font:700 1.0625rem/1.5rem MTS Compact, sans-serif;
+}
+
+.mtsds-p3-medium-comp{
+  font:500 1.0625rem/1.5rem MTS Compact, sans-serif;
+}
+
+.mtsds-p3-regular-comp{
+  font:400 1.0625rem/1.5rem MTS Compact, sans-serif;
+}
+
+.mtsds-p3-medium-text{
+  font:500 1.0625rem/1.5rem MTS Text, sans-serif;
+}
+
+.mtsds-p3-regular-text{
+  font:400 1.0625rem/1.5rem MTS Text, sans-serif;
+}
+
+.mtsds-p4-bold-comp{
+  font:700 0.875rem/1.25rem MTS Compact, sans-serif;
+}
+
+.mtsds-p4-medium-comp{
+  font:500 0.875rem/1.25rem MTS Compact, sans-serif;
+}
+
+.mtsds-p4-medium-upp-comp{
+  font:500 0.875rem/1.25rem MTS Compact, sans-serif;
+  text-transform:uppercase;
+}
+
+.mtsds-p4-medium-upp-text{
+  font:500 0.875rem/1.25rem MTS Text, sans-serif;
+  text-transform:uppercase;
+}
+
+.mtsds-p4-regular-comp{
+  font:400 0.875rem/1.25rem MTS Compact, sans-serif;
+}
+
+.mtsds-p4-regular-text{
+  font:400 0.875rem/1.25rem MTS Text, sans-serif;
+}
+
+.mtsds-p4-bold-upp-wide{
+  font:700 0.875rem/1.25rem MTS Wide, sans-serif;
+  letter-spacing:0.05em;
+  text-transform:uppercase;
+}
+
+.mtsds-c1-bold-comp{
+  font:700 0.75rem/1rem MTS Compact, sans-serif;
+}
+
+.mtsds-c1-bold-upp-wide{
+  font:700 0.75rem/1rem MTS Wide, sans-serif;
+  letter-spacing:0.05em;
+  text-transform:uppercase;
+}
+
+.mtsds-c1-medium-comp{
+  font:500 0.75rem/1rem MTS Compact, sans-serif;
+}
+
+.mtsds-c1-medium-upp-comp{
+  font:500 0.75rem/1rem MTS Compact, sans-serif;
+  text-transform:uppercase;
+}
+
+.mtsds-c1-regular-comp{
+  font:400 0.75rem/1rem MTS Compact, sans-serif;
+}
+
+.mtsds-c2-bold-upp-wide{
+  font:700 0.625rem/0.75rem MTS Wide, sans-serif;
+  letter-spacing:0.05em;
+  text-transform:uppercase;
+}
