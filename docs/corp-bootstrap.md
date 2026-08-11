@@ -3,66 +3,115 @@
 Инструкция для развёртывания с нуля на корп. машине: забрать финальный код с GitHub,
 поднять стенд, создать новый репозиторий в корп. GitLab и продолжить разработку там.
 
-Финальное состояние на GitHub: ветка `main` = ветка `POA-doveren`, коммит `b451634`.
+Финальное состояние на GitHub: ветка `main` = ветка `POA-doveren`, коммит `8db2920`.
+
+Ниже два сквозных маршрута. **Выберите один и держитесь его до конца** — шаги 1 и 2
+согласованы попарно, смешивать нельзя.
+
+| | Маршрут А — с историей | Маршрут Б — с нуля |
+|---|---|---|
+| История коммитов GitHub | сохраняется | отбрасывается |
+| Рабочая папка в итоге | `C:\projects\legal-hub` | `C:\projects\legal-hub` |
+| Когда выбирать | нужна история разработки | нужен «чистый» старт в GitLab |
 
 ---
 
 ## 1. Забрать финальный код с GitHub
 
-Вариант А — **клон с историей** (рекомендуется: сохранятся все коммиты).
+### Маршрут А — клон с историей
 
 ```powershell
 cd C:\projects
 git clone https://github.com/gzkhurtsilava-mgts/legal-hub.git
 cd legal-hub
-git log --oneline -1        # должно быть b451634
+git log --oneline -1        # должно быть 8db2920
 ```
 
-Вариант Б — **чистый архив без истории** (если в GitLab нужен «пустой» старт).
+Готово, переходите к шагу 2А.
+
+### Маршрут Б — код без истории
 
 ```powershell
 cd C:\projects
 git clone --depth 1 https://github.com/gzkhurtsilava-mgts/legal-hub.git legal-hub-tmp
-cd legal-hub-tmp
-git archive --format=zip --output=..\legal-hub-final.zip HEAD
 ```
 
-Вариант В — **без git** (только браузер): на странице репозитория
-`Code → Download ZIP` для ветки `main`.
+Клонируется во **временную** папку `legal-hub-tmp`. Дальше от неё нужно только содержимое —
+историю выбрасываем на шаге 2Б, папку переименовываем в `legal-hub`. Отдельный zip делать
+не обязательно; если он всё же нужен (передать на машину без доступа к GitHub):
+
+```powershell
+cd C:\projects\legal-hub-tmp
+git archive --format=zip --output=..\legal-hub-final.zip HEAD
+cd C:\projects
+Expand-Archive -Path legal-hub-final.zip -DestinationPath legal-hub
+```
+
+`git archive` кладёт файлы без папки-обёртки, поэтому распаковывать надо **в** `legal-hub`.
+
+### Маршрут В — без git (только браузер)
+
+На странице репозитория `Code → Download ZIP` для ветки `main`. Внутри архива файлы лежат
+в подпапке `legal-hub-main` — переименуйте её в `legal-hub`. Дальше по шагу 2Б.
 
 > Если корп. прокси мешает git: `git config --global http.sslVerify false`.
 
-**Проверка полноты выгрузки** — должно совпасть:
+**Проверка полноты выгрузки** (выполнять из корня проекта) — должно совпасть:
 
 ```powershell
 (Get-ChildItem frontend\vendor\@mts-ds -Directory).Count      # 40
 (Get-ChildItem backend\alembic\versions -Filter *.py).Count   # 18
 ```
 
-Если `frontend\vendor\@mts-ds` пуст или пакетов меньше 40 — архив неполный, фронт не соберётся.
+Если `frontend\vendor\@mts-ds` пуст или пакетов меньше 40 — выгрузка неполная,
+фронт не соберётся.
 
 ---
 
 ## 2. Создать репозиторий в корп. GitLab
 
+Репозиторий в GitLab создавать **пустым** — без README, .gitignore и лицензии,
+иначе первый push упрётся в расхождение историй.
+
+### Шаг 2А — сохранить историю (после маршрута А)
+
 ```powershell
 cd C:\projects\legal-hub
-
-# Вариант А — сохранить историю: просто переключить remote
 git remote set-url origin https://gitlab.mgts.ru/<группа>/legal-hub.git
 git push -u origin main
+```
 
-# Вариант Б — старт с нуля, без истории GitHub
+### Шаг 2Б — старт с нуля (после маршрута Б или В)
+
+Если вы пришли из маршрута Б и папка ещё называется `legal-hub-tmp` — сначала выбросьте
+историю и переименуйте:
+
+```powershell
+cd C:\projects\legal-hub-tmp
 Remove-Item -Recurse -Force .git
+cd C:\projects
+Rename-Item legal-hub-tmp legal-hub
+```
+
+> `Rename-Item` упадёт с «доступ запрещён», если папка открыта в проводнике,
+> VS Code или другом процессе — закройте их.
+
+Дальше — инициализация и первый push (папка уже без `.git`):
+
+```powershell
+cd C:\projects\legal-hub
 git init -b main
 git add -A
-git commit -m "chore: импорт Legal Hub из GitHub (b451634)"
+git commit -m "chore: импорт Legal Hub из GitHub (8db2920)"
 git remote add origin https://gitlab.mgts.ru/<группа>/legal-hub.git
 git push -u origin main
 ```
 
-Репозиторий в GitLab создавать **пустым** (без README/.gitignore), иначе первый push
-упрётся в расхождение историй.
+Если папка пришла из zip и `.git` в ней изначально нет — блок с `Remove-Item`/`Rename-Item`
+пропускайте, начинайте сразу с `git init`.
+
+**Проверка:** `git log --oneline` показывает ровно один коммит, `git remote -v` —
+адрес GitLab. Временный zip и папку `legal-hub-tmp` после успешного push можно удалить.
 
 ---
 
