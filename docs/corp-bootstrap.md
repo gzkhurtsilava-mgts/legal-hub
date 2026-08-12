@@ -70,14 +70,19 @@ Expand-Archive -Path legal-hub-final.zip -DestinationPath legal-hub
 
 ## 2. Создать репозиторий в корп. GitLab
 
-Репозиторий в GitLab создавать **пустым** — без README, .gitignore и лицензии,
-иначе первый push упрётся в расхождение историй.
+Репозиторий в GitLab создавать **пустым** — при создании снять галку
+**«Initialize repository with a README»** (GitLab ставит её по умолчанию) и не добавлять
+.gitignore/лицензию. Иначе на сервере окажется свой коммит, истории не сойдутся,
+и первый push отобьётся.
+
+Адрес репозитория — вида `https://it-gitlab.mgts.ru/<группа>/<проект>.git`
+(точный URL берётся на странице проекта, кнопка `Clone → Clone with HTTPS`).
 
 ### Шаг 2А — сохранить историю (после маршрута А)
 
 ```powershell
 cd C:\projects\legal-hub
-git remote set-url origin https://gitlab.mgts.ru/<группа>/legal-hub.git
+git remote set-url origin https://it-gitlab.mgts.ru/<группа>/<проект>.git
 git push -u origin main
 ```
 
@@ -103,7 +108,7 @@ cd C:\projects\legal-hub
 git init -b main
 git add -A
 git commit -m "chore: импорт Legal Hub из GitHub (8db2920)"
-git remote add origin https://gitlab.mgts.ru/<группа>/legal-hub.git
+git remote add origin https://it-gitlab.mgts.ru/<группа>/<проект>.git
 git push -u origin main
 ```
 
@@ -112,6 +117,33 @@ git push -u origin main
 
 **Проверка:** `git log --oneline` показывает ровно один коммит, `git remote -v` —
 адрес GitLab. Временный zip и папку `legal-hub-tmp` после успешного push можно удалить.
+
+### Если push отбился: `rejected ... (fetch first)`
+
+```
+! [rejected] main -> main (fetch first)
+hint: updates were rejected because the remote contains work that you do not have locally
+```
+
+Значит, репозиторий в GitLab создан **не пустым** — там уже лежит коммит с автосозданным
+README, и истории не связаны. Лечится перезаписью (в новом репозитории терять нечего,
+свой README.md в проекте есть):
+
+```powershell
+git push -u origin main --force
+```
+
+Если force запрещён защитой ветки (`pre-receive hook declined` / `protected branch`) —
+либо временно включить `Settings → Repository → Protected branches → main →
+Allowed to force push`, либо влить чужую историю:
+
+```powershell
+git pull origin main --allow-unrelated-histories
+git checkout --ours README.md      # конфликт README — оставляем свой
+git add README.md
+git commit -m "chore: слияние с инициализацией GitLab"
+git push -u origin main
+```
 
 ---
 
