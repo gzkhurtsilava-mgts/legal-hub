@@ -173,21 +173,50 @@ git push -u origin main
 Copy-Item .env.example .env
 ```
 
-Открыть `.env` и заполнить обязательные:
+Секреты заполнять обязательно всегда:
 
 | Переменная | Что поставить |
 |---|---|
 | `SECRET_KEY` | случайная строка ≥ 32 символов |
 | `NEXTAUTH_SECRET` | случайная строка ≥ 32 символов (**своя**, не та же что `SECRET_KEY`) |
-| `NEXTAUTH_URL` | `http://localhost:3000` (или адрес стенда) |
-| `POSTGRES_PASSWORD` | пароль БД стенда |
-| `NEXT_PUBLIC_API_URL` | `http://localhost:8000` (или адрес стенда) |
-| `CORS_ORIGINS` | `["http://localhost:3000"]` — вписать реальный адрес стенда |
+| `POSTGRES_PASSWORD` | пароль БД стенда (не оставлять `legalhub_dev`) |
 
 Генерация секретов:
 
 ```powershell
 [Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Max 256 }))
+```
+
+### Адреса: localhost или имя стенда?
+
+Развилка одна — **откуда открывают портал в браузере**.
+
+Три переменные ниже резолвит **браузер пользователя**, а не контейнер. Если стенд
+открывают только на нём самом — `localhost` подходит и менять ничего не надо. Если
+заходят с других машин — `localhost` у них указывает на их собственный компьютер,
+портал не найдёт API и вход не сработает.
+
+Подставьте вместо `<стенд>` DNS-имя или IP сервера (то же, что вбиваете в адресной строке):
+
+```env
+NEXT_PUBLIC_API_URL=http://<стенд>:8000
+NEXTAUTH_URL=http://<стенд>:3000
+CORS_ORIGINS=["http://<стенд>:3000"]
+```
+
+`CORS_ORIGINS` — список точных origin'ов. Звёздочку `["*"]` ставить нельзя: бэкенд
+поднят с `allow_credentials=True`, и браузер такую комбинацию отклоняет. Нужно несколько
+адресов — перечислить: `["http://<стенд>:3000","http://localhost:3000"]`.
+
+**Не трогать** — эти адреса внутренние, резолвятся внутри сети Docker и от имени стенда
+не зависят: `BACKEND_INTERNAL_URL=http://backend:8000`, `REDIS_URL=redis://redis:6379`,
+`JODCONVERTER_URL=http://jodconverter:8080`, `MEDIA_ROOT=/media`.
+
+После правки `.env` пересоздать контейнеры (перезапуска мало — переменные читаются при
+создании):
+
+```powershell
+docker compose -f docker-compose.yml -f docker-compose.corp.yml up -d --force-recreate
 ```
 
 `frontend/.env.local` нужен **только** если фронт запускается вне Docker

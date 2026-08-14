@@ -96,7 +96,10 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000
+      # Адрес API глазами БРАУЗЕРА. На стенде, открываемом с других машин,
+      # localhost не годится — задаётся через .env, здесь только дефолт.
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+      # Адрес API изнутри сети Docker (server-side запросы NextAuth) — всегда так.
       BACKEND_INTERNAL_URL: http://backend:8000
       # Числовое значение = интервал опроса в мс (watchpack), вместо "true" с частым опросом.
       WATCHPACK_POLLING: "2000"
