@@ -133,9 +133,25 @@ README, и истории не связаны. Лечится перезапис
 git push -u origin main --force
 ```
 
-Если force запрещён защитой ветки (`pre-receive hook declined` / `protected branch`) —
-либо временно включить `Settings → Repository → Protected branches → main →
-Allowed to force push`, либо влить чужую историю:
+### Если force отбился: `pre-receive hook declined`
+
+```
+remote: GitLab: You are not allowed to force push code to a protected branch on this project.
+! [remote rejected] main -> main (pre-receive hook declined)
+```
+
+Ветка `main` защищена — GitLab защищает ветку по умолчанию при создании проекта.
+Снять защиту: `Settings → Repository → Protected branches` → строка `main` → **Unprotect**.
+После этого `git push -u origin main --force` проходит.
+
+**Защиту не возвращать.** Проект однопользовательский, push идёт в `main` напрямую —
+защищённая ветка будет отбивать каждый такой push. Возвращать её имеет смысл, только
+когда работа пойдёт через merge request'ы.
+
+Если снимать защиту целиком не хочется — в той же строке `main` включить
+**Allowed to force push**, запушить, выключить обратно.
+
+Обходной путь без доступа к настройкам — влить серверную историю и запушить без `--force`:
 
 ```powershell
 git pull origin main --allow-unrelated-histories
@@ -144,6 +160,10 @@ git add README.md
 git commit -m "chore: слияние с инициализацией GitLab"
 git push -u origin main
 ```
+
+Конфликт будет только в `README.md`. Минус: в истории останутся коммит GitLab и merge-коммит.
+Не сработает, если защита настроена жёстко («Allowed to push: No one», обновление ветки
+только через merge request) — тогда без снятия защиты не обойтись.
 
 ---
 
